@@ -19,7 +19,6 @@ class CreateTasksTable extends Migration
             $table->integer('category_id',false)->unsigned();
             $table->unsignedBigInteger('shop_id');
             $table->unsignedBigInteger('position_id');
-            $table->timestamps();
 
             $table->foreign('shop_id')->references('id')->on('shops');
         });
