@@ -4,10 +4,9 @@
         <router-link to="/user-manage"> <h3>ユーザー管理</h3></router-link>
 
         <router-link to="/shop-manage"><h3>店舗管理</h3></router-link>
-        <h3>タスク管理</h3>
-        <ul class="operation-listbox">
-            <li><a>タスク登録/編集</a></li>
-        </ul>
+
+        <router-link to="/task-manage"><h3>タスク管理</h3></router-link>
+
         <h3>ポイント管理</h3>
         <ul class="operation-listbox">
             <li><a>ポイント登録/編集</a></li>

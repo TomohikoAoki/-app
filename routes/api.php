@@ -47,5 +47,17 @@ Route::post('/shop/register', 'ShopController@register')->name('shop-register');
 //店舗インデックス
 Route::get('/shop/index', 'ShopController@index')->name('shop.index');
 
+//タスク作成
+Route::post('/task', 'TaskController@createTask');
+
+//タスク修正
+Route::put('/task', 'TaskController@editTask');
+
+//タスク削除
+Route::delete('/task', 'TaskController@deleteTask');
+
+//タスク一覧取得
+Route::get('task', 'TaskController@indexTask');
+
 
 

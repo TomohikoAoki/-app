@@ -12,6 +12,8 @@ import CreateUser from "../pages/CreateUser.vue";
 import UserManage from "../pages/UserManager.vue";
 import EditUser from "../pages/EditUser.vue";
 import NotFound from '../pages/errors/NotFound.vue';
+import TaskManage from '../pages/TaskManager.vue';
+import CreateTask from '../pages/CreateTask.vue';
 
 Vue.use(VueRouter);
 
@@ -49,6 +51,14 @@ const routes = [{
     {
         path: "/user-manage/edit/:id",
         component: EditUser,
+    },
+    {
+        path: '/task-manage',
+        component: TaskManage,
+    },
+    {
+        path: '/task-manage/create',
+        component: CreateTask,
     },
     {
         path: "/500",
