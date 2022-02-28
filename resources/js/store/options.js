@@ -38,6 +38,7 @@ const getters = {
     Positions: (state) => state.positions,
     Lunks: (state) => state.lunks,
     optionAuth: (state) => state.authority,
+    taskCategory: (state) => state.taskCate,
 };
 
 const mutations = {

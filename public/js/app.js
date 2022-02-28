@@ -3266,7 +3266,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -3303,18 +3311,63 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       shopId: null,
-      positionId: null
+      positionId: null,
+      taskData: null
     };
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
     shops: "options/Shops",
-    positions: "options/Positions"
-  }))
+    positions: "options/Positions",
+    category: "options/taskCategory"
+  })),
+  methods: {
+    getTask: function getTask() {
+      var _this = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return axios.get("/api/task?shop=".concat(_this.shopId, "&position=").concat(_this.positionId));
+
+              case 2:
+                response = _context.sent;
+                _this.taskData = {};
+                response.data.forEach(function (data) {
+                  var categoryId = data.category_id;
+
+                  if (categoryId in _this.taskData) {
+                    _this.taskData[categoryId].push(data);
+
+                    return false;
+                  }
+
+                  _this.taskData[categoryId] = [data];
+                });
+                console.log(_this.taskData);
+
+              case 6:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }))();
+    }
+  }
 });
 
 /***/ }),
@@ -46812,92 +46865,102 @@ var render = function () {
   return _c("div", [
     _c("h2", [_vm._v("TASK MANAGEMENT")]),
     _vm._v(" "),
-    _c("div", { staticClass: "form-group row" }, [
-      _c("label", { staticClass: "label" }, [_vm._v("店舗をお選び下さい")]),
-      _vm._v(" "),
-      _c(
-        "select",
-        {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.shopId,
-              expression: "shopId",
-            },
-          ],
-          staticClass: "form-control",
-          on: {
-            change: function ($event) {
-              var $$selectedVal = Array.prototype.filter
-                .call($event.target.options, function (o) {
-                  return o.selected
-                })
-                .map(function (o) {
-                  var val = "_value" in o ? o._value : o.value
-                  return val
-                })
-              _vm.shopId = $event.target.multiple
-                ? $$selectedVal
-                : $$selectedVal[0]
+    _c("div", [
+      _c("div", { staticClass: "form-group row" }, [
+        _c("label", { staticClass: "label" }, [_vm._v("店舗をお選び下さい")]),
+        _vm._v(" "),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.shopId,
+                expression: "shopId",
+              },
+            ],
+            staticClass: "form-control",
+            on: {
+              change: function ($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function (o) {
+                    return o.selected
+                  })
+                  .map(function (o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.shopId = $event.target.multiple
+                  ? $$selectedVal
+                  : $$selectedVal[0]
+              },
             },
           },
-        },
-        _vm._l(_vm.shops, function (value, key) {
-          return _c("option", { key: key, domProps: { value: key } }, [
-            _vm._v("\n                " + _vm._s(value) + "\n            "),
-          ])
-        }),
-        0
-      ),
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "form-group row" }, [
-      _c("label", { staticClass: "label" }, [
-        _vm._v("ポジションをお選び下さい。"),
+          _vm._l(_vm.shops, function (value, key) {
+            return _c("option", { key: key, domProps: { value: key } }, [
+              _vm._v(
+                "\n                    " + _vm._s(value) + "\n                "
+              ),
+            ])
+          }),
+          0
+        ),
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "form-group row" }, [
+        _c("label", { staticClass: "label" }, [
+          _vm._v("ポジションをお選び下さい。"),
+        ]),
+        _vm._v(" "),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.positionId,
+                expression: "positionId",
+              },
+            ],
+            staticClass: "form-control",
+            on: {
+              change: function ($event) {
+                var $$selectedVal = Array.prototype.filter
+                  .call($event.target.options, function (o) {
+                    return o.selected
+                  })
+                  .map(function (o) {
+                    var val = "_value" in o ? o._value : o.value
+                    return val
+                  })
+                _vm.positionId = $event.target.multiple
+                  ? $$selectedVal
+                  : $$selectedVal[0]
+              },
+            },
+          },
+          _vm._l(_vm.positions, function (value, key) {
+            return _c("option", { key: key, domProps: { value: key } }, [
+              _vm._v(
+                "\n                    " + _vm._s(value) + "\n                "
+              ),
+            ])
+          }),
+          0
+        ),
       ]),
       _vm._v(" "),
       _c(
-        "select",
+        "button",
         {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.positionId,
-              expression: "positionId",
-            },
-          ],
-          staticClass: "form-control",
-          on: {
-            change: function ($event) {
-              var $$selectedVal = Array.prototype.filter
-                .call($event.target.options, function (o) {
-                  return o.selected
-                })
-                .map(function (o) {
-                  var val = "_value" in o ? o._value : o.value
-                  return val
-                })
-              _vm.positionId = $event.target.multiple
-                ? $$selectedVal
-                : $$selectedVal[0]
-            },
-          },
+          staticClass: "btn btn-dark",
+          attrs: { type: "submit" },
+          on: { click: _vm.getTask },
         },
-        _vm._l(_vm.positions, function (value, key) {
-          return _c("option", { key: key, domProps: { value: key } }, [
-            _vm._v("\n                " + _vm._s(value) + "\n            "),
-          ])
-        }),
-        0
+        [_vm._v("\n            GET TASK\n        ")]
       ),
-    ]),
-    _vm._v(" "),
-    _c("div", [
-      _c("p", [_vm._v(_vm._s(_vm.shopId))]),
-      _vm._v(" "),
-      _c("p", [_vm._v(_vm._s(_vm.positionId))]),
     ]),
   ])
 }
@@ -65855,6 +65918,9 @@ var getters = {
   },
   optionAuth: function optionAuth(state) {
     return state.authority;
+  },
+  taskCategory: function taskCategory(state) {
+    return state.taskCate;
   }
 };
 var mutations = {

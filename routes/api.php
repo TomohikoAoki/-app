@@ -57,7 +57,7 @@ Route::put('/task', 'TaskController@editTask');
 Route::delete('/task', 'TaskController@deleteTask');
 
 //タスク一覧取得
-Route::get('task', 'TaskController@indexTask');
+Route::get('/task', 'TaskController@indexTask');
 
 
 

@@ -28,6 +28,11 @@ class TaskController extends Controller
     public function deleteTask()
     {}
 
-    public function indexTask()
-    {}
+    public function indexTask(Request $request)
+    {
+        $shopId = $request->input('shop');
+        $positionId = $request->input('position');
+
+        return Task::where('shop_id', $shopId)->where('position_id', $positionId)->get();
+    }
 }
