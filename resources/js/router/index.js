@@ -11,9 +11,9 @@ import HomeUser from "../pages/HomeUser.vue";
 import CreateUser from "../pages/CreateUser.vue";
 import UserManage from "../pages/UserManager.vue";
 import EditUser from "../pages/EditUser.vue";
-import NotFound from '../pages/errors/NotFound.vue';
-import TaskManage from '../pages/TaskManager.vue';
-import CreateTask from '../pages/CreateTask.vue';
+import NotFound from "../pages/errors/NotFound.vue";
+import TaskManage from "../pages/TaskManager.vue";
+import CreateTask from "../pages/CreateTask.vue";
 
 Vue.use(VueRouter);
 
@@ -53,11 +53,15 @@ const routes = [{
         component: EditUser,
     },
     {
-        path: '/task-manage',
+        path: "/task-manage",
         component: TaskManage,
+        //props: route => {
+        //  const page = route.query.page;
+        //  return { page: /^[1-9][0-9]*$/.test(page) ? page * 1 : 1 };
+        //  },
     },
     {
-        path: '/task-manage/create',
+        path: "/task-manage/create",
         component: CreateTask,
     },
     {
@@ -74,7 +78,5 @@ const router = new VueRouter({
     mode: "history",
     routes,
 });
-
-
 
 export default router;

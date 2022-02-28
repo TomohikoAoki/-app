@@ -23,16 +23,18 @@ class TaskController extends Controller
     }
 
     public function editTask()
-    {}
+    {
+    }
 
     public function deleteTask()
-    {}
+    {
+    }
 
     public function indexTask(Request $request)
     {
         $shopId = $request->input('shop');
         $positionId = $request->input('position');
 
-        return Task::where('shop_id', $shopId)->where('position_id', $positionId)->get();
+        return Task::where('shop_id', $shopId)->where('position_id', $positionId)->orderBy('category_id', 'asc')->paginate();
     }
 }

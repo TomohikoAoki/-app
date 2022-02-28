@@ -415,8 +415,6 @@ export default {
                 this.data
             );
 
-            console.log(response);
-
             if (response.status === OK) {
                 //編集したのがログインユーザーならcurrentUserを更新
                 if (this.currentUserId == response.data.id) {
