@@ -3338,6 +3338,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -3345,8 +3346,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       shopId: null,
       positionId: null,
       taskData: null,
-      currentPage: 0,
-      lastPage: 0
+      currentTask: 1
     };
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
@@ -3354,11 +3354,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     positions: "options/Positions",
     category: "options/taskCategory"
   })), {}, {
-    isFirstPage: function isFirstPage() {
-      return this.currentPage === 1;
-    },
-    isLastPage: function isLastPage() {
-      return this.currentPage === this.lastPage;
+    filterTask: function filterTask() {
+      return this.taskData[this.currentTask];
     }
   }),
   methods: {
@@ -3372,13 +3369,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.get("/api/task?page=".concat(_this.currentPage, "&shop=").concat(_this.shopId, "&position=").concat(_this.positionId));
+                return axios.get("/api/task?shop=".concat(_this.shopId, "&position=").concat(_this.positionId));
 
               case 2:
                 response = _context.sent;
                 _this.taskData = {};
-                console.log(response.data);
-                response.data.data.forEach(function (data) {
+                response.data.forEach(function (data) {
                   var categoryId = data.category_id;
 
                   if (categoryId in _this.taskData) {
@@ -3389,16 +3385,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                   _this.taskData[categoryId] = [data];
                 });
-                _this.currentPage = response.data.current_page;
-                _this.lastPage = response.data.last_page;
 
-              case 8:
+              case 5:
               case "end":
                 return _context.stop();
             }
           }
         }, _callee);
       }))();
+    },
+    changeTask: function changeTask(key) {
+      this.currentTask = key;
     }
   }
 });
@@ -46950,7 +46947,7 @@ var render = function () {
     _c("div", [
       _c("div", { staticClass: "select-box-area" }, [
         _c("div", { staticClass: "form-group row" }, [
-          _c("label", { staticClass: "label" }, [_vm._v("店舗をお選び下さい")]),
+          _c("label", { staticClass: "label" }, [_vm._v("店舗選択")]),
           _vm._v(" "),
           _c(
             "select",
@@ -46994,9 +46991,7 @@ var render = function () {
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "form-group row" }, [
-          _c("label", { staticClass: "label" }, [
-            _vm._v("ポジションをお選び下さい。"),
-          ]),
+          _c("label", { staticClass: "label" }, [_vm._v("ポジション選択")]),
           _vm._v(" "),
           _c(
             "select",
@@ -47051,54 +47046,58 @@ var render = function () {
       ]),
       _vm._v(" "),
       _vm.taskData
-        ? _c(
-            "div",
-            [
+        ? _c("div", [
+            _c(
+              "ul",
               _vm._l(_vm.taskData, function (value, key) {
                 return _c(
-                  "div",
-                  { key: key, staticClass: "task-group" },
+                  "li",
+                  {
+                    key: key,
+                    on: {
+                      click: function ($event) {
+                        return _vm.changeTask(key)
+                      },
+                    },
+                  },
                   [
-                    _c("h3", [
-                      _vm._v(_vm._s(_vm.category[value[0].category_id])),
-                    ]),
-                    _vm._v(" "),
-                    _vm._l(value, function (task, index) {
-                      return _c("div", { key: task.id, staticClass: "task" }, [
-                        _c("p", { staticClass: "task__index" }, [
-                          _vm._v(_vm._s(index + 1)),
-                        ]),
-                        _vm._v(" "),
-                        _c("p", { staticClass: "task__body" }, [
-                          _vm._v(_vm._s(task.content)),
-                        ]),
-                      ])
-                    }),
-                  ],
-                  2
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(_vm.category[key]) +
+                        "\n                "
+                    ),
+                  ]
                 )
               }),
-              _vm._v(" "),
-              _vm._m(0),
-            ],
-            2
-          )
+              0
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "task-group" },
+              [
+                _c("h3", [_vm._v(_vm._s(_vm.category[_vm.currentTask]))]),
+                _vm._v(" "),
+                _vm._l(_vm.filterTask, function (task, index) {
+                  return _c("div", { key: task.id, staticClass: "task" }, [
+                    _c("p", { staticClass: "task__index" }, [
+                      _vm._v(_vm._s(index + 1)),
+                    ]),
+                    _vm._v(" "),
+                    _c("p", { staticClass: "task__body" }, [
+                      _vm._v(_vm._s(task.content)),
+                    ]),
+                  ])
+                }),
+              ],
+              2
+            ),
+          ])
         : _vm._e(),
     ]),
   ])
 }
-var staticRenderFns = [
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "pagination" }, [
-      _c("button", [_vm._v("« prev")]),
-      _vm._v(" "),
-      _c("button", [_vm._v("next »")]),
-    ])
-  },
-]
+var staticRenderFns = []
 render._withStripped = true
 
 

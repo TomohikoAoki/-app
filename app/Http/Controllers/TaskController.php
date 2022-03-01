@@ -35,6 +35,6 @@ class TaskController extends Controller
         $shopId = $request->input('shop');
         $positionId = $request->input('position');
 
-        return Task::where('shop_id', $shopId)->where('position_id', $positionId)->orderBy('category_id', 'asc')->paginate();
+        return Task::where('shop_id', $shopId)->where('position_id', $positionId)->orderBy('category_id', 'asc')->get();
     }
 }
