@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock"
+
 export default {
     props: ["task"],
     data() {
@@ -42,6 +44,14 @@ export default {
             }
         },
     },
+    mounted() {
+        const modal = document.querySelector(".modaler");
+        disableBodyScroll(modal);
+    },
+    beforeDestroy() {
+        clearAllBodyScrollLocks();
+    },
+
 };
 </script>
 
@@ -51,7 +61,7 @@ export default {
     height: 100vh;
     background-color: rgba(24, 24, 24, 0.7);
     z-index: 1000;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     &-content {

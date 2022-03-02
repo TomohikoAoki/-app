@@ -14,12 +14,14 @@ class TaskController extends Controller
 
     public function createTask(Request $request)
     {
-        Task::create([
+        $task = Task::create([
             'content' => $request['content'],
             'category_id' => $request['category_id'],
             'shop_id' => $request['shop_id'],
             'position_id' => $request['position_id'],
         ]);
+
+        return response($task, 201);
     }
 
     public function editTask(Request $request)

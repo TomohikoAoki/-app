@@ -27,9 +27,11 @@
                         </option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-dark" @click="getTask">
+                <div class="get-task-button">
+                <button type="submit" class="btn btn-secondary" @click="getTask">
                     GET TASK
                 </button>
+                </div>
             </div>
             <div v-if="taskData">
                 <ul class="category-area">
@@ -54,6 +56,31 @@
                         <p class="task__index">{{ index + 1 }}</p>
                         <p class="task__body">{{ task.content }}</p>
                     </div>
+                    <div class="task-bottom">
+                        <div v-if="!showForm">
+                            <span
+                                class="material-icons add-icon"
+                                @click.prevent="showForm = !showForm"
+                            >
+                                add_circle_outline
+                            </span>
+                        </div>
+                        <div v-else>
+                            <form>
+                                <textarea
+                                    v-model="taskForm.content"
+                                    class="form-control add-textarea"
+                                ></textarea>
+                                <button
+                                    class="btn btn-secondary btn-taskadd"
+                                    @click="addTask"
+                                    type="button"
+                                >
+                                    ADD TASK
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -74,10 +101,14 @@ export default {
     data() {
         return {
             shopId: null,
-            positionId: null,
+            positionId: 1,
             taskData: null,
             currentTask: 1,
             showModal: false,
+            showForm: false,
+            taskForm: {
+                content: "",
+            },
         };
     },
     components: {
@@ -99,8 +130,6 @@ export default {
                 `/api/task?shop=${this.shopId}&position=${this.positionId}`
             );
 
-            console.log(response.data)
-
             this.taskData = {};
 
             response.data.forEach((data) => {
@@ -114,7 +143,24 @@ export default {
                 this.taskData[categoryId] = [data];
             });
         },
+        async addTask() {
+            this.taskForm["shop_id"] = this.shopId;
+            this.taskForm["position_id"] = this.positionId;
+            this.taskForm["category_id"] = this.currentTask;
+
+            const response = await axios.post("/api/task", this.taskForm);
+
+            if (response.status === 201) {
+                this.showForm = false;
+                this.taskForm = { content: "" };
+
+                this.taskData[response.data.category_id].push(response.data)
+
+            }
+        },
         changeTask(key) {
+            this.showForm = false;
+            this.taskForm = { content: "" };
             this.currentTask = key;
         },
         openEdit(event, task) {
@@ -132,6 +178,9 @@ export default {
 .select-box-area {
     max-width: 400px;
     margin: 10px auto;
+    .get-task-button {
+        text-align: center;
+    }
 }
 
 .category-area {
@@ -154,9 +203,10 @@ export default {
     margin: 1em 0;
     h3 {
         padding: 0.7em 0 0.7em 1em;
-        background-color: rgb(236, 236, 236);
+        background-color: #7b7e88;
         color: #313644;
         margin: 0;
+        line-height: 1em;
     }
 }
 .task {
@@ -177,7 +227,23 @@ export default {
         margin: 0;
         padding: 1em 0.5em;
         box-sizing: border-box;
-        flex:1
+        flex: 1;
+    }
+}
+.task-bottom {
+    text-align: center;
+    padding: 0.7em 0;
+    line-height: 1em;
+    .add-icon {
+        cursor: pointer;
+        font-size: 2.5em;
+    }
+    .add-textarea {
+        width: 90%;
+        margin: 1em auto 0 auto;
+    }
+    .btn-taskadd {
+        margin: 1em 0;
     }
 }
 </style>
