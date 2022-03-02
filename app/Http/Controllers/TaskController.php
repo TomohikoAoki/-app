@@ -22,8 +22,11 @@ class TaskController extends Controller
         ]);
     }
 
-    public function editTask()
+    public function editTask(Request $request)
     {
+        Task::where('id', $request['id'])->update([
+            'content' => $request['content'],
+        ]);
     }
 
     public function deleteTask()
@@ -35,6 +38,6 @@ class TaskController extends Controller
         $shopId = $request->input('shop');
         $positionId = $request->input('position');
 
-        return Task::where('shop_id', $shopId)->where('position_id', $positionId)->orderBy('category_id', 'asc')->get();
+        return Task::where('shop_id', $shopId)->where('position_id', $positionId)->orderByRaw('category_id asc', 'id asc')->get();
     }
 }

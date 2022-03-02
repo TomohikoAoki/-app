@@ -60,6 +60,7 @@
         <ModalEdit
             v-if="showModal"
             @emitClose="closeEdit"
+            @update="getTask"
             :task="propsTask"
         ></ModalEdit>
     </div>
@@ -97,6 +98,8 @@ export default {
             const response = await axios.get(
                 `/api/task?shop=${this.shopId}&position=${this.positionId}`
             );
+
+            console.log(response.data)
 
             this.taskData = {};
 
@@ -161,16 +164,20 @@ export default {
     border-bottom: 1px dotted #929292cb;
     margin: 0;
     cursor: pointer;
+    box-sizing: border-box;
     &__index {
         width: 3em;
         text-align: center;
         margin: 0;
         border-right: 1px solid;
         padding: 1em 0;
+        box-sizing: border-box;
     }
     &__body {
         margin: 0;
         padding: 1em 0.5em;
+        box-sizing: border-box;
+        flex:1
     }
 }
 </style>

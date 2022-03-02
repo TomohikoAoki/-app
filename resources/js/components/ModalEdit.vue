@@ -2,9 +2,17 @@
     <div class="modaler" @click.self="closeModal">
         <div class="modaler-content">
             <h3>タスク修正</h3>
-            <p>taskID:{{ task.id }}</p>
-            <textarea class="text-area form-control" :value="task.content"></textarea>
-            <button class="btn btn-dark">修正送信</button>
+            <div v-if="!updateFlag">
+                <p>taskID:{{ task.id }}</p>
+                <textarea
+                    class="text-area form-control"
+                    v-model="taskData.content"
+                ></textarea>
+                <button class="btn btn-dark" @click="editTask">修正送信</button>
+            </div>
+            <div v-else>
+                <p>更新を完了しました</p>
+            </div>
         </div>
     </div>
 </template>
@@ -12,9 +20,26 @@
 <script>
 export default {
     props: ["task"],
+    data() {
+        return {
+            taskData: {
+                id: this.task.id,
+                content: this.task.content,
+            },
+            updateFlag: false,
+        };
+    },
     methods: {
         closeModal() {
             this.$emit("emitClose");
+        },
+        async editTask() {
+            const response = await axios.put("/api/task", this.taskData);
+
+            if (response.status === 200) {
+                this.updateFlag = true;
+                this.$emit('update')
+            }
         },
     },
 };
