@@ -4,11 +4,28 @@
             <h3>タスク修正</h3>
             <div v-if="!updateFlag">
                 <p>taskID:{{ task.id }}</p>
-                <textarea
-                    class="text-area form-control"
-                    v-model="taskData.content"
-                ></textarea>
-                <button class="btn btn-dark" @click="editTask">修正送信</button>
+                <ValidationObserver ref="obs" v-slot="ObserverProps">
+                    <ValidationProvider rules="required|max:100" name="タスク内容">
+                        <div slot-scope="ProviderProps">
+                            <textarea
+                                class="text-area form-control"
+                                v-model="taskData.content"
+                            ></textarea>
+                            <p class="text-danger small">
+                                {{ ProviderProps.errors[0] }}
+                            </p>
+                        </div>
+                    </ValidationProvider>
+                    <button
+                        class="btn btn-dark"
+                        @click="editTask"
+                        :disabled="
+                            ObserverProps.invalid || !ObserverProps.validated
+                        "
+                    >
+                        修正送信
+                    </button>
+                </ValidationObserver>
             </div>
             <div v-else>
                 <p>更新を完了しました</p>
@@ -18,7 +35,12 @@
 </template>
 
 <script>
-import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock"
+import {
+    disableBodyScroll,
+    enableBodyScroll,
+    clearAllBodyScrollLocks,
+} from "body-scroll-lock";
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
     props: ["task"],
@@ -31,6 +53,10 @@ export default {
             updateFlag: false,
         };
     },
+    components: {
+        ValidationObserver,
+        ValidationProvider,
+    },
     methods: {
         closeModal() {
             this.$emit("emitClose");
@@ -40,7 +66,7 @@ export default {
 
             if (response.status === 200) {
                 this.updateFlag = true;
-                this.$emit('update')
+                this.$emit("update");
             }
         },
     },
@@ -51,7 +77,6 @@ export default {
     beforeDestroy() {
         clearAllBodyScrollLocks();
     },
-
 };
 </script>
 

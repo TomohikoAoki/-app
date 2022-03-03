@@ -69,7 +69,7 @@ export default {
                         this.$router.push("home/master");
                         break;
                     case 2:
-                        this.$router.push("home/leader");
+                        this.$router.push("home/master");
                         break;
                     case 3:
                         this.$router.push("home/user");

@@ -3,7 +3,7 @@
         <h2>TASK MANAGEMENT</h2>
         <div>
             <div class="select-box-area">
-                <div class="form-group row">
+                <div class="form-group row" v-if="currentAuth == 1">
                     <label class="label">店舗選択</label>
                     <select v-model="shopId" class="form-control">
                         <option
@@ -27,26 +27,22 @@
                         </option>
                     </select>
                 </div>
-                <div class="get-task-button">
-                <button type="submit" class="btn btn-secondary" @click="getTask">
-                    GET TASK
-                </button>
-                </div>
             </div>
-            <div v-if="taskData">
+            <div v-if="taskData" class="task-data-area">
+                <h3 class="task-data-area__title">TASK</h3>
                 <ul class="category-area">
                     <li
-                        v-for="(value, key) in taskData"
+                        v-for="(value, key) in category"
                         :key="key"
                         @click="changeTask(key)"
                         class="select-category"
                         :class="{ active: currentTask == key }"
                     >
-                        {{ category[key] }}
+                        {{ value }}
                     </li>
                 </ul>
                 <div class="task-group">
-                    <h3>{{ category[currentTask] }}</h3>
+                    <h4 class="task-group__title">{{ category[currentTask] }}</h4>
                     <div
                         v-for="(task, index) in filterTask"
                         :key="task.id"
@@ -66,19 +62,34 @@
                             </span>
                         </div>
                         <div v-else>
-                            <form>
-                                <textarea
-                                    v-model="taskForm.content"
-                                    class="form-control add-textarea"
-                                ></textarea>
-                                <button
-                                    class="btn btn-secondary btn-taskadd"
-                                    @click="addTask"
-                                    type="button"
-                                >
-                                    ADD TASK
-                                </button>
-                            </form>
+                            <ValidationObserver
+                                v-slot="ObserverProps"
+                                ref="obs"
+                            >
+                                <form @submit.prevent="addTask">
+                                    <ValidationProvider rules="required|max:100" name="タスク内容">
+                                        <div slot-scope="ProviderProps">
+                                            <textarea
+                                                v-model="taskForm.content"
+                                                class="form-control add-textarea"
+                                            ></textarea>
+                                            <p class="text-danger small">
+                                                {{ ProviderProps.errors[0] }}
+                                            </p>
+                                        </div>
+                                    </ValidationProvider>
+                                    <button
+                                        class="btn btn-secondary btn-taskadd"
+                                        type="submit"
+                                        :disabled="
+                                            ObserverProps.invalid ||
+                                            !ObserverProps.validated
+                                        "
+                                    >
+                                        ADD TASK
+                                    </button>
+                                </form>
+                            </ValidationObserver>
                         </div>
                     </div>
                 </div>
@@ -97,6 +108,8 @@
 import { mapState, mapGetters } from "vuex";
 import ModalEdit from "../components/ModalEdit.vue";
 
+import { ValidationObserver, ValidationProvider } from "vee-validate";
+
 export default {
     data() {
         return {
@@ -113,12 +126,22 @@ export default {
     },
     components: {
         ModalEdit,
+        ValidationObserver,
+        ValidationProvider,
     },
     computed: {
         ...mapGetters({
             shops: "options/Shops",
             positions: "options/Positions",
             category: "options/taskCategory",
+        }),
+        ...mapState('auth', {
+            currentAuth: function (state) {
+                if ( state.user.authority === 2 ) {
+                    this.shopId = state.user.profile.shop_id
+                }
+                return state.user.authority
+            }
         }),
         filterTask() {
             return this.taskData[this.currentTask];
@@ -143,6 +166,7 @@ export default {
                 this.taskData[categoryId] = [data];
             });
         },
+        //新規タスク登録
         async addTask() {
             this.taskForm["shop_id"] = this.shopId;
             this.taskForm["position_id"] = this.positionId;
@@ -154,8 +178,13 @@ export default {
                 this.showForm = false;
                 this.taskForm = { content: "" };
 
-                this.taskData[response.data.category_id].push(response.data)
+                let categoryId = response.data.category_id;
 
+                if (this.taskData[categoryId]) {
+                    this.taskData[categoryId].push(response.data);
+                } else {
+                    this.$set(this.taskData, categoryId, [response.data]);
+                }
             }
         },
         changeTask(key) {
@@ -163,12 +192,30 @@ export default {
             this.taskForm = { content: "" };
             this.currentTask = key;
         },
+        //modal オープン
         openEdit(event, task) {
             this.showModal = true;
             this.propsTask = task;
         },
+        //modal クローズ
         closeEdit() {
             this.showModal = false;
+        },
+    },
+    watch: {
+        shopId() {
+            if (this.positionId) {
+                this.showForm = false;
+                this.taskForm = { content: "" };
+                this.getTask();
+            }
+        },
+        positionId() {
+            if (this.shopId) {
+                this.showForm = false;
+                this.taskForm = { content: "" };
+                this.getTask();
+            }
         },
     },
 };
@@ -178,11 +225,18 @@ export default {
 .select-box-area {
     max-width: 400px;
     margin: 10px auto;
-    .get-task-button {
+}
+.task-data-area {
+    margin-top: 4em;
+    padding: 5em 0;
+    width: 100%;
+    border-top: 1px dotted;
+    &__title {
         text-align: center;
+        font-size: 2em;
+        padding: 0 0 2em 0;
     }
 }
-
 .category-area {
     list-style: none;
     .select-category {
@@ -201,7 +255,7 @@ export default {
 .task-group {
     border: 1px solid;
     margin: 1em 0;
-    h3 {
+    &__title {
         padding: 0.7em 0 0.7em 1em;
         background-color: #7b7e88;
         color: #313644;
@@ -215,6 +269,9 @@ export default {
     margin: 0;
     cursor: pointer;
     box-sizing: border-box;
+    &:hover {
+        background-color: #38466d;
+    }
     &__index {
         width: 3em;
         text-align: center;
