@@ -2512,9 +2512,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
  //プライベート
 
-function $_getKeyForValid(str, obj) {
-  Object.keys(obj).forEach(function (key) {
-    str = str + key + ",";
+function $_getKeyForValid(str, arr) {
+  arr.forEach(function (item) {
+    str = str + item.value + ",";
   });
   return str;
 }
@@ -2988,11 +2988,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
  //プライベート
 
-function $_getKeyForValid(str, obj) {
-  Object.keys(obj).forEach(function (key) {
-    str = str + key + ",";
+function $_getKeyForValid(str, arr) {
+  arr.forEach(function (item) {
+    str = str + item.value + ",";
   });
   return str;
+}
+
+function $_getCurrentLabel(arr, data, target) {
+  arr.find(function (item) {
+    if (item.value == data) {
+      target = item.label;
+    }
+  });
 }
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3143,12 +3151,16 @@ function $_getKeyForValid(str, obj) {
     }
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
-    Lunks: "options/Lunks",
-    Positions: "options/Positions",
     currentUserId: "auth/getCurrentUserId",
     currentUserAuth: "auth/getAuthority",
+    Lunks: "options/Lunks",
+    Positions: "options/Positions",
     shops: "options/Shops",
-    optionAuth: "options/optionAuth"
+    optionAuth: "options/optionAuth",
+    shopLabels: "options/shopLabels",
+    lunkLabels: "options/lunkLabels",
+    positionLabels: "options/positionLabels",
+    authLabels: "options/authLabels"
   })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])("options", {
     //バリデーションルール用テキストを返す
     lunkOneOf: function lunkOneOf(state) {
@@ -3531,7 +3543,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   computed: _objectSpread(_objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
     shops: "options/Shops",
     positions: "options/Positions",
-    category: "options/taskCategory"
+    category: "options/taskCategory",
+    categoryLabels: "options/categoryLabels"
   })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])('auth', {
     currentAuth: function currentAuth(state) {
       if (state.user.authority === 2) {
@@ -4053,7 +4066,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
     shopId: "auth/getShopId",
     userAuth: "auth/getAuthority",
-    shopName: "options/Shops"
+    shopNames: 'options/shopLabels'
   })),
   watch: {
     $route: {
@@ -8833,25 +8846,6 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 // module
 exports.push([module.i, ".title[data-v-239a40fe] {\n  padding: 1.7em 0;\n  margin: 0;\n}\n.title-username[data-v-239a40fe] {\n  border-bottom: 1px solid;\n  margin: 0 0 1.2em 0;\n  padding: 0 0 0.3em 0.2em;\n}\n.card[data-v-239a40fe] {\n  background: #f0efff;\n  background: linear-gradient(90deg, #f0efff 0%, #f3fcfe 100%);\n  padding-bottom: 50px;\n}\n.input-area[data-v-239a40fe] {\n  display: flex;\n}\n.decision[data-v-239a40fe] {\n  height: 2em;\n  width: 100%;\n  font-size: 1.2em;\n}\n.btn[data-v-239a40fe] {\n  display: block;\n  margin: 40px auto 0 auto;\n}\n.bottom-group[data-v-239a40fe] {\n  text-align: center;\n  margin-top: 3em;\n}\n.radio-wrap[data-v-239a40fe] {\n  display: flex;\n}\n.radio-wrap .form-check[data-v-239a40fe] {\n  margin-right: 1em;\n}\n.button.delete[data-v-239a40fe] {\n  border: 1px solid;\n  padding: 1em;\n  display: inline-block;\n  border-radius: 5px;\n}\n.shop-options[data-v-239a40fe] {\n  font-size: 2em;\n}", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss&":
-/*!***************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss& ***!
-  \***************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
-// imports
-
-
-// module
-exports.push([module.i, "h2 {\n  text-align: center;\n}\nh3 {\n  font-size: 1.3em;\n}\n.operation-listbox a {\n  display: block;\n}", ""]);
 
 // exports
 
@@ -41141,36 +41135,6 @@ if(false) {}
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss&":
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss& ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-var content = __webpack_require__(/*! !../../../node_modules/css-loader!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--7-2!../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../node_modules/vue-loader/lib??vue-loader-options!./HomeLeader.vue?vue&type=style&index=0&lang=scss& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss&");
-
-if(typeof content === 'string') content = [[module.i, content, '']];
-
-var transform;
-var insertInto;
-
-
-
-var options = {"hmr":true}
-
-options.transform = transform
-options.insertInto = undefined;
-
-var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
-
-if(content.locals) module.exports = content.locals;
-
-if(false) {}
-
-/***/ }),
-
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeMaster.vue?vue&type=style&index=0&lang=scss&":
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/HomeMaster.vue?vue&type=style&index=0&lang=scss& ***!
@@ -45854,17 +45818,19 @@ var render = function () {
                                               _vm._v(" "),
                                               _vm._l(
                                                 _vm.shops,
-                                                function (value, key) {
+                                                function (shop) {
                                                   return _c(
                                                     "option",
                                                     {
-                                                      key: key,
-                                                      domProps: { value: key },
+                                                      key: shop.value,
+                                                      domProps: {
+                                                        value: shop.value,
+                                                      },
                                                     },
                                                     [
                                                       _vm._v(
                                                         "\n                                    " +
-                                                          _vm._s(value) +
+                                                          _vm._s(shop.label) +
                                                           "\n                                "
                                                       ),
                                                     ]
@@ -45932,11 +45898,11 @@ var render = function () {
                                       [
                                         _vm._l(
                                           _vm.Positions,
-                                          function (value, key) {
+                                          function (position) {
                                             return _c(
                                               "div",
                                               {
-                                                key: key,
+                                                key: position.value,
                                                 staticClass: "form-check",
                                               },
                                               [
@@ -45956,11 +45922,11 @@ var render = function () {
                                                     "form-check-input",
                                                   attrs: { type: "radio" },
                                                   domProps: {
-                                                    value: key,
+                                                    value: position.value,
                                                     checked: _vm._q(
                                                       _vm.registerForm
                                                         .position_id,
-                                                      key
+                                                      position.value
                                                     ),
                                                   },
                                                   on: {
@@ -45968,7 +45934,7 @@ var render = function () {
                                                       return _vm.$set(
                                                         _vm.registerForm,
                                                         "position_id",
-                                                        key
+                                                        position.value
                                                       )
                                                     },
                                                   },
@@ -45980,7 +45946,11 @@ var render = function () {
                                                     staticClass:
                                                       "form-check-label",
                                                   },
-                                                  [_vm._v(_vm._s(value))]
+                                                  [
+                                                    _vm._v(
+                                                      _vm._s(position.label)
+                                                    ),
+                                                  ]
                                                 ),
                                               ]
                                             )
@@ -46095,25 +46065,22 @@ var render = function () {
                                             ]
                                           ),
                                           _vm._v(" "),
-                                          _vm._l(
-                                            _vm.Lunks,
-                                            function (value, key) {
-                                              return _c(
-                                                "option",
-                                                {
-                                                  key: key,
-                                                  domProps: { value: key },
-                                                },
-                                                [
-                                                  _vm._v(
-                                                    "\n                                    " +
-                                                      _vm._s(value) +
-                                                      "\n                                "
-                                                  ),
-                                                ]
-                                              )
-                                            }
-                                          ),
+                                          _vm._l(_vm.Lunks, function (lunk) {
+                                            return _c(
+                                              "option",
+                                              {
+                                                key: lunk.value,
+                                                domProps: { value: lunk.value },
+                                              },
+                                              [
+                                                _vm._v(
+                                                  "\n                                    " +
+                                                    _vm._s(lunk.label) +
+                                                    "\n                                "
+                                                ),
+                                              ]
+                                            )
+                                          }),
                                         ],
                                         2
                                       ),
@@ -46471,7 +46438,7 @@ var render = function () {
                                   _vm._v(
                                     "\n                            " +
                                       _vm._s(
-                                        _vm.optionAuth[_vm.data.authority]
+                                        _vm.authLabels[_vm.data.authority]
                                       ) +
                                       "\n                        "
                                   ),
@@ -46508,11 +46475,11 @@ var render = function () {
                                               [
                                                 _vm._l(
                                                   _vm.optionAuth,
-                                                  function (value, key) {
+                                                  function (item) {
                                                     return _c(
                                                       "div",
                                                       {
-                                                        key: key,
+                                                        key: item.value,
                                                         staticClass:
                                                           "form-check",
                                                       },
@@ -46534,14 +46501,14 @@ var render = function () {
                                                             "form-check-input",
                                                           attrs: {
                                                             type: "radio",
-                                                            id: key,
+                                                            id: item.value,
                                                           },
                                                           domProps: {
-                                                            value: key,
+                                                            value: item.value,
                                                             checked: _vm._q(
                                                               _vm.data
                                                                 .authority,
-                                                              key
+                                                              item.value
                                                             ),
                                                           },
                                                           on: {
@@ -46551,7 +46518,7 @@ var render = function () {
                                                               return _vm.$set(
                                                                 _vm.data,
                                                                 "authority",
-                                                                key
+                                                                item.value
                                                               )
                                                             },
                                                           },
@@ -46562,11 +46529,13 @@ var render = function () {
                                                           {
                                                             staticClass:
                                                               "form-check-label",
-                                                            attrs: { for: key },
+                                                            attrs: {
+                                                              for: item.value,
+                                                            },
                                                           },
                                                           [
                                                             _vm._v(
-                                                              _vm._s(value)
+                                                              _vm._s(item.label)
                                                             ),
                                                           ]
                                                         ),
@@ -46794,7 +46763,7 @@ var render = function () {
                                 [
                                   _vm._v(
                                     "\n                            " +
-                                      _vm._s(_vm.shops[_vm.data.shop_id]) +
+                                      _vm._s(_vm.shopLabels[_vm.data.shop_id]) +
                                       "\n                        "
                                   ),
                                 ]
@@ -46868,21 +46837,21 @@ var render = function () {
                                                 },
                                                 _vm._l(
                                                   _vm.shops,
-                                                  function (value, key) {
+                                                  function (shop) {
                                                     return _c(
                                                       "option",
                                                       {
-                                                        key: key,
+                                                        key: shop.value,
                                                         staticClass:
                                                           "shop_options",
                                                         domProps: {
-                                                          value: key,
+                                                          value: shop.value,
                                                         },
                                                       },
                                                       [
                                                         _vm._v(
                                                           "\n                                            " +
-                                                            _vm._s(value) +
+                                                            _vm._s(shop.label) +
                                                             "\n                                        "
                                                         ),
                                                       ]
@@ -46969,7 +46938,7 @@ var render = function () {
                             [
                               _vm._v(
                                 "\n                            " +
-                                  _vm._s(_vm.Lunks[_vm.data.lunk]) +
+                                  _vm._s(_vm.lunkLabels[_vm.data.lunk]) +
                                   "\n                        "
                               ),
                             ]
@@ -47039,25 +47008,24 @@ var render = function () {
                                                 },
                                               },
                                             },
-                                            _vm._l(
-                                              _vm.Lunks,
-                                              function (value, key) {
-                                                return _c(
-                                                  "option",
-                                                  {
-                                                    key: key,
-                                                    domProps: { value: key },
+                                            _vm._l(_vm.Lunks, function (lunk) {
+                                              return _c(
+                                                "option",
+                                                {
+                                                  key: lunk.value,
+                                                  domProps: {
+                                                    value: lunk.value,
                                                   },
-                                                  [
-                                                    _vm._v(
-                                                      "\n                                            " +
-                                                        _vm._s(value) +
-                                                        "\n                                        "
-                                                    ),
-                                                  ]
-                                                )
-                                              }
-                                            ),
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    "\n                                            " +
+                                                      _vm._s(lunk.label) +
+                                                      "\n                                        "
+                                                  ),
+                                                ]
+                                              )
+                                            }),
                                             0
                                           ),
                                           _vm._v(" "),
@@ -47136,7 +47104,9 @@ var render = function () {
                             [
                               _vm._v(
                                 "\n                            " +
-                                  _vm._s(_vm.Positions[_vm.data.position_id]) +
+                                  _vm._s(
+                                    _vm.positionLabels[_vm.data.position_id]
+                                  ) +
                                   "\n                        "
                               ),
                             ]
@@ -47172,11 +47142,11 @@ var render = function () {
                                           [
                                             _vm._l(
                                               _vm.Positions,
-                                              function (value, key) {
+                                              function (position) {
                                                 return _c(
                                                   "div",
                                                   {
-                                                    key: key,
+                                                    key: position.value,
                                                     staticClass: "form-check",
                                                   },
                                                   [
@@ -47196,13 +47166,13 @@ var render = function () {
                                                         "form-check-input",
                                                       attrs: {
                                                         type: "radio",
-                                                        id: key,
+                                                        id: position.value,
                                                       },
                                                       domProps: {
-                                                        value: key,
+                                                        value: position.value,
                                                         checked: _vm._q(
                                                           _vm.data.position_id,
-                                                          key
+                                                          position.value
                                                         ),
                                                       },
                                                       on: {
@@ -47212,7 +47182,7 @@ var render = function () {
                                                           return _vm.$set(
                                                             _vm.data,
                                                             "position_id",
-                                                            key
+                                                            position.value
                                                           )
                                                         },
                                                       },
@@ -47223,9 +47193,15 @@ var render = function () {
                                                       {
                                                         staticClass:
                                                           "form-check-label",
-                                                        attrs: { for: key },
+                                                        attrs: {
+                                                          for: position.value,
+                                                        },
                                                       },
-                                                      [_vm._v(_vm._s(value))]
+                                                      [
+                                                        _vm._v(
+                                                          _vm._s(position.label)
+                                                        ),
+                                                      ]
                                                     ),
                                                   ]
                                                 )
@@ -47452,67 +47428,6 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeLeader.vue?vue&type=template&id=17bbf111&":
-/*!********************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/HomeLeader.vue?vue&type=template&id=17bbf111& ***!
-  \********************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function () {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c("h2", [_vm._v("LEADER HOME")]),
-      _vm._v(" "),
-      _c("router-link", { attrs: { to: "/user-manage" } }, [
-        _c("h3", [_vm._v("ユーザー管理")]),
-      ]),
-      _vm._v(" "),
-      _c("router-link", { attrs: { to: "/task-manage" } }, [
-        _c("h3", [_vm._v("タスク管理")]),
-      ]),
-      _vm._v(" "),
-      _vm._m(0),
-      _vm._v(" "),
-      _c("h3", [_vm._v("ポイント管理")]),
-      _vm._v(" "),
-      _vm._m(1),
-    ],
-    1
-  )
-}
-var staticRenderFns = [
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "operation-listbox" }, [
-      _c("li", [_c("a", [_vm._v("タスク登録/編集")])]),
-    ])
-  },
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "operation-listbox" }, [
-      _c("li", [_c("a", [_vm._v("ポイント登録/編集")])]),
-    ])
-  },
-]
-render._withStripped = true
-
-
-
-/***/ }),
-
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeMaster.vue?vue&type=template&id=572c81ea&":
 /*!********************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/HomeMaster.vue?vue&type=template&id=572c81ea& ***!
@@ -47701,7 +47616,9 @@ var render = function () {
         _c("div", { staticClass: "select-box-area" }, [
           _vm.currentAuth == 1
             ? _c("div", { staticClass: "form-group row" }, [
-                _c("label", { staticClass: "label" }, [_vm._v("店舗選択")]),
+                _c("label", { staticClass: "label", attrs: { for: "shop" } }, [
+                  _vm._v("店舗選択"),
+                ]),
                 _vm._v(" "),
                 _c(
                   "select",
@@ -47731,14 +47648,14 @@ var render = function () {
                       },
                     },
                   },
-                  _vm._l(_vm.shops, function (value, key) {
+                  _vm._l(_vm.shops, function (shop) {
                     return _c(
                       "option",
-                      { key: key, domProps: { value: key } },
+                      { key: shop.value, domProps: { value: shop.value } },
                       [
                         _vm._v(
                           "\n                        " +
-                            _vm._s(value) +
+                            _vm._s(shop.label) +
                             "\n                    "
                         ),
                       ]
@@ -47780,14 +47697,18 @@ var render = function () {
                   },
                 },
               },
-              _vm._l(_vm.positions, function (value, key) {
-                return _c("option", { key: key, domProps: { value: key } }, [
-                  _vm._v(
-                    "\n                        " +
-                      _vm._s(value) +
-                      "\n                    "
-                  ),
-                ])
+              _vm._l(_vm.positions, function (position) {
+                return _c(
+                  "option",
+                  { key: position.value, domProps: { value: position.value } },
+                  [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(position.label) +
+                        "\n                    "
+                    ),
+                  ]
+                )
               }),
               0
             ),
@@ -47803,23 +47724,23 @@ var render = function () {
               _c(
                 "ul",
                 { staticClass: "category-area" },
-                _vm._l(_vm.category, function (value, key) {
+                _vm._l(_vm.category, function (cate) {
                   return _c(
                     "li",
                     {
-                      key: key,
+                      key: cate.value,
                       staticClass: "select-category",
-                      class: { active: _vm.currentTask == key },
+                      class: { active: _vm.currentTask == cate.value },
                       on: {
                         click: function ($event) {
-                          return _vm.changeTask(key)
+                          return _vm.changeTask(cate.value)
                         },
                       },
                     },
                     [
                       _vm._v(
                         "\n                    " +
-                          _vm._s(value) +
+                          _vm._s(cate.label) +
                           "\n                "
                       ),
                     ]
@@ -47833,7 +47754,7 @@ var render = function () {
                 { staticClass: "task-group" },
                 [
                   _c("h4", { staticClass: "task-group__title" }, [
-                    _vm._v(_vm._s(_vm.category[_vm.currentTask])),
+                    _vm._v(_vm._s(_vm.categoryLabels[_vm.currentTask])),
                   ]),
                   _vm._v(" "),
                   _vm._l(_vm.filterTask, function (task, index) {
@@ -48230,7 +48151,7 @@ var render = function () {
             _vm._l(_vm.shopUsers, function (shop, key) {
               return _c("div", { key: key, staticClass: "card" }, [
                 _c("h3", { staticClass: "shop-name card-header" }, [
-                  _vm._v(_vm._s(_vm.shopName[key])),
+                  _vm._v(_vm._s(_vm.shopNames[key])),
                 ]),
                 _vm._v(" "),
                 _c(
@@ -65748,38 +65669,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/pages/CreateTask.vue":
-/*!*******************************************!*\
-  !*** ./resources/js/pages/CreateTask.vue ***!
-  \*******************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-var render, staticRenderFns
-var script = {}
-
-
-/* normalize component */
-
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_0__["default"])(
-  script,
-  render,
-  staticRenderFns,
-  false,
-  null,
-  null,
-  null
-  
-)
-
-component.options.__file = "resources/js/pages/CreateTask.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
 /***/ "./resources/js/pages/CreateUser.vue":
 /*!*******************************************!*\
   !*** ./resources/js/pages/CreateUser.vue ***!
@@ -65949,77 +65838,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_EditUser_vue_vue_type_template_id_239a40fe_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_EditUser_vue_vue_type_template_id_239a40fe_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "./resources/js/pages/HomeLeader.vue":
-/*!*******************************************!*\
-  !*** ./resources/js/pages/HomeLeader.vue ***!
-  \*******************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _HomeLeader_vue_vue_type_template_id_17bbf111___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./HomeLeader.vue?vue&type=template&id=17bbf111& */ "./resources/js/pages/HomeLeader.vue?vue&type=template&id=17bbf111&");
-/* harmony import */ var _HomeLeader_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HomeLeader.vue?vue&type=style&index=0&lang=scss& */ "./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-var script = {}
-
-
-
-/* normalize component */
-
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  script,
-  _HomeLeader_vue_vue_type_template_id_17bbf111___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _HomeLeader_vue_vue_type_template_id_17bbf111___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "resources/js/pages/HomeLeader.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss&":
-/*!*****************************************************************************!*\
-  !*** ./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss& ***!
-  \*****************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader!../../../node_modules/css-loader!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--7-2!../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../node_modules/vue-loader/lib??vue-loader-options!./HomeLeader.vue?vue&type=style&index=0&lang=scss& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeLeader.vue?vue&type=style&index=0&lang=scss&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-
-
-/***/ }),
-
-/***/ "./resources/js/pages/HomeLeader.vue?vue&type=template&id=17bbf111&":
-/*!**************************************************************************!*\
-  !*** ./resources/js/pages/HomeLeader.vue?vue&type=template&id=17bbf111& ***!
-  \**************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_template_id_17bbf111___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./HomeLeader.vue?vue&type=template&id=17bbf111& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/HomeLeader.vue?vue&type=template&id=17bbf111&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_template_id_17bbf111___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_HomeLeader_vue_vue_type_template_id_17bbf111___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -66654,16 +66472,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pages_ShopManage_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../pages/ShopManage.vue */ "./resources/js/pages/ShopManage.vue");
 /* harmony import */ var _pages_errors_System_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../pages/errors/System.vue */ "./resources/js/pages/errors/System.vue");
 /* harmony import */ var _pages_HomeMaster_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pages/HomeMaster.vue */ "./resources/js/pages/HomeMaster.vue");
-/* harmony import */ var _pages_HomeLeader_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../pages/HomeLeader.vue */ "./resources/js/pages/HomeLeader.vue");
-/* harmony import */ var _pages_HomeUser_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../pages/HomeUser.vue */ "./resources/js/pages/HomeUser.vue");
-/* harmony import */ var _pages_CreateUser_vue__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../pages/CreateUser.vue */ "./resources/js/pages/CreateUser.vue");
-/* harmony import */ var _pages_UserManager_vue__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../pages/UserManager.vue */ "./resources/js/pages/UserManager.vue");
-/* harmony import */ var _pages_EditUser_vue__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../pages/EditUser.vue */ "./resources/js/pages/EditUser.vue");
-/* harmony import */ var _pages_errors_NotFound_vue__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../pages/errors/NotFound.vue */ "./resources/js/pages/errors/NotFound.vue");
-/* harmony import */ var _pages_TaskManager_vue__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../pages/TaskManager.vue */ "./resources/js/pages/TaskManager.vue");
-/* harmony import */ var _pages_CreateTask_vue__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../pages/CreateTask.vue */ "./resources/js/pages/CreateTask.vue");
-
-
+/* harmony import */ var _pages_HomeUser_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../pages/HomeUser.vue */ "./resources/js/pages/HomeUser.vue");
+/* harmony import */ var _pages_CreateUser_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../pages/CreateUser.vue */ "./resources/js/pages/CreateUser.vue");
+/* harmony import */ var _pages_UserManager_vue__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../pages/UserManager.vue */ "./resources/js/pages/UserManager.vue");
+/* harmony import */ var _pages_EditUser_vue__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../pages/EditUser.vue */ "./resources/js/pages/EditUser.vue");
+/* harmony import */ var _pages_errors_NotFound_vue__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../pages/errors/NotFound.vue */ "./resources/js/pages/errors/NotFound.vue");
+/* harmony import */ var _pages_TaskManager_vue__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../pages/TaskManager.vue */ "./resources/js/pages/TaskManager.vue");
 
 
 
@@ -66685,42 +66499,36 @@ var routes = [{
     isPublic: true
   }
 }, {
-  path: "/shop-manage",
-  component: _pages_ShopManage_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
-}, {
   path: "/home/master",
   component: _pages_HomeMaster_vue__WEBPACK_IMPORTED_MODULE_6__["default"]
 }, {
-  path: "/home/leader",
-  component: _pages_HomeLeader_vue__WEBPACK_IMPORTED_MODULE_7__["default"]
-}, {
   path: "/home/user",
-  component: _pages_HomeUser_vue__WEBPACK_IMPORTED_MODULE_8__["default"]
+  component: _pages_HomeUser_vue__WEBPACK_IMPORTED_MODULE_7__["default"]
+}, {
+  path: "/shop-manage",
+  component: _pages_ShopManage_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
 }, {
   path: "/user-manage",
-  component: _pages_UserManager_vue__WEBPACK_IMPORTED_MODULE_10__["default"]
+  component: _pages_UserManager_vue__WEBPACK_IMPORTED_MODULE_9__["default"]
 }, {
   path: "/user-manage/create",
-  component: _pages_CreateUser_vue__WEBPACK_IMPORTED_MODULE_9__["default"]
+  component: _pages_CreateUser_vue__WEBPACK_IMPORTED_MODULE_8__["default"]
 }, {
   path: "/user-manage/edit/:id",
-  component: _pages_EditUser_vue__WEBPACK_IMPORTED_MODULE_11__["default"]
+  component: _pages_EditUser_vue__WEBPACK_IMPORTED_MODULE_10__["default"]
 }, {
   path: "/task-manage",
-  component: _pages_TaskManager_vue__WEBPACK_IMPORTED_MODULE_13__["default"] //props: route => {
+  component: _pages_TaskManager_vue__WEBPACK_IMPORTED_MODULE_12__["default"] //props: route => {
   //  const page = route.query.page;
   //  return { page: /^[1-9][0-9]*$/.test(page) ? page * 1 : 1 };
   //  },
 
 }, {
-  path: "/task-manage/create",
-  component: _pages_CreateTask_vue__WEBPACK_IMPORTED_MODULE_14__["default"]
-}, {
   path: "/500",
   component: _pages_errors_System_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
 }, {
   path: "/*",
-  component: _pages_errors_NotFound_vue__WEBPACK_IMPORTED_MODULE_12__["default"]
+  component: _pages_errors_NotFound_vue__WEBPACK_IMPORTED_MODULE_11__["default"]
 }];
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   mode: "history",
@@ -67047,45 +66855,93 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function $_makeLabels(arr) {
+  return arr.reduce(function (a, b) {
+    return Object.assign(a, _defineProperty({}, b.value, b.label));
+  }, {});
+}
+
 var state = {
   shops: null,
-  positions: {
-    1: "ホール",
-    2: "キッチン",
-    3: "その他"
-  },
-  lunks: {
-    1: "店長",
-    2: "チーフ",
-    3: "ホール長",
-    4: "主任",
-    5: "プロレベル",
-    6: "感動レベル",
-    7: "安心レベル",
-    8: "標準レベル",
-    9: "初心者レベル",
-    10: "新人レベル"
-  },
-  authority: {
-    1: "管理者",
-    2: "店舗管理者",
-    3: "ユーザー"
-  },
-  taskCate: {
-    1: "NHK・身だしなみ",
-    2: "お茶番・バッシング",
-    3: "運び",
-    4: "オーダー",
-    5: "セッター",
-    6: "パートナー",
-    7: "花番"
-  }
+  positions: [{
+    value: "1",
+    label: "ホール"
+  }, {
+    value: "2",
+    label: "キッチン"
+  }, {
+    value: "3",
+    label: "その他"
+  }],
+  lunks: [{
+    value: "1",
+    label: "店長"
+  }, {
+    value: "2",
+    label: "チーフ"
+  }, {
+    value: "3",
+    label: "ホール長"
+  }, {
+    value: "4",
+    label: "主任"
+  }, {
+    value: "5",
+    label: "プロレベル"
+  }, {
+    value: "6",
+    label: "感動レベル"
+  }, {
+    value: "7",
+    label: "安心レベル"
+  }, {
+    value: "8",
+    label: "標準レベル"
+  }, {
+    value: "9",
+    label: "初心者レベル"
+  }, {
+    value: "10",
+    label: "新人レベル"
+  }],
+  authority: [{
+    value: "1",
+    label: "管理者"
+  }, {
+    value: "2",
+    label: "店舗管理者"
+  }, {
+    value: "3",
+    label: "ユーザー"
+  }],
+  taskCate: [{
+    value: "1",
+    label: "NHK・身だしなみ"
+  }, {
+    value: "2",
+    label: "お茶番・バッシング"
+  }, {
+    value: "3",
+    label: "運び"
+  }, {
+    value: "4",
+    label: "オーダー"
+  }, {
+    value: "5",
+    label: "セッター"
+  }, {
+    value: "6",
+    label: "パートナー"
+  }, {
+    value: "7",
+    label: "花番"
+  }]
 };
 var getters = {
   Shops: function Shops(state) {
@@ -67102,6 +66958,21 @@ var getters = {
   },
   taskCategory: function taskCategory(state) {
     return state.taskCate;
+  },
+  shopLabels: function shopLabels(state) {
+    return $_makeLabels(state.shops);
+  },
+  lunkLabels: function lunkLabels(state) {
+    return $_makeLabels(state.lunks);
+  },
+  positionLabels: function positionLabels(state) {
+    return $_makeLabels(state.positions);
+  },
+  authLabels: function authLabels(state) {
+    return $_makeLabels(state.authority);
+  },
+  categoryLabels: function categoryLabels(state) {
+    return $_makeLabels(state.taskCate);
   }
 };
 var mutations = {
@@ -67123,12 +66994,17 @@ var actions = {
 
             case 3:
               response = _context.sent;
-              shops = response.data.reduce(function (a, b) {
-                return Object.assign(a, _defineProperty({}, b.id, b.shop_name));
-              }, {});
-              commit('setShops', shops);
+              shops = [];
+              response.data.forEach(function (item) {
+                item.value = item.id;
+                item.label = item.shop_name;
+                delete item.id;
+                delete item.shop_name;
+                shops.push(item);
+              });
+              commit("setShops", shops);
 
-            case 6:
+            case 7:
             case "end":
               return _context.stop();
           }

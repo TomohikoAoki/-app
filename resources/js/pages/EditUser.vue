@@ -53,7 +53,7 @@
                                 @click="changeEdit('authority')"
                                 class="decision"
                             >
-                                {{ optionAuth[data.authority] }}
+                                {{ authLabels[data.authority] }}
                             </div>
                             <div
                                 v-show="!switchEdit.authority"
@@ -68,22 +68,22 @@
                                         class="radio-wrap"
                                     >
                                         <div
-                                            v-for="(value, key) in optionAuth"
-                                            :key="key"
+                                            v-for="item in optionAuth"
+                                            :key="item.value"
                                             class="form-check"
                                         >
                                             <input
                                                 type="radio"
-                                                :value="key"
+                                                :value="item.value"
                                                 v-model="data.authority"
-                                                :id="key"
+                                                :id="item.value"
                                                 class="form-check-input"
                                             />
 
                                             <label
-                                                :for="key"
+                                                :for="item.value"
                                                 class="form-check-label"
-                                                >{{ value }}</label
+                                                >{{ item.label }}</label
                                             >
                                         </div>
                                         <p class="text-danger small">
@@ -150,7 +150,7 @@
                                 @click="changeEdit('shop_id')"
                                 class="decision"
                             >
-                                {{ shops[data.shop_id] }}
+                                {{ shopLabels[data.shop_id] }}
                             </div>
                             <div
                                 v-show="!switchEdit.shop_id"
@@ -166,12 +166,12 @@
                                             class="form-control"
                                         >
                                             <option
-                                                v-for="(value, key) in shops"
-                                                :key="key"
-                                                :value="key"
+                                                v-for="shop in shops"
+                                                :key="shop.value"
+                                                :value="shop.value"
                                                 class="shop_options"
                                             >
-                                                {{ value }}
+                                                {{ shop.label }}
                                             </option>
                                         </select>
                                         <p class="text-danger small">
@@ -198,7 +198,7 @@
                                 @click="changeEdit('lunk')"
                                 class="decision"
                             >
-                                {{ Lunks[data.lunk] }}
+                                {{ lunkLabels[data.lunk] }}
                             </div>
                             <div v-show="!switchEdit.lunk" class="input-area">
                                 <ValidationProvider
@@ -211,11 +211,11 @@
                                             class="form-control"
                                         >
                                             <option
-                                                v-for="(value, key) in Lunks"
-                                                :key="key"
-                                                :value="key"
+                                                v-for="lunk in Lunks"
+                                                :key="lunk.value"
+                                                :value="lunk.value"
                                             >
-                                                {{ value }}
+                                                {{ lunk.label }}
                                             </option>
                                         </select>
                                         <p class="text-danger small">
@@ -242,7 +242,7 @@
                                 @click="changeEdit('position_id')"
                                 class="decision"
                             >
-                                {{ Positions[data.position_id] }}
+                                {{ positionLabels[data.position_id] }}
                             </div>
                             <div
                                 v-show="!switchEdit.position_id"
@@ -257,21 +257,21 @@
                                         class="radio-wrap"
                                     >
                                         <div
-                                            v-for="(value, key) in Positions"
-                                            :key="key"
+                                            v-for="position in Positions"
+                                            :key="position.value"
                                             class="form-check"
                                         >
                                             <input
                                                 type="radio"
-                                                :value="key"
-                                                :id="key"
+                                                :value="position.value"
+                                                :id="position.value"
                                                 v-model="data.position_id"
                                                 class="form-check-input"
                                             />
                                             <label
-                                                :for="key"
+                                                :for="position.value"
                                                 class="form-check-label"
-                                                >{{ value }}</label
+                                                >{{ position.label }}</label
                                             >
                                         </div>
                                         <p class="text-danger small">
@@ -353,11 +353,18 @@ import BaseButton from "../components/parts/BaseButton.vue";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 
 //プライベート
-function $_getKeyForValid(str, obj) {
-    Object.keys(obj).forEach((key) => {
-        str = str + key + ",";
+function $_getKeyForValid(str, arr) {
+    arr.forEach((item) => {
+        str = str + item.value + ",";
     });
     return str;
+}
+function $_getCurrentLabel(arr, data, target) {
+    arr.find((item) => {
+        if (item.value == data) {
+            target = item.label;
+        }
+    });
 }
 
 export default {
@@ -438,12 +445,16 @@ export default {
     },
     computed: {
         ...mapGetters({
-            Lunks: "options/Lunks",
-            Positions: "options/Positions",
             currentUserId: "auth/getCurrentUserId",
             currentUserAuth: "auth/getAuthority",
+            Lunks: "options/Lunks",
+            Positions: "options/Positions",
             shops: "options/Shops",
             optionAuth: "options/optionAuth",
+            shopLabels: "options/shopLabels",
+            lunkLabels: "options/lunkLabels",
+            positionLabels: "options/positionLabels",
+            authLabels: "options/authLabels",
         }),
         ...mapState("options", {
             //バリデーションルール用テキストを返す

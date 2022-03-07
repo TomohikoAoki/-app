@@ -186,11 +186,11 @@
                                         所属店舗を選んで下さい
                                     </option>
                                     <option
-                                        v-for="(value, key) in shops"
-                                        :value="key"
-                                        :key="key"
+                                        v-for="shop in shops"
+                                        :value="shop.value"
+                                        :key="shop.value"
                                     >
-                                        {{ value }}
+                                        {{ shop.label }}
                                     </option>
                                 </select>
                                 <p class="text-danger small">
@@ -211,17 +211,17 @@
                         >
                             <div slot-scope="ProviderProps" class="radio-wrap">
                                 <div
-                                    v-for="(value, key) in Positions"
-                                    :key="key"
+                                    v-for="position in Positions"
+                                    :key="position.value"
                                     class="form-check"
                                 >
                                     <input
                                         type="radio"
-                                        :value="key"
+                                        :value="position.value"
                                         v-model="registerForm.position_id"
                                         class="form-check-input"
                                     />
-                                    <label class="form-check-label">{{ value }}</label>
+                                    <label class="form-check-label">{{ position.label }}</label>
                                 </div>
                                 <p class="text-danger small">
                                     {{ ProviderProps.errors[0] }}
@@ -250,11 +250,11 @@
                                         ランク・役職を選んで下さい
                                     </option>
                                     <option
-                                        v-for="(value, key) in Lunks"
-                                        :key="key"
-                                        :value="key"
+                                        v-for="lunk in Lunks"
+                                        :key="lunk.value"
+                                        :value="lunk.value"
                                     >
-                                        {{ value }}
+                                        {{ lunk.label }}
                                     </option>
                                 </select>
                                 <p class="text-danger small">
@@ -310,9 +310,9 @@ import { mapState, mapGetters } from "vuex";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 
 //プライベート
-function $_getKeyForValid(str, obj) {
-    Object.keys(obj).forEach((key) => {
-        str = str + key + ",";
+function $_getKeyForValid(str, arr) {
+    arr.forEach((item) => {
+        str = str + item.value + ",";
     });
     return str;
 }

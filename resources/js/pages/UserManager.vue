@@ -9,7 +9,7 @@
         <div v-if="shopUsers">
             <section>
                 <div v-for="(shop, key) in shopUsers" :key="key" class="card">
-                    <h3 class="shop-name card-header">{{ shopName[key] }}</h3>
+                    <h3 class="shop-name card-header">{{ shopNames[key] }}</h3>
                     <div class="card-body">
                         <div
                             v-for="(members, key) in shop"
@@ -105,7 +105,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import { OK } from "../util";
 import BaseButtonVue from "../components/parts/BaseButton.vue";
 
@@ -169,7 +169,7 @@ export default {
         ...mapGetters({
             shopId: "auth/getShopId",
             userAuth: "auth/getAuthority",
-            shopName: "options/Shops",
+            shopNames: 'options/shopLabels',
         }),
     },
     watch: {

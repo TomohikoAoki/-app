@@ -4,14 +4,14 @@
         <div>
             <div class="select-box-area">
                 <div class="form-group row" v-if="currentAuth == 1">
-                    <label class="label">店舗選択</label>
+                    <label class="label" for="shop">店舗選択</label>
                     <select v-model="shopId" class="form-control">
                         <option
-                            v-for="(value, key) in shops"
-                            :key="key"
-                            :value="key"
+                            v-for="shop in shops"
+                            :key="shop.value"
+                            :value="shop.value"
                         >
-                            {{ value }}
+                            {{ shop.label }}
                         </option>
                     </select>
                 </div>
@@ -19,11 +19,11 @@
                     <label class="label">ポジション選択</label>
                     <select v-model="positionId" class="form-control">
                         <option
-                            v-for="(value, key) in positions"
-                            :key="key"
-                            :value="key"
+                            v-for="position in positions"
+                            :key="position.value"
+                            :value="position.value"
                         >
-                            {{ value }}
+                            {{ position.label }}
                         </option>
                     </select>
                 </div>
@@ -32,17 +32,17 @@
                 <h3 class="task-data-area__title">TASK</h3>
                 <ul class="category-area">
                     <li
-                        v-for="(value, key) in category"
-                        :key="key"
-                        @click="changeTask(key)"
+                        v-for="cate in category"
+                        :key="cate.value"
+                        @click="changeTask(cate.value)"
                         class="select-category"
-                        :class="{ active: currentTask == key }"
+                        :class="{ active: currentTask == cate.value }"
                     >
-                        {{ value }}
+                        {{ cate.label }}
                     </li>
                 </ul>
                 <div class="task-group">
-                    <h4 class="task-group__title">{{ category[currentTask] }}</h4>
+                    <h4 class="task-group__title">{{ categoryLabels[currentTask] }}</h4>
                     <div
                         v-for="(task, index) in filterTask"
                         :key="task.id"
@@ -134,6 +134,7 @@ export default {
             shops: "options/Shops",
             positions: "options/Positions",
             category: "options/taskCategory",
+            categoryLabels: "options/categoryLabels"
         }),
         ...mapState('auth', {
             currentAuth: function (state) {
