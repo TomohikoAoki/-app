@@ -355,17 +355,11 @@ import { ValidationProvider, ValidationObserver } from "vee-validate";
 //プライベート
 function $_getKeyForValid(str, arr) {
     arr.forEach((item) => {
-        str = str + item.value + ",";
+        str += item.value + ",";
     });
     return str;
 }
-function $_getCurrentLabel(arr, data, target) {
-    arr.find((item) => {
-        if (item.value == data) {
-            target = item.label;
-        }
-    });
-}
+
 
 export default {
     data() {
@@ -424,7 +418,7 @@ export default {
 
             if (response.status === OK) {
                 //編集したのがログインユーザーならcurrentUserを更新
-                if (this.currentUserId == response.data.id) {
+                if (this.currentUserId == response.data.data.id) {
                     this.$store.dispatch("auth/currentUser");
                 }
 
@@ -435,7 +429,6 @@ export default {
             const response = await axios.delete(
                 `/api/user/detail/${this.$route.params.id}`
             );
-            console.log(response.status);
             if (response.status === OK) {
                 this.$router.push("/user-manage");
             } else {

@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUser;
 use App\Http\Requests\EditUser;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Models\Shop;
 use App\Models\Profile;
 
 class AuthController extends Controller
@@ -30,7 +32,8 @@ class AuthController extends Controller
     public function authUser()
     {
         if (Auth::check()) {
-            return User::where('id', Auth::user()->id)->with('profile')->get();
+            $user = User::find(Auth::user()->id);
+            return new UserResource($user);
         } else {
             return response()->json();
         }
@@ -60,7 +63,7 @@ class AuthController extends Controller
             return $u;
         });
 
-        return response($user, 201);
+        return response(new UserResource($user), 201);
     }
 
     /**
@@ -71,19 +74,13 @@ class AuthController extends Controller
     public function getUser(string $shop_id)
     {
         if ($shop_id === "0") {
-            $users = DB::table('users')
-                ->join('profiles', 'users.id', '=', 'profiles.user_id')
-                ->select('users.id', 'users.name', 'shop_id', 'authority', 'employee_code')
-                ->get();
-            return $users;
+            $users = User::with('profile')->get();
+            return UserResource::collection($users);
         }
 
-        $users = DB::table('users')
-            ->join('profiles', 'users.id', '=', 'profiles.user_id')
-            ->where('profiles.shop_id', $shop_id)
-            ->select('users.id', 'users.name', 'shop_id', 'authority', 'employee_code')
-            ->get();
-        return $users;
+        $users = Shop::find($shop_id)->users()->with('profile')->get();
+
+        return UserResource::collection($users);
     }
 
     /**
@@ -122,7 +119,7 @@ class AuthController extends Controller
         });
 
 
-        return User::find($id);
+        return new UserResource(User::find($id));
     }
 
     /**

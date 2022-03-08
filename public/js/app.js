@@ -2514,7 +2514,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 function $_getKeyForValid(str, arr) {
   arr.forEach(function (item) {
-    str = str + item.value + ",";
+    str += item.value + ",";
   });
   return str;
 }
@@ -2990,17 +2990,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 function $_getKeyForValid(str, arr) {
   arr.forEach(function (item) {
-    str = str + item.value + ",";
+    str += item.value + ",";
   });
   return str;
-}
-
-function $_getCurrentLabel(arr, data, target) {
-  arr.find(function (item) {
-    if (item.value == data) {
-      target = item.label;
-    }
-  });
 }
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3104,7 +3096,7 @@ function $_getCurrentLabel(arr, data, target) {
 
                 if (response.status === _util__WEBPACK_IMPORTED_MODULE_2__["OK"]) {
                   //編集したのがログインユーザーならcurrentUserを更新
-                  if (_this3.currentUserId == response.data.id) {
+                  if (_this3.currentUserId == response.data.data.id) {
                     _this3.$store.dispatch("auth/currentUser");
                   }
 
@@ -3133,7 +3125,6 @@ function $_getCurrentLabel(arr, data, target) {
 
               case 2:
                 response = _context4.sent;
-                console.log(response.status);
 
                 if (response.status === _util__WEBPACK_IMPORTED_MODULE_2__["OK"]) {
                   _this4.$router.push("/user-manage");
@@ -3141,7 +3132,7 @@ function $_getCurrentLabel(arr, data, target) {
                   _this4.$router.push("/500");
                 }
 
-              case 5:
+              case 4:
               case "end":
                 return _context4.stop();
             }
@@ -3548,7 +3539,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])('auth', {
     currentAuth: function currentAuth(state) {
       if (state.user.authority === 2) {
-        this.shopId = state.user.profile.shop_id;
+        this.shopId = state.user.shop_id;
       }
 
       return state.user.authority;
@@ -4017,7 +4008,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return _context.abrupt("return", false);
 
               case 7:
-                users = response.data;
+                users = response.data.data;
                 _this.shopUsers = {};
                 users.forEach(function (user) {
                   //管理者除外
@@ -66573,13 +66564,13 @@ var getters = {
     return state.user ? state.user.name : "";
   },
   getCurrentUserId: function getCurrentUserId(state) {
-    return state.user.id ? state.user.id : "";
+    return state.user ? state.user.id : "";
   },
   getAuthority: function getAuthority(state) {
     return state.user ? state.user.authority : "";
   },
   getShopId: function getShopId(state) {
-    return state.user.profile.shop_id ? state.user.profile.shop_id : "";
+    return state.user ? state.user.shop_id : "";
   }
 };
 var mutations = {
@@ -66662,7 +66653,7 @@ var actions = {
               }
 
               commit("setApiStatus", true);
-              commit("setUser", response.data[0]);
+              commit("setUser", response.data.data);
               return _context2.abrupt("return", false);
 
             case 9:
@@ -66737,7 +66728,7 @@ var actions = {
 
             case 4:
               response = _context4.sent;
-              user = !isEmpty(response.data) ? response.data[0] : null;
+              user = response.data.data ? response.data.data : null;
 
               if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"])) {
                 _context4.next = 10;
@@ -66853,19 +66844,13 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function $_makeLabels(arr) {
-  return arr.reduce(function (a, b) {
-    return Object.assign(a, _defineProperty({}, b.value, b.label));
-  }, {});
-}
 
 var state = {
   shops: null,
@@ -67002,9 +66987,12 @@ var actions = {
                 delete item.shop_name;
                 shops.push(item);
               });
+              shops.sort(function (a, b) {
+                return a.value - b.value;
+              });
               commit("setShops", shops);
 
-            case 7:
+            case 8:
             case "end":
               return _context.stop();
           }
@@ -67019,7 +67007,13 @@ var actions = {
   getters: getters,
   mutations: mutations,
   actions: actions
-});
+}); //プライベート関数
+
+function $_makeLabels(arr) {
+  return arr.reduce(function (a, b) {
+    return Object.assign(a, _defineProperty({}, b.value, b.label));
+  }, {});
+}
 
 /***/ }),
 

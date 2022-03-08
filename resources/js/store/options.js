@@ -1,11 +1,3 @@
-function $_makeLabels(arr) {
-    return arr.reduce((a, b) => {
-        return Object.assign(a, {
-            [b.value]: b.label
-        });
-    }, {});
-}
-
 const state = {
     shops: null,
     positions: [
@@ -76,6 +68,8 @@ const actions = {
             shops.push(item);
         });
 
+        shops.sort((a, b) => a.value - b.value);
+
         commit("setShops", shops);
     },
 };
@@ -87,3 +81,12 @@ export default {
     mutations,
     actions,
 };
+
+//プライベート関数
+function $_makeLabels(arr) {
+    return arr.reduce((a, b) => {
+        return Object.assign(a, {
+            [b.value]: b.label,
+        });
+    }, {});
+}

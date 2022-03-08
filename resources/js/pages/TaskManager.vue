@@ -139,7 +139,7 @@ export default {
         ...mapState('auth', {
             currentAuth: function (state) {
                 if ( state.user.authority === 2 ) {
-                    this.shopId = state.user.profile.shop_id
+                    this.shopId = state.user.shop_id
                 }
                 return state.user.authority
             }

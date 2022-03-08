@@ -131,7 +131,7 @@ export default {
                 return false;
             }
 
-            const users = response.data;
+            const users = response.data.data;
             this.shopUsers = {};
 
             users.forEach((user) => {

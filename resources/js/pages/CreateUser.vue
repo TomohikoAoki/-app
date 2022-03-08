@@ -312,7 +312,7 @@ import { ValidationProvider, ValidationObserver } from "vee-validate";
 //プライベート
 function $_getKeyForValid(str, arr) {
     arr.forEach((item) => {
-        str = str + item.value + ",";
+        str += item.value + ",";
     });
     return str;
 }

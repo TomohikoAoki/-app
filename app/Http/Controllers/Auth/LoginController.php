@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class LoginController extends Controller
 
     public function authenticated(Request $request, $user)
     {
-        return User::where('id', $user['id'])->with('profile')->get();
+        return new UserResource(User::find($user['id']));
     }
 
     public function loggedOut(Request $request)

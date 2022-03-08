@@ -11,9 +11,9 @@ const state = {
 const getters = {
     checkUser: (state) => !!state.user,
     getUserName: (state) => (state.user ? state.user.name : ""),
-    getCurrentUserId: (state) => (state.user.id ? state.user.id : ""),
+    getCurrentUserId: (state) => (state.user ? state.user.id : ""),
     getAuthority: (state) => (state.user ? state.user.authority : ""),
-    getShopId: (state) => state.user.profile.shop_id ? state.user.profile.shop_id : ""
+    getShopId: (state) => state.user ? state.user.shop_id : ""
 };
 
 const mutations = {
@@ -57,7 +57,7 @@ const actions = {
 
         if (response.status === OK) {
             commit("setApiStatus", true);
-            commit("setUser", response.data[0]);
+            commit("setUser", response.data.data);
             return false;
         }
 
@@ -85,7 +85,7 @@ const actions = {
     async currentUser({ commit }) {
         commit('setApiStatus', null)
         const response = await axios.get("/api/user");
-        const user = !isEmpty(response.data) ? response.data[0] : null;
+        const user = response.data.data ? response.data.data : null;
 
         if (response.status === OK) {
             commit('setApiStatus', true)
