@@ -11,13 +11,13 @@
                         >
                         <div class="col-md-9">
                             <div
-                                v-show="switchEdit.name"
+                                v-if="switchEdit.name"
                                 @click="changeEdit('name')"
                                 class="decision"
                             >
                                 {{ data.name }}
                             </div>
-                            <div v-show="!switchEdit.name" class="input-area">
+                            <div v-if="!switchEdit.name" class="input-area">
                                 <ValidationProvider
                                     rules="required|max:25"
                                     name="username"
@@ -49,14 +49,14 @@
                         >
                         <div class="col-md-9">
                             <div
-                                v-show="switchEdit.authority"
+                                v-if="switchEdit.authority"
                                 @click="changeEdit('authority')"
                                 class="decision"
                             >
                                 {{ authLabels[data.authority] }}
                             </div>
                             <div
-                                v-show="!switchEdit.authority"
+                                v-if="!switchEdit.authority"
                                 class="input-area"
                             >
                                 <ValidationProvider
@@ -106,14 +106,14 @@
                         >
                         <div class="col-md-9">
                             <div
-                                v-show="switchEdit.employee_code"
+                                v-if="switchEdit.employee_code"
                                 @click="changeEdit('employee_code')"
                                 class="decision"
                             >
                                 {{ data.employee_code }}
                             </div>
                             <div
-                                v-show="!switchEdit.employee_code"
+                                v-if="!switchEdit.employee_code"
                                 class="input-area"
                             >
                                 <ValidationProvider
@@ -146,14 +146,14 @@
                         >
                         <div class="col-md-9">
                             <div
-                                v-show="switchEdit.shop_id"
+                                v-if="switchEdit.shop_id"
                                 @click="changeEdit('shop_id')"
                                 class="decision"
                             >
                                 {{ shopLabels[data.shop_id] }}
                             </div>
                             <div
-                                v-show="!switchEdit.shop_id"
+                                v-if="!switchEdit.shop_id"
                                 class="input-area"
                             >
                                 <ValidationProvider
@@ -194,13 +194,13 @@
                         >
                         <div class="col-md-9">
                             <div
-                                v-show="switchEdit.lunk"
+                                v-if="switchEdit.lunk"
                                 @click="changeEdit('lunk')"
                                 class="decision"
                             >
                                 {{ lunkLabels[data.lunk] }}
                             </div>
-                            <div v-show="!switchEdit.lunk" class="input-area">
+                            <div v-if="!switchEdit.lunk" class="input-area">
                                 <ValidationProvider
                                     :rules="`required|${lunkOneOf}`"
                                     name="lunk"
@@ -373,7 +373,15 @@ export default {
                 shop_id: "",
                 authority: "",
             },
-            switchEdit: {},
+            switchEdit: {
+                name: true,
+                employee_code: true,
+                lunk: true,
+                position_id: true,
+                email: true,
+                shop_id: true,
+                authority: true,
+            },
         };
     },
     components: {
@@ -385,7 +393,7 @@ export default {
     methods: {
         async changeEdit(key) {
             //validationObserverがエラー時は切り替わらない
-            if (await this.$refs.obs.validate()) {
+            if (await　this.$refs.obs.validate()) {
                 //開くフィールド以外は閉じる
                 for (let prop in this.switchEdit) {
                     this.switchEdit[prop] =
@@ -398,17 +406,11 @@ export default {
                 `/api/user/detail/${this.$route.params.id}`
             );
 
-            const user = response.data[0];
+            const user = response.data.data;
             Object.keys(user).forEach((key) => {
                 this.data[key] = user[key];
             });
 
-            //スイッチキー作成
-            for (let key in user) {
-                this.switchEdit = Object.assign({}, this.switchEdit, {
-                    [key]: true,
-                });
-            }
         },
         async updateUser() {
             const response = await axios.put(
@@ -495,6 +497,7 @@ export default {
     height: 2em;
     width: 100%;
     font-size: 1.2em;
+    cursor:pointer;
 }
 .btn {
     display: block;

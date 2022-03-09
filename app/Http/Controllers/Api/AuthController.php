@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUser;
 use App\Http\Requests\EditUser;
+use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\Shop;
@@ -28,6 +29,7 @@ class AuthController extends Controller
     /**
      *
      * 現在のログインユーザー取得
+     * @return UserResource|null
      */
     public function authUser()
     {
@@ -41,6 +43,7 @@ class AuthController extends Controller
 
     /**
      * ユーザー登録
+     * @return UserResource
      */
     public function createUser(CreateUser $request)
     {
@@ -69,36 +72,31 @@ class AuthController extends Controller
     /**
      * 全てのユーザー取得
      * 店舗リーダーの場合は店舗のユーザー取得
-     *
+     * @return UserResource
      */
     public function getUser(string $shop_id)
     {
         if ($shop_id === "0") {
-            $users = User::with('profile')->get();
-            return UserResource::collection($users);
+            return UserResource::collection(User::all());
         }
 
-        $users = Shop::find($shop_id)->users()->with('profile')->get();
+        $users = Shop::find($shop_id)->users()->get();
 
         return UserResource::collection($users);
     }
 
     /**
      * ユーザー詳細　ユーザー情報変更フォーム
+     * @return UserDetailResource
      */
     public function getUserById(string $id)
     {
-        $user = DB::table('users')
-            ->join('profiles', 'users.id', '=', 'profiles.user_id')
-            ->where('users.id', $id)
-            ->select('users.id', 'name', 'authority', 'employee_code', 'lunk', 'position_id', 'shop_id', 'email')
-            ->get();
-
-        return $user;
+        return new UserDetailResource(User::find($id));
     }
 
     /**
      * ユーザー情報更新
+     * @return UserResource
      */
     public function updateUser(EditUser $request, string $id)
     {

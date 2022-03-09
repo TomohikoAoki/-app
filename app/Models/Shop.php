@@ -28,4 +28,9 @@ class Shop extends BaseEloquent
         return $this->hasMany('App\Models\Profile');
     }
 
+    public function tasks()
+    {
+        return $this->hasMany('App\Models\Task');
+    }
+
 }

@@ -12,6 +12,7 @@ import UserManage from "../pages/UserManager.vue";
 import EditUser from "../pages/EditUser.vue";
 import NotFound from "../pages/errors/NotFound.vue";
 import TaskManage from "../pages/TaskManager.vue";
+import PointManage from "../pages/PointManager.vue"
 
 Vue.use(VueRouter);
 
@@ -53,6 +54,10 @@ const routes = [{
         //  const page = route.query.page;
         //  return { page: /^[1-9][0-9]*$/.test(page) ? page * 1 : 1 };
         //  },
+    },
+    {
+        path: "/point-manage",
+        component: PointManage,
     },
     {
         path: "/500",

@@ -3007,7 +3007,15 @@ function $_getKeyForValid(str, arr) {
         shop_id: "",
         authority: ""
       },
-      switchEdit: {}
+      switchEdit: {
+        name: true,
+        employee_code: true,
+        lunk: true,
+        position_id: true,
+        email: true,
+        shop_id: true,
+        authority: true
+      }
     };
   },
   components: {
@@ -3052,7 +3060,7 @@ function $_getKeyForValid(str, arr) {
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response, user, key;
+        var response, user;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -3062,16 +3070,12 @@ function $_getKeyForValid(str, arr) {
 
               case 2:
                 response = _context2.sent;
-                user = response.data[0];
+                user = response.data.data;
                 Object.keys(user).forEach(function (key) {
                   _this2.data[key] = user[key];
-                }); //スイッチキー作成
+                });
 
-                for (key in user) {
-                  _this2.switchEdit = Object.assign({}, _this2.switchEdit, _defineProperty({}, key, true));
-                }
-
-              case 6:
+              case 5:
               case "end":
                 return _context2.stop();
             }
@@ -3241,6 +3245,112 @@ __webpack_require__.r(__webpack_exports__);
 
       default:
         _router__WEBPACK_IMPORTED_MODULE_1__["default"].push("/");
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=script&lang=js&":
+/*!******************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/PointManager.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      shopId: null,
+      userId: null,
+      users: null
+    };
+  },
+  methods: {
+    fetchUsers: function fetchUsers() {
+      var _this = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return axios.get("/api/user/get/".concat(_this.shopId));
+
+              case 2:
+                response = _context.sent;
+                _this.users = response.data.data;
+
+              case 4:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }))();
+    }
+  },
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
+    currentAuth: "auth/getAuthority",
+    shops: "options/Shops"
+  })),
+  watch: {
+    shopId: function shopId() {
+      this.fetchUsers();
     }
   }
 });
@@ -8836,7 +8946,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".title[data-v-239a40fe] {\n  padding: 1.7em 0;\n  margin: 0;\n}\n.title-username[data-v-239a40fe] {\n  border-bottom: 1px solid;\n  margin: 0 0 1.2em 0;\n  padding: 0 0 0.3em 0.2em;\n}\n.card[data-v-239a40fe] {\n  background: #f0efff;\n  background: linear-gradient(90deg, #f0efff 0%, #f3fcfe 100%);\n  padding-bottom: 50px;\n}\n.input-area[data-v-239a40fe] {\n  display: flex;\n}\n.decision[data-v-239a40fe] {\n  height: 2em;\n  width: 100%;\n  font-size: 1.2em;\n}\n.btn[data-v-239a40fe] {\n  display: block;\n  margin: 40px auto 0 auto;\n}\n.bottom-group[data-v-239a40fe] {\n  text-align: center;\n  margin-top: 3em;\n}\n.radio-wrap[data-v-239a40fe] {\n  display: flex;\n}\n.radio-wrap .form-check[data-v-239a40fe] {\n  margin-right: 1em;\n}\n.button.delete[data-v-239a40fe] {\n  border: 1px solid;\n  padding: 1em;\n  display: inline-block;\n  border-radius: 5px;\n}\n.shop-options[data-v-239a40fe] {\n  font-size: 2em;\n}", ""]);
+exports.push([module.i, ".title[data-v-239a40fe] {\n  padding: 1.7em 0;\n  margin: 0;\n}\n.title-username[data-v-239a40fe] {\n  border-bottom: 1px solid;\n  margin: 0 0 1.2em 0;\n  padding: 0 0 0.3em 0.2em;\n}\n.card[data-v-239a40fe] {\n  background: #f0efff;\n  background: linear-gradient(90deg, #f0efff 0%, #f3fcfe 100%);\n  padding-bottom: 50px;\n}\n.input-area[data-v-239a40fe] {\n  display: flex;\n}\n.decision[data-v-239a40fe] {\n  height: 2em;\n  width: 100%;\n  font-size: 1.2em;\n  cursor: pointer;\n}\n.btn[data-v-239a40fe] {\n  display: block;\n  margin: 40px auto 0 auto;\n}\n.bottom-group[data-v-239a40fe] {\n  text-align: center;\n  margin-top: 3em;\n}\n.radio-wrap[data-v-239a40fe] {\n  display: flex;\n}\n.radio-wrap .form-check[data-v-239a40fe] {\n  margin-right: 1em;\n}\n.button.delete[data-v-239a40fe] {\n  border: 1px solid;\n  padding: 1em;\n  display: inline-block;\n  border-radius: 5px;\n}\n.shop-options[data-v-239a40fe] {\n  font-size: 2em;\n}", ""]);
 
 // exports
 
@@ -46264,52 +46374,344 @@ var render = function () {
                             ),
                             _vm._v(" "),
                             _c("div", { staticClass: "col-md-9" }, [
-                              _c(
+                              _vm.switchEdit.name
+                                ? _c(
+                                    "div",
+                                    {
+                                      staticClass: "decision",
+                                      on: {
+                                        click: function ($event) {
+                                          return _vm.changeEdit("name")
+                                        },
+                                      },
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                            " +
+                                          _vm._s(_vm.data.name) +
+                                          "\n                        "
+                                      ),
+                                    ]
+                                  )
+                                : _vm._e(),
+                              _vm._v(" "),
+                              !_vm.switchEdit.name
+                                ? _c(
+                                    "div",
+                                    { staticClass: "input-area" },
+                                    [
+                                      _c("ValidationProvider", {
+                                        attrs: {
+                                          rules: "required|max:25",
+                                          name: "username",
+                                          mode: "lazy",
+                                        },
+                                        scopedSlots: _vm._u(
+                                          [
+                                            {
+                                              key: "default",
+                                              fn: function (ProviderProps) {
+                                                return _c("div", {}, [
+                                                  _c("input", {
+                                                    directives: [
+                                                      {
+                                                        name: "model",
+                                                        rawName: "v-model",
+                                                        value: _vm.data.name,
+                                                        expression: "data.name",
+                                                      },
+                                                    ],
+                                                    staticClass: "form-control",
+                                                    attrs: { type: "text" },
+                                                    domProps: {
+                                                      value: _vm.data.name,
+                                                    },
+                                                    on: {
+                                                      input: function ($event) {
+                                                        if (
+                                                          $event.target
+                                                            .composing
+                                                        ) {
+                                                          return
+                                                        }
+                                                        _vm.$set(
+                                                          _vm.data,
+                                                          "name",
+                                                          $event.target.value
+                                                        )
+                                                      },
+                                                    },
+                                                  }),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "p",
+                                                    {
+                                                      staticClass:
+                                                        "text-danger small",
+                                                    },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            ProviderProps
+                                                              .errors[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  ),
+                                                ])
+                                              },
+                                            },
+                                          ],
+                                          null,
+                                          true
+                                        ),
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "button",
+                                        {
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function ($event) {
+                                              return _vm.changeEdit("name")
+                                            },
+                                          },
+                                        },
+                                        [
+                                          _vm._v(
+                                            "\n                                確定\n                            "
+                                          ),
+                                        ]
+                                      ),
+                                    ],
+                                    1
+                                  )
+                                : _vm._e(),
+                            ]),
+                          ])
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.currentUserAuth == 1
+                        ? _c("div", { staticClass: "form-group row" }, [
+                            _c(
+                              "label",
+                              {
+                                staticClass:
+                                  "col-md-3 d-flex align-items-center",
+                              },
+                              [_vm._v("権限")]
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "col-md-9" }, [
+                              _vm.switchEdit.authority
+                                ? _c(
+                                    "div",
+                                    {
+                                      staticClass: "decision",
+                                      on: {
+                                        click: function ($event) {
+                                          return _vm.changeEdit("authority")
+                                        },
+                                      },
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                            " +
+                                          _vm._s(
+                                            _vm.authLabels[_vm.data.authority]
+                                          ) +
+                                          "\n                        "
+                                      ),
+                                    ]
+                                  )
+                                : _vm._e(),
+                              _vm._v(" "),
+                              !_vm.switchEdit.authority
+                                ? _c(
+                                    "div",
+                                    { staticClass: "input-area" },
+                                    [
+                                      _c("ValidationProvider", {
+                                        attrs: {
+                                          rules: "required|" + _vm.authOneOf,
+                                          name: "authority",
+                                        },
+                                        scopedSlots: _vm._u(
+                                          [
+                                            {
+                                              key: "default",
+                                              fn: function (ProviderProps) {
+                                                return _c(
+                                                  "div",
+                                                  { staticClass: "radio-wrap" },
+                                                  [
+                                                    _vm._l(
+                                                      _vm.optionAuth,
+                                                      function (item) {
+                                                        return _c(
+                                                          "div",
+                                                          {
+                                                            key: item.value,
+                                                            staticClass:
+                                                              "form-check",
+                                                          },
+                                                          [
+                                                            _c("input", {
+                                                              directives: [
+                                                                {
+                                                                  name: "model",
+                                                                  rawName:
+                                                                    "v-model",
+                                                                  value:
+                                                                    _vm.data
+                                                                      .authority,
+                                                                  expression:
+                                                                    "data.authority",
+                                                                },
+                                                              ],
+                                                              staticClass:
+                                                                "form-check-input",
+                                                              attrs: {
+                                                                type: "radio",
+                                                                id: item.value,
+                                                              },
+                                                              domProps: {
+                                                                value:
+                                                                  item.value,
+                                                                checked: _vm._q(
+                                                                  _vm.data
+                                                                    .authority,
+                                                                  item.value
+                                                                ),
+                                                              },
+                                                              on: {
+                                                                change:
+                                                                  function (
+                                                                    $event
+                                                                  ) {
+                                                                    return _vm.$set(
+                                                                      _vm.data,
+                                                                      "authority",
+                                                                      item.value
+                                                                    )
+                                                                  },
+                                                              },
+                                                            }),
+                                                            _vm._v(" "),
+                                                            _c(
+                                                              "label",
+                                                              {
+                                                                staticClass:
+                                                                  "form-check-label",
+                                                                attrs: {
+                                                                  for: item.value,
+                                                                },
+                                                              },
+                                                              [
+                                                                _vm._v(
+                                                                  _vm._s(
+                                                                    item.label
+                                                                  )
+                                                                ),
+                                                              ]
+                                                            ),
+                                                          ]
+                                                        )
+                                                      }
+                                                    ),
+                                                    _vm._v(" "),
+                                                    _c(
+                                                      "p",
+                                                      {
+                                                        staticClass:
+                                                          "text-danger small",
+                                                      },
+                                                      [
+                                                        _vm._v(
+                                                          "\n                                        " +
+                                                            _vm._s(
+                                                              ProviderProps
+                                                                .errors[0]
+                                                            ) +
+                                                            "\n                                    "
+                                                        ),
+                                                      ]
+                                                    ),
+                                                  ],
+                                                  2
+                                                )
+                                              },
+                                            },
+                                          ],
+                                          null,
+                                          true
+                                        ),
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "button",
+                                        {
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function ($event) {
+                                              return _vm.changeEdit("authority")
+                                            },
+                                          },
+                                        },
+                                        [
+                                          _vm._v(
+                                            "\n                                確定\n                            "
+                                          ),
+                                        ]
+                                      ),
+                                    ],
+                                    1
+                                  )
+                                : _vm._e(),
+                            ]),
+                          ])
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "form-group row" }, [
+                        _c(
+                          "label",
+                          { staticClass: "col-md-3 d-flex align-items-center" },
+                          [_vm._v("社員コード")]
+                        ),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "col-md-9" }, [
+                          _vm.switchEdit.employee_code
+                            ? _c(
                                 "div",
                                 {
-                                  directives: [
-                                    {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: _vm.switchEdit.name,
-                                      expression: "switchEdit.name",
-                                    },
-                                  ],
                                   staticClass: "decision",
                                   on: {
                                     click: function ($event) {
-                                      return _vm.changeEdit("name")
+                                      return _vm.changeEdit("employee_code")
                                     },
                                   },
                                 },
                                 [
                                   _vm._v(
                                     "\n                            " +
-                                      _vm._s(_vm.data.name) +
+                                      _vm._s(_vm.data.employee_code) +
                                       "\n                        "
                                   ),
                                 ]
-                              ),
-                              _vm._v(" "),
-                              _c(
+                              )
+                            : _vm._e(),
+                          _vm._v(" "),
+                          !_vm.switchEdit.employee_code
+                            ? _c(
                                 "div",
-                                {
-                                  directives: [
-                                    {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: !_vm.switchEdit.name,
-                                      expression: "!switchEdit.name",
-                                    },
-                                  ],
-                                  staticClass: "input-area",
-                                },
+                                { staticClass: "input-area" },
                                 [
                                   _c("ValidationProvider", {
                                     attrs: {
-                                      rules: "required|max:25",
-                                      name: "username",
-                                      mode: "lazy",
+                                      rules: "regex:^([0-9]{6})$",
+                                      name: "employee_code",
                                     },
                                     scopedSlots: _vm._u(
                                       [
@@ -46322,14 +46724,16 @@ var render = function () {
                                                   {
                                                     name: "model",
                                                     rawName: "v-model",
-                                                    value: _vm.data.name,
-                                                    expression: "data.name",
+                                                    value:
+                                                      _vm.data.employee_code,
+                                                    expression:
+                                                      "data.employee_code",
                                                   },
                                                 ],
                                                 staticClass: "form-control",
                                                 attrs: { type: "text" },
                                                 domProps: {
-                                                  value: _vm.data.name,
+                                                  value: _vm.data.employee_code,
                                                 },
                                                 on: {
                                                   input: function ($event) {
@@ -46340,7 +46744,7 @@ var render = function () {
                                                     }
                                                     _vm.$set(
                                                       _vm.data,
-                                                      "name",
+                                                      "employee_code",
                                                       $event.target.value
                                                     )
                                                   },
@@ -46378,7 +46782,7 @@ var render = function () {
                                       attrs: { type: "button" },
                                       on: {
                                         click: function ($event) {
-                                          return _vm.changeEdit("name")
+                                          return _vm.changeEdit("employee_code")
                                         },
                                       },
                                     },
@@ -46390,334 +46794,8 @@ var render = function () {
                                   ),
                                 ],
                                 1
-                              ),
-                            ]),
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _vm.currentUserAuth == 1
-                        ? _c("div", { staticClass: "form-group row" }, [
-                            _c(
-                              "label",
-                              {
-                                staticClass:
-                                  "col-md-3 d-flex align-items-center",
-                              },
-                              [_vm._v("権限")]
-                            ),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "col-md-9" }, [
-                              _c(
-                                "div",
-                                {
-                                  directives: [
-                                    {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: _vm.switchEdit.authority,
-                                      expression: "switchEdit.authority",
-                                    },
-                                  ],
-                                  staticClass: "decision",
-                                  on: {
-                                    click: function ($event) {
-                                      return _vm.changeEdit("authority")
-                                    },
-                                  },
-                                },
-                                [
-                                  _vm._v(
-                                    "\n                            " +
-                                      _vm._s(
-                                        _vm.authLabels[_vm.data.authority]
-                                      ) +
-                                      "\n                        "
-                                  ),
-                                ]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "div",
-                                {
-                                  directives: [
-                                    {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: !_vm.switchEdit.authority,
-                                      expression: "!switchEdit.authority",
-                                    },
-                                  ],
-                                  staticClass: "input-area",
-                                },
-                                [
-                                  _c("ValidationProvider", {
-                                    attrs: {
-                                      rules: "required|" + _vm.authOneOf,
-                                      name: "authority",
-                                    },
-                                    scopedSlots: _vm._u(
-                                      [
-                                        {
-                                          key: "default",
-                                          fn: function (ProviderProps) {
-                                            return _c(
-                                              "div",
-                                              { staticClass: "radio-wrap" },
-                                              [
-                                                _vm._l(
-                                                  _vm.optionAuth,
-                                                  function (item) {
-                                                    return _c(
-                                                      "div",
-                                                      {
-                                                        key: item.value,
-                                                        staticClass:
-                                                          "form-check",
-                                                      },
-                                                      [
-                                                        _c("input", {
-                                                          directives: [
-                                                            {
-                                                              name: "model",
-                                                              rawName:
-                                                                "v-model",
-                                                              value:
-                                                                _vm.data
-                                                                  .authority,
-                                                              expression:
-                                                                "data.authority",
-                                                            },
-                                                          ],
-                                                          staticClass:
-                                                            "form-check-input",
-                                                          attrs: {
-                                                            type: "radio",
-                                                            id: item.value,
-                                                          },
-                                                          domProps: {
-                                                            value: item.value,
-                                                            checked: _vm._q(
-                                                              _vm.data
-                                                                .authority,
-                                                              item.value
-                                                            ),
-                                                          },
-                                                          on: {
-                                                            change: function (
-                                                              $event
-                                                            ) {
-                                                              return _vm.$set(
-                                                                _vm.data,
-                                                                "authority",
-                                                                item.value
-                                                              )
-                                                            },
-                                                          },
-                                                        }),
-                                                        _vm._v(" "),
-                                                        _c(
-                                                          "label",
-                                                          {
-                                                            staticClass:
-                                                              "form-check-label",
-                                                            attrs: {
-                                                              for: item.value,
-                                                            },
-                                                          },
-                                                          [
-                                                            _vm._v(
-                                                              _vm._s(item.label)
-                                                            ),
-                                                          ]
-                                                        ),
-                                                      ]
-                                                    )
-                                                  }
-                                                ),
-                                                _vm._v(" "),
-                                                _c(
-                                                  "p",
-                                                  {
-                                                    staticClass:
-                                                      "text-danger small",
-                                                  },
-                                                  [
-                                                    _vm._v(
-                                                      "\n                                        " +
-                                                        _vm._s(
-                                                          ProviderProps
-                                                            .errors[0]
-                                                        ) +
-                                                        "\n                                    "
-                                                    ),
-                                                  ]
-                                                ),
-                                              ],
-                                              2
-                                            )
-                                          },
-                                        },
-                                      ],
-                                      null,
-                                      true
-                                    ),
-                                  }),
-                                  _vm._v(" "),
-                                  _c(
-                                    "button",
-                                    {
-                                      attrs: { type: "button" },
-                                      on: {
-                                        click: function ($event) {
-                                          return _vm.changeEdit("authority")
-                                        },
-                                      },
-                                    },
-                                    [
-                                      _vm._v(
-                                        "\n                                確定\n                            "
-                                      ),
-                                    ]
-                                  ),
-                                ],
-                                1
-                              ),
-                            ]),
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "form-group row" }, [
-                        _c(
-                          "label",
-                          { staticClass: "col-md-3 d-flex align-items-center" },
-                          [_vm._v("社員コード")]
-                        ),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "col-md-9" }, [
-                          _c(
-                            "div",
-                            {
-                              directives: [
-                                {
-                                  name: "show",
-                                  rawName: "v-show",
-                                  value: _vm.switchEdit.employee_code,
-                                  expression: "switchEdit.employee_code",
-                                },
-                              ],
-                              staticClass: "decision",
-                              on: {
-                                click: function ($event) {
-                                  return _vm.changeEdit("employee_code")
-                                },
-                              },
-                            },
-                            [
-                              _vm._v(
-                                "\n                            " +
-                                  _vm._s(_vm.data.employee_code) +
-                                  "\n                        "
-                              ),
-                            ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "div",
-                            {
-                              directives: [
-                                {
-                                  name: "show",
-                                  rawName: "v-show",
-                                  value: !_vm.switchEdit.employee_code,
-                                  expression: "!switchEdit.employee_code",
-                                },
-                              ],
-                              staticClass: "input-area",
-                            },
-                            [
-                              _c("ValidationProvider", {
-                                attrs: {
-                                  rules: "regex:^([0-9]{6})$",
-                                  name: "employee_code",
-                                },
-                                scopedSlots: _vm._u(
-                                  [
-                                    {
-                                      key: "default",
-                                      fn: function (ProviderProps) {
-                                        return _c("div", {}, [
-                                          _c("input", {
-                                            directives: [
-                                              {
-                                                name: "model",
-                                                rawName: "v-model",
-                                                value: _vm.data.employee_code,
-                                                expression:
-                                                  "data.employee_code",
-                                              },
-                                            ],
-                                            staticClass: "form-control",
-                                            attrs: { type: "text" },
-                                            domProps: {
-                                              value: _vm.data.employee_code,
-                                            },
-                                            on: {
-                                              input: function ($event) {
-                                                if ($event.target.composing) {
-                                                  return
-                                                }
-                                                _vm.$set(
-                                                  _vm.data,
-                                                  "employee_code",
-                                                  $event.target.value
-                                                )
-                                              },
-                                            },
-                                          }),
-                                          _vm._v(" "),
-                                          _c(
-                                            "p",
-                                            {
-                                              staticClass: "text-danger small",
-                                            },
-                                            [
-                                              _vm._v(
-                                                "\n                                        " +
-                                                  _vm._s(
-                                                    ProviderProps.errors[0]
-                                                  ) +
-                                                  "\n                                    "
-                                              ),
-                                            ]
-                                          ),
-                                        ])
-                                      },
-                                    },
-                                  ],
-                                  null,
-                                  true
-                                ),
-                              }),
-                              _vm._v(" "),
-                              _c(
-                                "button",
-                                {
-                                  attrs: { type: "button" },
-                                  on: {
-                                    click: function ($event) {
-                                      return _vm.changeEdit("employee_code")
-                                    },
-                                  },
-                                },
-                                [
-                                  _vm._v(
-                                    "\n                                確定\n                            "
-                                  ),
-                                ]
-                              ),
-                            ],
-                            1
-                          ),
+                              )
+                            : _vm._e(),
                         ]),
                       ]),
                       _vm._v(" "),
@@ -46733,51 +46811,209 @@ var render = function () {
                             ),
                             _vm._v(" "),
                             _c("div", { staticClass: "col-md-9" }, [
-                              _c(
+                              _vm.switchEdit.shop_id
+                                ? _c(
+                                    "div",
+                                    {
+                                      staticClass: "decision",
+                                      on: {
+                                        click: function ($event) {
+                                          return _vm.changeEdit("shop_id")
+                                        },
+                                      },
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                            " +
+                                          _vm._s(
+                                            _vm.shopLabels[_vm.data.shop_id]
+                                          ) +
+                                          "\n                        "
+                                      ),
+                                    ]
+                                  )
+                                : _vm._e(),
+                              _vm._v(" "),
+                              !_vm.switchEdit.shop_id
+                                ? _c(
+                                    "div",
+                                    { staticClass: "input-area" },
+                                    [
+                                      _c("ValidationProvider", {
+                                        attrs: {
+                                          rules: "required|" + _vm.shopOneOf,
+                                          name: "shop",
+                                        },
+                                        scopedSlots: _vm._u(
+                                          [
+                                            {
+                                              key: "default",
+                                              fn: function (ProviderProps) {
+                                                return _c("div", {}, [
+                                                  _c(
+                                                    "select",
+                                                    {
+                                                      directives: [
+                                                        {
+                                                          name: "model",
+                                                          rawName: "v-model",
+                                                          value:
+                                                            _vm.data.shop_id,
+                                                          expression:
+                                                            "data.shop_id",
+                                                        },
+                                                      ],
+                                                      staticClass:
+                                                        "form-control",
+                                                      on: {
+                                                        change: function (
+                                                          $event
+                                                        ) {
+                                                          var $$selectedVal =
+                                                            Array.prototype.filter
+                                                              .call(
+                                                                $event.target
+                                                                  .options,
+                                                                function (o) {
+                                                                  return o.selected
+                                                                }
+                                                              )
+                                                              .map(function (
+                                                                o
+                                                              ) {
+                                                                var val =
+                                                                  "_value" in o
+                                                                    ? o._value
+                                                                    : o.value
+                                                                return val
+                                                              })
+                                                          _vm.$set(
+                                                            _vm.data,
+                                                            "shop_id",
+                                                            $event.target
+                                                              .multiple
+                                                              ? $$selectedVal
+                                                              : $$selectedVal[0]
+                                                          )
+                                                        },
+                                                      },
+                                                    },
+                                                    _vm._l(
+                                                      _vm.shops,
+                                                      function (shop) {
+                                                        return _c(
+                                                          "option",
+                                                          {
+                                                            key: shop.value,
+                                                            staticClass:
+                                                              "shop_options",
+                                                            domProps: {
+                                                              value: shop.value,
+                                                            },
+                                                          },
+                                                          [
+                                                            _vm._v(
+                                                              "\n                                            " +
+                                                                _vm._s(
+                                                                  shop.label
+                                                                ) +
+                                                                "\n                                        "
+                                                            ),
+                                                          ]
+                                                        )
+                                                      }
+                                                    ),
+                                                    0
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "p",
+                                                    {
+                                                      staticClass:
+                                                        "text-danger small",
+                                                    },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                        " +
+                                                          _vm._s(
+                                                            ProviderProps
+                                                              .errors[0]
+                                                          ) +
+                                                          "\n                                    "
+                                                      ),
+                                                    ]
+                                                  ),
+                                                ])
+                                              },
+                                            },
+                                          ],
+                                          null,
+                                          true
+                                        ),
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "button",
+                                        {
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function ($event) {
+                                              return _vm.changeEdit("shop_id")
+                                            },
+                                          },
+                                        },
+                                        [
+                                          _vm._v(
+                                            "\n                                確定\n                            "
+                                          ),
+                                        ]
+                                      ),
+                                    ],
+                                    1
+                                  )
+                                : _vm._e(),
+                            ]),
+                          ])
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "form-group row" }, [
+                        _c(
+                          "label",
+                          { staticClass: "col-md-3 d-flex align-items-center" },
+                          [_vm._v("ランク/役職")]
+                        ),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "col-md-9" }, [
+                          _vm.switchEdit.lunk
+                            ? _c(
                                 "div",
                                 {
-                                  directives: [
-                                    {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: _vm.switchEdit.shop_id,
-                                      expression: "switchEdit.shop_id",
-                                    },
-                                  ],
                                   staticClass: "decision",
                                   on: {
                                     click: function ($event) {
-                                      return _vm.changeEdit("shop_id")
+                                      return _vm.changeEdit("lunk")
                                     },
                                   },
                                 },
                                 [
                                   _vm._v(
                                     "\n                            " +
-                                      _vm._s(_vm.shopLabels[_vm.data.shop_id]) +
+                                      _vm._s(_vm.lunkLabels[_vm.data.lunk]) +
                                       "\n                        "
                                   ),
                                 ]
-                              ),
-                              _vm._v(" "),
-                              _c(
+                              )
+                            : _vm._e(),
+                          _vm._v(" "),
+                          !_vm.switchEdit.lunk
+                            ? _c(
                                 "div",
-                                {
-                                  directives: [
-                                    {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: !_vm.switchEdit.shop_id,
-                                      expression: "!switchEdit.shop_id",
-                                    },
-                                  ],
-                                  staticClass: "input-area",
-                                },
+                                { staticClass: "input-area" },
                                 [
                                   _c("ValidationProvider", {
                                     attrs: {
-                                      rules: "required|" + _vm.shopOneOf,
-                                      name: "shop",
+                                      rules: "required|" + _vm.lunkOneOf,
+                                      name: "lunk",
                                     },
                                     scopedSlots: _vm._u(
                                       [
@@ -46792,9 +47028,8 @@ var render = function () {
                                                     {
                                                       name: "model",
                                                       rawName: "v-model",
-                                                      value: _vm.data.shop_id,
-                                                      expression:
-                                                        "data.shop_id",
+                                                      value: _vm.data.lunk,
+                                                      expression: "data.lunk",
                                                     },
                                                   ],
                                                   staticClass: "form-control",
@@ -46818,7 +47053,7 @@ var render = function () {
                                                           })
                                                       _vm.$set(
                                                         _vm.data,
-                                                        "shop_id",
+                                                        "lunk",
                                                         $event.target.multiple
                                                           ? $$selectedVal
                                                           : $$selectedVal[0]
@@ -46827,22 +47062,20 @@ var render = function () {
                                                   },
                                                 },
                                                 _vm._l(
-                                                  _vm.shops,
-                                                  function (shop) {
+                                                  _vm.Lunks,
+                                                  function (lunk) {
                                                     return _c(
                                                       "option",
                                                       {
-                                                        key: shop.value,
-                                                        staticClass:
-                                                          "shop_options",
+                                                        key: lunk.value,
                                                         domProps: {
-                                                          value: shop.value,
+                                                          value: lunk.value,
                                                         },
                                                       },
                                                       [
                                                         _vm._v(
                                                           "\n                                            " +
-                                                            _vm._s(shop.label) +
+                                                            _vm._s(lunk.label) +
                                                             "\n                                        "
                                                         ),
                                                       ]
@@ -46883,7 +47116,7 @@ var render = function () {
                                       attrs: { type: "button" },
                                       on: {
                                         click: function ($event) {
-                                          return _vm.changeEdit("shop_id")
+                                          return _vm.changeEdit("lunk")
                                         },
                                       },
                                     },
@@ -46895,174 +47128,8 @@ var render = function () {
                                   ),
                                 ],
                                 1
-                              ),
-                            ]),
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "form-group row" }, [
-                        _c(
-                          "label",
-                          { staticClass: "col-md-3 d-flex align-items-center" },
-                          [_vm._v("ランク/役職")]
-                        ),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "col-md-9" }, [
-                          _c(
-                            "div",
-                            {
-                              directives: [
-                                {
-                                  name: "show",
-                                  rawName: "v-show",
-                                  value: _vm.switchEdit.lunk,
-                                  expression: "switchEdit.lunk",
-                                },
-                              ],
-                              staticClass: "decision",
-                              on: {
-                                click: function ($event) {
-                                  return _vm.changeEdit("lunk")
-                                },
-                              },
-                            },
-                            [
-                              _vm._v(
-                                "\n                            " +
-                                  _vm._s(_vm.lunkLabels[_vm.data.lunk]) +
-                                  "\n                        "
-                              ),
-                            ]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "div",
-                            {
-                              directives: [
-                                {
-                                  name: "show",
-                                  rawName: "v-show",
-                                  value: !_vm.switchEdit.lunk,
-                                  expression: "!switchEdit.lunk",
-                                },
-                              ],
-                              staticClass: "input-area",
-                            },
-                            [
-                              _c("ValidationProvider", {
-                                attrs: {
-                                  rules: "required|" + _vm.lunkOneOf,
-                                  name: "lunk",
-                                },
-                                scopedSlots: _vm._u(
-                                  [
-                                    {
-                                      key: "default",
-                                      fn: function (ProviderProps) {
-                                        return _c("div", {}, [
-                                          _c(
-                                            "select",
-                                            {
-                                              directives: [
-                                                {
-                                                  name: "model",
-                                                  rawName: "v-model",
-                                                  value: _vm.data.lunk,
-                                                  expression: "data.lunk",
-                                                },
-                                              ],
-                                              staticClass: "form-control",
-                                              on: {
-                                                change: function ($event) {
-                                                  var $$selectedVal =
-                                                    Array.prototype.filter
-                                                      .call(
-                                                        $event.target.options,
-                                                        function (o) {
-                                                          return o.selected
-                                                        }
-                                                      )
-                                                      .map(function (o) {
-                                                        var val =
-                                                          "_value" in o
-                                                            ? o._value
-                                                            : o.value
-                                                        return val
-                                                      })
-                                                  _vm.$set(
-                                                    _vm.data,
-                                                    "lunk",
-                                                    $event.target.multiple
-                                                      ? $$selectedVal
-                                                      : $$selectedVal[0]
-                                                  )
-                                                },
-                                              },
-                                            },
-                                            _vm._l(_vm.Lunks, function (lunk) {
-                                              return _c(
-                                                "option",
-                                                {
-                                                  key: lunk.value,
-                                                  domProps: {
-                                                    value: lunk.value,
-                                                  },
-                                                },
-                                                [
-                                                  _vm._v(
-                                                    "\n                                            " +
-                                                      _vm._s(lunk.label) +
-                                                      "\n                                        "
-                                                  ),
-                                                ]
-                                              )
-                                            }),
-                                            0
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "p",
-                                            {
-                                              staticClass: "text-danger small",
-                                            },
-                                            [
-                                              _vm._v(
-                                                "\n                                        " +
-                                                  _vm._s(
-                                                    ProviderProps.errors[0]
-                                                  ) +
-                                                  "\n                                    "
-                                              ),
-                                            ]
-                                          ),
-                                        ])
-                                      },
-                                    },
-                                  ],
-                                  null,
-                                  true
-                                ),
-                              }),
-                              _vm._v(" "),
-                              _c(
-                                "button",
-                                {
-                                  attrs: { type: "button" },
-                                  on: {
-                                    click: function ($event) {
-                                      return _vm.changeEdit("lunk")
-                                    },
-                                  },
-                                },
-                                [
-                                  _vm._v(
-                                    "\n                                確定\n                            "
-                                  ),
-                                ]
-                              ),
-                            ],
-                            1
-                          ),
+                              )
+                            : _vm._e(),
                         ]),
                       ]),
                       _vm._v(" "),
@@ -47459,7 +47526,7 @@ var render = function () {
         _c("h3", [_vm._v("タスク管理")]),
       ]),
       _vm._v(" "),
-      _c("router-link", { attrs: { to: "" } }, [
+      _c("router-link", { attrs: { to: "/point-manage" } }, [
         _c("h3", [_vm._v("ポイント管理")]),
       ]),
     ],
@@ -47489,6 +47556,138 @@ var render = function () {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("p", [_vm._v("USER HOME")])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=template&id=fd6558f4&":
+/*!**********************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/PointManager.vue?vue&type=template&id=fd6558f4& ***!
+  \**********************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function () {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "point-manage" }, [
+    _c("h2", [_vm._v("POINT MANAGE")]),
+    _vm._v(" "),
+    _c("div", [
+      _c("div", { staticClass: "select-box-area" }, [
+        _vm.currentAuth == 1
+          ? _c("div", { staticClass: "form-group row" }, [
+              _c("label", { staticClass: "label", attrs: { for: "shop" } }, [
+                _vm._v("店舗選択"),
+              ]),
+              _vm._v(" "),
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.shopId,
+                      expression: "shopId",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: function ($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function (o) {
+                          return o.selected
+                        })
+                        .map(function (o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.shopId = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    },
+                  },
+                },
+                _vm._l(_vm.shops, function (shop) {
+                  return _c(
+                    "option",
+                    { key: shop.value, domProps: { value: shop.value } },
+                    [
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(shop.label) +
+                          "\n                    "
+                      ),
+                    ]
+                  )
+                }),
+                0
+              ),
+            ])
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.users
+          ? _c("div", { staticClass: "form-group row" }, [
+              _c("label", { staticClass: "label" }, [_vm._v("ユーザー選択")]),
+              _vm._v(" "),
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.userId,
+                      expression: "userId",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: function ($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function (o) {
+                          return o.selected
+                        })
+                        .map(function (o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.userId = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    },
+                  },
+                },
+                _vm._l(_vm.users, function (user) {
+                  return _c(
+                    "option",
+                    { key: user.id, domProps: { value: user.id } },
+                    [
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(user.name) +
+                          "\n                    "
+                      ),
+                    ]
+                  )
+                }),
+                0
+              ),
+            ])
+          : _vm._e(),
+      ]),
+    ]),
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -65974,6 +66173,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/pages/PointManager.vue":
+/*!*********************************************!*\
+  !*** ./resources/js/pages/PointManager.vue ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _PointManager_vue_vue_type_template_id_fd6558f4___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PointManager.vue?vue&type=template&id=fd6558f4& */ "./resources/js/pages/PointManager.vue?vue&type=template&id=fd6558f4&");
+/* harmony import */ var _PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PointManager.vue?vue&type=script&lang=js& */ "./resources/js/pages/PointManager.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _PointManager_vue_vue_type_template_id_fd6558f4___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _PointManager_vue_vue_type_template_id_fd6558f4___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/pages/PointManager.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/pages/PointManager.vue?vue&type=script&lang=js&":
+/*!**********************************************************************!*\
+  !*** ./resources/js/pages/PointManager.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./PointManager.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/pages/PointManager.vue?vue&type=template&id=fd6558f4&":
+/*!****************************************************************************!*\
+  !*** ./resources/js/pages/PointManager.vue?vue&type=template&id=fd6558f4& ***!
+  \****************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_template_id_fd6558f4___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./PointManager.vue?vue&type=template&id=fd6558f4& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=template&id=fd6558f4&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_template_id_fd6558f4___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_template_id_fd6558f4___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/pages/ShopManage.vue":
 /*!*******************************************!*\
   !*** ./resources/js/pages/ShopManage.vue ***!
@@ -66469,6 +66737,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pages_EditUser_vue__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../pages/EditUser.vue */ "./resources/js/pages/EditUser.vue");
 /* harmony import */ var _pages_errors_NotFound_vue__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../pages/errors/NotFound.vue */ "./resources/js/pages/errors/NotFound.vue");
 /* harmony import */ var _pages_TaskManager_vue__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../pages/TaskManager.vue */ "./resources/js/pages/TaskManager.vue");
+/* harmony import */ var _pages_PointManager_vue__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../pages/PointManager.vue */ "./resources/js/pages/PointManager.vue");
+
 
 
 
@@ -66514,6 +66784,9 @@ var routes = [{
   //  return { page: /^[1-9][0-9]*$/.test(page) ? page * 1 : 1 };
   //  },
 
+}, {
+  path: "/point-manage",
+  component: _pages_PointManager_vue__WEBPACK_IMPORTED_MODULE_13__["default"]
 }, {
   path: "/500",
   component: _pages_errors_System_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
