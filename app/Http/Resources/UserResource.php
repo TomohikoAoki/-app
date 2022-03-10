@@ -20,6 +20,8 @@ class UserResource extends JsonResource
             'authority' => $this->authority,
             'shop_id' => $this->profile->shop_id,
             'employee_code' => $this->profile->employee_code,
+            'lunk' => $this->profile->lunk,
+            'position_id' => $this->profile->position_id
 
         ];
     }

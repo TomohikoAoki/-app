@@ -28,9 +28,32 @@ class User extends Authenticatable
         'password', 'remember_token','created_at','updated_at'
     ];
 
+    /**
+     * リレーション
+     * @return hasOne
+     */
     public function profile()
     {
         return $this->hasOne('App\Models\profile');
     }
+
+    /**
+     * リレーション
+     * @return hasMany
+     */
+    public function givenPoints()
+    {
+        return $this->hasMany('App\Models\LeaderPoint');
+    }
+
+    /**
+     * リレーション
+     *
+     */
+    public function givenPointedTasks()
+    {
+        return $this->hasManyThrough(Task::class, LeaderPoint::class, 'user_id', 'id', null, 'task_id');
+    }
+
 
 }
