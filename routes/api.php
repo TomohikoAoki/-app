@@ -60,9 +60,9 @@ Route::delete('/task', 'TaskController@deleteTask');
 Route::get('/task', 'TaskController@indexTask');
 
 //リーダーポイント　追加
-Route::post('/point-l', 'LeaderPointController@putPoint');
+Route::post('/point', 'LeaderPointController@putPoint');
 
 //ユーザー別リーダーポイント　取得
-Route::get('/point-l', 'LeaderPointController@getPointByUserId');
+Route::get('/point', 'LeaderPointController@getPointByUserId');
 
 

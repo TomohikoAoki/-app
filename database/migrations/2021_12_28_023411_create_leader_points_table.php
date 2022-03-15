@@ -18,11 +18,9 @@ class CreateLeaderPointsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('task_id');
             $table->integer('point')->nullable();
-            $table->unsignedBigInteger('editor')->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
-            $table->foreign('editor')->references('id')->on('users');
             $table->unique(['user_id', 'task_id']);
 
         });

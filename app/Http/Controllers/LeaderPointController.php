@@ -4,24 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\LeaderPoint;
+use App\Models\User;
 
 class LeaderPointController extends Controller
 {
-    public function getTaskAndPointByUserId()
+    public function __construct()
     {
-        $userId = "1";
+        $this->middleware('auth');
+    }
 
+    public function getPointByUserId(Request $request)
+    {
+        $userId = $request->input('user_id');
         $points = User::find($userId)->givenPoints()->get();
 
-        $profile = Profile::where('user_id', $userId)->first();
-
-        $tasks = Shop::find($profile->shop_id)->tasks()->where('position_id', $profile->position_id)->get();
+        return response($points, 200);
     }
 
     public function putPoint(Request $request)
     {
-        $list = ($request['givenPointList']);
-        foreach ($list as $item) {
+        $data = $request['pointList'];
+        logger($request);
+        foreach ($data as $item) {
             if (!$item['id']) {
                 unset($item['id']);
                 LeaderPoint::create($item);
