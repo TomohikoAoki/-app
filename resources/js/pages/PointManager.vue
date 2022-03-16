@@ -68,6 +68,7 @@
                 </div>
             </div>
         </div>
+        <p>{{ sendFlag }}</p>
         <ModalPointEdit
             v-if="showModal"
             :task="taskProps"
@@ -75,7 +76,9 @@
             @emitClose="closePointEdit"
             @emitPoint="putPoint"
         ></ModalPointEdit>
-        <div v-if="sendFlag" @click="sendData" class="send-data"><span>更新</span></div>
+        <div v-if="sendFlag" @click="sendData" class="send-data">
+            <span>更新</span>
+        </div>
     </div>
 </template>
 
@@ -114,14 +117,58 @@ export default {
             const response = await axios.get(
                 `/api/task?shop=${this.shopId}&position=${this.user.position_id}`
             );
+
+            let tasks = response.data
+
             //ユーザーに紐付いたポイントデータ取得
             const resPoints = await axios.get(
                 `api/point?user_id=${this.user.id}`
             );
 
-            //ポイントデータ加工　idが重複するのでpoint_idに変更
             let pointsData = resPoints.data;
 
+            //ポイントデータ加工
+            //既にsendDataにデータがある場合、ユーザーを切り替えても点数変更が描画に反映されるように処理
+            let localData = [];
+            if (this.formData.pointList.length) {
+                //sendDataの中のユーザーに紐付いたデータをフィルタリング
+                localData = this.formData.pointList.filter((item) => {
+                    return item.user_id == this.user.id;
+                });
+            }
+
+            //localDataがあれば
+            if (localData.length) {
+                //apiで取得したpointsDataをlocalDataで上書き(pointプロパティだけ)
+                pointsData.forEach((point) => {
+                    let overWriteData = localData.find(
+                        (data) => data.task_id === point.task_id
+                    );
+                    if (overWriteData) {
+                        point.point = overWriteData.point;
+                    }
+                });
+
+                //pointのidが無いデータを追加（新規で追加しようとしているsendData）
+                //id=nullでフィルタリング
+                let nullIdData = localData.filter((item) => {
+                    return item.id === null;
+                });
+
+                if (nullIdData) {
+                    //そのままぶっこむと参照になってsendDataに影響するので
+                    //新規オブジェクトを作ってpointsDataにpush(値渡し)
+                    nullIdData.forEach((item) => {
+                        let object = {};
+                        for (let key in item) {
+                            object[key] = item[key];
+                        }
+                        pointsData.push(object);
+                    });
+                }
+            }
+
+            //idが重複するのでpoint_idに変更
             pointsData.forEach((point) => {
                 point.point_id = point.id;
                 delete point.id;
@@ -130,28 +177,28 @@ export default {
 
             this.taskData = {};
 
-            //タスクデータをthis.taskDataに挿入
-            response.data.forEach((task) => {
+            //タスクデータをpointDataとまとめてthis.taskDataに挿入
+            tasks.forEach((task) => {
                 //point:0とpoint_id:nullを追加
                 Object.assign(task, { point: 0, point_id: null });
                 //ポイントデータとタスクデータが紐付いている場合は上書き
-                pointsData.forEach((point) => {
-                    if (point.task_id == task.id) {
-                        Object.assign(task, point);
-                        return task;
-                    }
-                });
+                let overWriteData = pointsData.find(
+                    (point) => point.task_id == task.id
+                );
+
+                Object.assign(task, overWriteData);
+                return task;
             });
 
-            this.taskData = response.data
+            this.taskData = tasks;
         },
+        //pointデータを送信
         async sendData() {
             const response = await axios.post("/api/point", this.formData);
 
-            this.formData.pointList = []
+            //送信用データを空に
+            this.formData.pointList = [];
             this.sendFlag = false;
-
-            console.log(response.status);
         },
         //カテゴリー切り替え
         changeTask(key) {
@@ -171,24 +218,31 @@ export default {
         putPoint(data) {
             //task_idで重複削除
             let list = this.formData.pointList.filter((item) => {
-                return item.task_id !== data.task_id;
+                if (
+                    item.task_id !== data.task_id ||
+                    item.user_id !== data.user_id
+                ) {
+                    return true;
+                }
             });
             list.push(data);
             //送信用データの格納
             this.formData.pointList = list;
+            this.sendFlag = true;
 
             //再描画用　pointを更新
             this.taskData.forEach((task, index) => {
                 if (task.id === data.task_id) {
-                    this.$set(this.taskData[index], 'point', data.point)
+                    this.$set(this.taskData[index], "point", data.point);
                 }
-            })
+            });
 
-            console.log(this.formData.pointList)
         },
         confirm() {
-            return window.confirm('変更した採点データが保存されていません。このままページを離脱しますか？')
-        }
+            return window.confirm(
+                "変更した採点データが保存されていません。このままページを離脱しますか？"
+            );
+        },
     },
     computed: {
         ...mapGetters({
@@ -198,9 +252,9 @@ export default {
             categoryLabels: "options/categoryLabels",
         }),
         filterTask() {
-            let filteredTask = this.taskData.filter((task) => {
-                return task.category_id == this.currentTask
-            })
+            const filteredTask = this.taskData.filter((task) => {
+                return task.category_id == this.currentTask;
+            });
             return filteredTask;
         },
     },
@@ -211,29 +265,23 @@ export default {
         user() {
             this.getTaskWithPoint();
         },
-        formData: {
-            handler: function() {
-                this.sendFlag = true
-            },
-            deep: true,
-        }
     },
-    //pointデータがそうしんされ
-    beforeRouteLeave(to, from, next){
+    //ページの移動前にpointデータが残っていたら確認
+    beforeRouteLeave(to, from, next) {
         if (this.sendFlag) {
             if (this.confirm() === false) return;
-            next()
+            next();
         }
         next();
     },
     mounted() {
-        let self = this
-        window.onbeforeunload = function() {
-            if(self.sendFlag) {
-                return '未保存のデータがあります。処理を実行しますが？'
+        let self = this;
+        window.onbeforeunload = function () {
+            if (self.sendFlag) {
+                return "未保存のデータがあります。処理を実行しますが？";
             }
-        }
-    }
+        };
+    },
 };
 </script>
 
@@ -341,22 +389,22 @@ export default {
     }
 }
 .send-data {
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        background-color: #f7f2e0;
-        width: 80px;
-        height: 80px;
-        text-align: center;
-        border-radius: 50%;
-        color: #38466d;
-        span {
-            display: block;
-            margin: 0 auto;
-            position: absolute;
-            top : 50%;
-            left: 50%;
-            transform: translateY(-50%)translateX(-50%);
-        }
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: #f7f2e0;
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    border-radius: 50%;
+    color: #38466d;
+    span {
+        display: block;
+        margin: 0 auto;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateY(-50%) translateX(-50%);
     }
+}
 </style>

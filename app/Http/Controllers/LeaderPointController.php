@@ -24,7 +24,6 @@ class LeaderPointController extends Controller
     public function putPoint(Request $request)
     {
         $data = $request['pointList'];
-        logger($request);
         foreach ($data as $item) {
             if (!$item['id']) {
                 unset($item['id']);
@@ -32,6 +31,7 @@ class LeaderPointController extends Controller
             } else {
                 LeaderPoint::where('id', $item['id'])->update($item);
             }
+
         }
 
         return response('', 200);

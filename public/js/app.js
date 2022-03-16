@@ -3471,6 +3471,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3522,7 +3525,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response, resPoints, pointsData;
+        var response, tasks, resPoints, pointsData, localData, nullIdData;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -3532,37 +3535,82 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 2:
                 response = _context2.sent;
-                _context2.next = 5;
+                tasks = response.data; //ユーザーに紐付いたポイントデータ取得
+
+                _context2.next = 6;
                 return axios.get("api/point?user_id=".concat(_this2.user.id));
 
-              case 5:
+              case 6:
                 resPoints = _context2.sent;
-                //ポイントデータ加工　idが重複するのでpoint_idに変更
-                pointsData = resPoints.data;
+                pointsData = resPoints.data; //ポイントデータ加工
+                //既にsendDataにデータがある場合、ユーザーを切り替えても点数変更が描画に反映されるように処理
+
+                localData = [];
+
+                if (_this2.formData.pointList.length) {
+                  //sendDataの中のユーザーに紐付いたデータをフィルタリング
+                  localData = _this2.formData.pointList.filter(function (item) {
+                    return item.user_id == _this2.user.id;
+                  });
+                } //localDataがあれば
+
+
+                if (localData.length) {
+                  //apiで取得したpointsDataをlocalDataで上書き(pointプロパティだけ)
+                  pointsData.forEach(function (point) {
+                    var overWriteData = localData.find(function (data) {
+                      return data.task_id === point.task_id;
+                    });
+
+                    if (overWriteData) {
+                      point.point = overWriteData.point;
+                    }
+                  }); //pointのidが無いデータを追加（新規で追加しようとしているsendData）
+                  //id=nullでフィルタリング
+
+                  nullIdData = localData.filter(function (item) {
+                    return item.id === null;
+                  });
+
+                  if (nullIdData) {
+                    //そのままぶっこむと参照になってsendDataに影響するので
+                    //新規オブジェクトを作ってpointsDataにpush(値渡し)
+                    nullIdData.forEach(function (item) {
+                      var object = {};
+
+                      for (var key in item) {
+                        object[key] = item[key];
+                      }
+
+                      pointsData.push(object);
+                    });
+                  }
+                } //idが重複するのでpoint_idに変更
+
+
                 pointsData.forEach(function (point) {
                   point.point_id = point.id;
                   delete point.id;
                   delete point.editor; //無くてもいい
                 });
-                _this2.taskData = {}; //タスクデータをthis.taskDataに挿入
+                _this2.taskData = {}; //タスクデータをpointDataとまとめてthis.taskDataに挿入
 
-                response.data.forEach(function (task) {
+                tasks.forEach(function (task) {
                   //point:0とpoint_id:nullを追加
                   Object.assign(task, {
                     point: 0,
                     point_id: null
                   }); //ポイントデータとタスクデータが紐付いている場合は上書き
 
-                  pointsData.forEach(function (point) {
-                    if (point.task_id == task.id) {
-                      Object.assign(task, point);
-                      return task;
-                    }
+                  var overWriteData = pointsData.find(function (point) {
+                    return point.task_id == task.id;
                   });
+                  Object.assign(task, overWriteData);
+                  return task;
                 });
-                _this2.taskData = response.data;
+                _this2.taskData = tasks;
 
-              case 11:
+              case 15:
               case "end":
                 return _context2.stop();
             }
@@ -3570,6 +3618,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee2);
       }))();
     },
+    //pointデータを送信
     sendData: function sendData() {
       var _this3 = this;
 
@@ -3584,11 +3633,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 2:
                 response = _context3.sent;
+                //送信用データを空に
                 _this3.formData.pointList = [];
                 _this3.sendFlag = false;
-                console.log(response.status);
 
-              case 6:
+              case 5:
               case "end":
                 return _context3.stop();
             }
@@ -3616,21 +3665,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       //task_idで重複削除
       var list = this.formData.pointList.filter(function (item) {
-        return item.task_id !== data.task_id;
+        if (item.task_id !== data.task_id || item.user_id !== data.user_id) {
+          return true;
+        }
       });
       list.push(data); //送信用データの格納
 
-      this.formData.pointList = list; //再描画用　pointを更新
+      this.formData.pointList = list;
+      this.sendFlag = true; //再描画用　pointを更新
 
       this.taskData.forEach(function (task, index) {
         if (task.id === data.task_id) {
-          _this4.$set(_this4.taskData[index], 'point', data.point);
+          _this4.$set(_this4.taskData[index], "point", data.point);
         }
       });
-      console.log(this.formData.pointList);
     },
     confirm: function confirm() {
-      return window.confirm('変更した採点データが保存されていません。このままページを離脱しますか？');
+      return window.confirm("変更した採点データが保存されていません。このままページを離脱しますか？");
     }
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
@@ -3654,15 +3705,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     user: function user() {
       this.getTaskWithPoint();
-    },
-    formData: {
-      handler: function handler() {
-        this.sendFlag = true;
-      },
-      deep: true
     }
   },
-  //pointデータがそうしんされ
+  //ページの移動前にpointデータが残っていたら確認
   beforeRouteLeave: function beforeRouteLeave(to, from, next) {
     if (this.sendFlag) {
       if (this.confirm() === false) return;
@@ -3676,7 +3721,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     window.onbeforeunload = function () {
       if (self.sendFlag) {
-        return '未保存のデータがあります。処理を実行しますが？';
+        return "未保存のデータがあります。処理を実行しますが？";
       }
     };
   }
@@ -9330,7 +9375,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "@charset \"UTF-8\";\n.select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.task-data-area[data-v-fd6558f4] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-fd6558f4] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-fd6558f4] {\n  list-style: none;\n}\n.category-area .select-category[data-v-fd6558f4] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-fd6558f4] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-group[data-v-fd6558f4] {\n  border: 1px solid;\n  margin: 1em 0;\n}\n.task-group__title[data-v-fd6558f4] {\n  padding: 0.7em 0 0.7em 1em;\n  background-color: #7b7e88;\n  color: #313644;\n  margin: 0;\n  line-height: 1em;\n}\n.task[data-v-fd6558f4] {\n  display: flex;\n  border-bottom: 1px dotted #929292cb;\n  margin: 0;\n  cursor: pointer;\n  box-sizing: border-box;\n}\n.task[data-v-fd6558f4]:hover {\n  background-color: #38466d;\n}\n.task__index[data-v-fd6558f4] {\n  width: 3em;\n  text-align: center;\n  margin: 0;\n  border-right: 1px solid;\n  padding: 1em 0;\n  box-sizing: border-box;\n}\n.task__body[data-v-fd6558f4] {\n  margin: 0;\n  padding: 1em 0.5em;\n  box-sizing: border-box;\n  flex: 2;\n}\n.task__point[data-v-fd6558f4] {\n  margin: 0;\n  box-sizing: border-box;\n  padding: 1em 0;\n  width: 3em;\n  text-align: center;\n  border-left: 1px solid;\n}\n.task__point span[data-v-fd6558f4] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task__point span.point1[data-v-fd6558f4] {\n  background-color: #fff;\n  border: none;\n}\n.task__point span.point2[data-v-fd6558f4] {\n  background-color: #cbf090;\n  border: none;\n}\n.task__point span.point3[data-v-fd6558f4] {\n  background-color: #fcf977;\n  border: none;\n}\n.task__point span.point4[data-v-fd6558f4] {\n  background-color: #9790fc;\n  border: none;\n}\n.task__point span.point5[data-v-fd6558f4] {\n  background-color: #f1aa70;\n  border: none;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 0;\n  right: 0;\n  background-color: #f7f2e0;\n  width: 80px;\n  height: 80px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\n.select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.task-data-area[data-v-fd6558f4] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-fd6558f4] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-fd6558f4] {\n  list-style: none;\n}\n.category-area .select-category[data-v-fd6558f4] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-fd6558f4] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-group[data-v-fd6558f4] {\n  border: 1px solid;\n  margin: 1em 0;\n}\n.task-group__title[data-v-fd6558f4] {\n  padding: 0.7em 0 0.7em 1em;\n  background-color: #7b7e88;\n  color: #313644;\n  margin: 0;\n  line-height: 1em;\n}\n.task[data-v-fd6558f4] {\n  display: flex;\n  border-bottom: 1px dotted #929292cb;\n  margin: 0;\n  cursor: pointer;\n  box-sizing: border-box;\n}\n.task[data-v-fd6558f4]:hover {\n  background-color: #38466d;\n}\n.task__index[data-v-fd6558f4] {\n  width: 3em;\n  text-align: center;\n  margin: 0;\n  border-right: 1px solid;\n  padding: 1em 0;\n  box-sizing: border-box;\n}\n.task__body[data-v-fd6558f4] {\n  margin: 0;\n  padding: 1em 0.5em;\n  box-sizing: border-box;\n  flex: 2;\n}\n.task__point[data-v-fd6558f4] {\n  margin: 0;\n  box-sizing: border-box;\n  padding: 1em 0;\n  width: 3em;\n  text-align: center;\n  border-left: 1px solid;\n}\n.task__point span[data-v-fd6558f4] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task__point span.point1[data-v-fd6558f4] {\n  background-color: #fff;\n  border: none;\n}\n.task__point span.point2[data-v-fd6558f4] {\n  background-color: #cbf090;\n  border: none;\n}\n.task__point span.point3[data-v-fd6558f4] {\n  background-color: #fcf977;\n  border: none;\n}\n.task__point span.point4[data-v-fd6558f4] {\n  background-color: #9790fc;\n  border: none;\n}\n.task__point span.point5[data-v-fd6558f4] {\n  background-color: #f1aa70;\n  border: none;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
 
 // exports
 
@@ -48450,6 +48495,8 @@ var render = function () {
             ])
           : _vm._e(),
       ]),
+      _vm._v(" "),
+      _c("p", [_vm._v(_vm._s(_vm.sendFlag))]),
       _vm._v(" "),
       _vm.showModal
         ? _c("ModalPointEdit", {
