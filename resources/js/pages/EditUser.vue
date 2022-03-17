@@ -152,10 +152,7 @@
                             >
                                 {{ shopLabels[data.shop_id] }}
                             </div>
-                            <div
-                                v-if="!switchEdit.shop_id"
-                                class="input-area"
-                            >
+                            <div v-if="!switchEdit.shop_id" class="input-area">
                                 <ValidationProvider
                                     :rules="`required|${shopOneOf}`"
                                     name="shop"
@@ -360,7 +357,6 @@ function $_getKeyForValid(str, arr) {
     return str;
 }
 
-
 export default {
     data() {
         return {
@@ -393,7 +389,7 @@ export default {
     methods: {
         async changeEdit(key) {
             //validationObserverがエラー時は切り替わらない
-            if (await　this.$refs.obs.validate()) {
+            if (await this.$refs.obs.validate()) {
                 //開くフィールド以外は閉じる
                 for (let prop in this.switchEdit) {
                     this.switchEdit[prop] =
@@ -410,7 +406,6 @@ export default {
             Object.keys(user).forEach((key) => {
                 this.data[key] = user[key];
             });
-
         },
         async updateUser() {
             const response = await axios.put(
@@ -497,7 +492,7 @@ export default {
     height: 2em;
     width: 100%;
     font-size: 1.2em;
-    cursor:pointer;
+    cursor: pointer;
 }
 .btn {
     display: block;

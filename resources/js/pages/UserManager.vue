@@ -9,7 +9,9 @@
         <div v-if="shopUsers">
             <section>
                 <div v-for="(shop, key) in shopUsers" :key="key" class="card">
-                    <h3 class="shop-name card-header">{{ shopNames[key] }}</h3>
+                    <h3 class="shop-name card-header">
+                        {{ shopNames[key] }}
+                    </h3>
                     <div class="card-body">
                         <div
                             v-for="(members, key) in shop"
@@ -26,7 +28,9 @@
                                     <p class="user__employee-code">
                                         {{ member.employee_code }}
                                     </p>
-                                    <p class="user__name">{{ member.name }}</p>
+                                    <p class="user__name">
+                                        {{ member.name }}
+                                    </p>
                                 </div>
                                 <div>
                                     <router-link
@@ -169,7 +173,7 @@ export default {
         ...mapGetters({
             shopId: "auth/getShopId",
             userAuth: "auth/getAuthority",
-            shopNames: 'options/shopLabels',
+            shopNames: "options/shopLabels",
         }),
     },
     watch: {

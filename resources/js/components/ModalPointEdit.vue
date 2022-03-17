@@ -3,9 +3,9 @@
         <div class="modaler-content">
             <h3>採点</h3>
             <div>
-                <p>{{ task.content }}</p>
+                <p class="context">{{ task.content }}</p>
                 <ValidationObserver ref="obs" v-slot="ObserverProps">
-                    <ValidationProvider rules="required" name="タスク内容">
+                    <ValidationProvider rules="required|oneOf:1,2,3,4,5" name="タスク内容">
                         <div slot-scope="ProviderProps">
                             <input
                                 type="radio"
@@ -131,10 +131,8 @@ export default {
         .btn {
             margin: 3em 0 0 0;
         }
-        .text-area {
-            height: calc(1.3em * 3);
-            line-height: 1.3;
-            width: 100%;
+        .context {
+            font-weight: bold;
         }
     }
 }

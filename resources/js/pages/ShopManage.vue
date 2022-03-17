@@ -24,7 +24,6 @@
 </template>
 
 <script>
-
 export default {
     data() {
         return {
@@ -36,15 +35,18 @@ export default {
     },
     methods: {
         async fetchShops() {
-            const response = await axios.get('api/shop/index');
-            this.shops = response.data
+            const response = await axios.get("api/shop/index");
+            this.shops = response.data;
         },
         async registerShop() {
-            const response = await axios.post('/api/shop/register', this.registerShopForm);
+            const response = await axios.post(
+                "/api/shop/register",
+                this.registerShopForm
+            );
 
-            this.registerShopForm.shopname = ""
+            this.registerShopForm.shopname = "";
 
-            this.shops = response.data
+            this.shops = response.data;
         },
     },
     watch: {
@@ -52,9 +54,9 @@ export default {
             async handler() {
                 await this.fetchShops();
             },
-            immediate: true
-        }
-    }
+            immediate: true,
+        },
+    },
 };
 </script>
 

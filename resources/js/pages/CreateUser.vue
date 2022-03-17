@@ -221,7 +221,9 @@
                                         v-model="registerForm.position_id"
                                         class="form-check-input"
                                     />
-                                    <label class="form-check-label">{{ position.label }}</label>
+                                    <label class="form-check-label">{{
+                                        position.label
+                                    }}</label>
                                 </div>
                                 <p class="text-danger small">
                                     {{ ProviderProps.errors[0] }}

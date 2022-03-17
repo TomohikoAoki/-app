@@ -42,7 +42,9 @@
                     </li>
                 </ul>
                 <div class="task-group">
-                    <h4 class="task-group__title">{{ categoryLabels[currentTask] }}</h4>
+                    <h4 class="task-group__title">
+                        {{ categoryLabels[currentTask] }}
+                    </h4>
                     <div
                         v-for="(task, index) in filterTask"
                         :key="task.id"
@@ -67,7 +69,10 @@
                                 ref="obs"
                             >
                                 <form @submit.prevent="addTask">
-                                    <ValidationProvider rules="required|max:100" name="タスク内容">
+                                    <ValidationProvider
+                                        rules="required|max:100"
+                                        name="タスク内容"
+                                    >
                                         <div slot-scope="ProviderProps">
                                             <textarea
                                                 v-model="taskForm.content"
@@ -134,15 +139,15 @@ export default {
             shops: "options/Shops",
             positions: "options/Positions",
             category: "options/taskCategory",
-            categoryLabels: "options/categoryLabels"
+            categoryLabels: "options/categoryLabels",
         }),
-        ...mapState('auth', {
+        ...mapState("auth", {
             currentAuth: function (state) {
-                if ( state.user.authority === 2 ) {
-                    this.shopId = state.user.shop_id
+                if (state.user.authority === 2) {
+                    this.shopId = state.user.shop_id;
                 }
-                return state.user.authority
-            }
+                return state.user.authority;
+            },
         }),
         filterTask() {
             return this.taskData[this.currentTask];

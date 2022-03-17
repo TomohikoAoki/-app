@@ -1,13 +1,13 @@
 <template>
-        <div class="app-box bg-dark">
-            <Header></Header>
-            <main class="main">
-                <div class="container">
-                    <RouterView />
-                </div>
-            </main>
-            <Footer></Footer>
-        </div>
+    <div class="app-box bg-dark">
+        <Header></Header>
+        <main class="main">
+            <div class="container">
+                <RouterView />
+            </div>
+        </main>
+        <Footer></Footer>
+    </div>
 </template>
 
 <script>
@@ -52,4 +52,5 @@ export default {
     padding: 80px 0;
     min-height: 70vh;
 }
+
 </style>

@@ -9,6 +9,7 @@
         <router-link to="/point-manage"><h3>ポイント管理</h3></router-link>
     </div>
 </template>
+
 <script>
 import store from "../store";
 import router from "../router";
