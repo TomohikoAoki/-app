@@ -23,7 +23,7 @@ class LeaderPointController extends Controller
 
     public function putPoint(Request $request)
     {
-        $data = $request['pointList'];
+        $data = $request->all();
         foreach ($data as $item) {
             if (!$item['id']) {
                 unset($item['id']);

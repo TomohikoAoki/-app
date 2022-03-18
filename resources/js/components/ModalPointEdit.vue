@@ -88,7 +88,6 @@ export default {
         emitPoint() {
             let obj = {}
             for(let key in this.pointData) {
-                if (this.pointData.hasOwnProperty(key))
                 obj[key] = this.pointData[key]
             }
             this.$emit('emitPoint', obj)

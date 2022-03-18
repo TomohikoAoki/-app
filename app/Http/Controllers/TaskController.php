@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\Shop;
 
 class TaskController extends Controller
 {
@@ -41,5 +42,10 @@ class TaskController extends Controller
         $positionId = $request->input('position');
 
         return Task::where('shop_id', $shopId)->where('position_id', $positionId)->orderByRaw('category_id asc', 'id asc')->get();
+    }
+
+    public function taskOfShop(string $id)
+    {
+        return Shop::find($id)->tasks()->get();
     }
 }

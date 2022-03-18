@@ -7,7 +7,7 @@
                     <select
                         v-model="shopId"
                         class="form-control"
-                        :disabled="sendFlag"
+                        :disabled="_sendFlag"
                     >
                         <option
                             v-for="shop in shops"
@@ -17,7 +17,7 @@
                             {{ shop.label }}
                         </option>
                     </select>
-                    <p v-if="sendFlag" class="danger small">
+                    <p v-if="_sendFlag" class="danger small">
                         更新を完了しないと店舗の変更はできません。
                     </p>
                 </div>
@@ -82,7 +82,7 @@
             @emitClose="closePointEdit"
             @emitPoint="putPoint"
         ></ModalPointEdit>
-        <div v-if="sendFlag" @click="sendData" class="send-data">
+        <div v-if="_sendFlag" @click="sendData" class="send-data">
             <span>更新</span>
         </div>
     </div>
@@ -100,12 +100,7 @@ export default {
             users: null,
             currentTask: 1,
             taskData: null,
-            pointData: null,
-            formData: {
-                pointList: [],
-            },
             showModal: false,
-            sendFlag: false,
         };
     },
     components: {
@@ -138,9 +133,9 @@ export default {
             //ポイントデータ加工
             //既にsendDataにデータがある場合、ユーザーを切り替えても点数変更が描画に反映されるように処理
             let localData = [];
-            if (this.formData.pointList.length) {
+            if (this._sendFlag) {
                 //sendDataの中のユーザーに紐付いたデータをフィルタリング
-                localData = this.formData.pointList.filter((item) => {
+                localData = this._sendData.filter((item) => {
                     return item.user_id == this.user.id;
                 });
             }
@@ -197,10 +192,10 @@ export default {
                 });
 
                 //ポイントデータとタスクデータが紐付いている場合は上書き
-                let overWriteData = pointsData.find(
-                    (point) => point.task_id == task.id
+                Object.assign(
+                    task,
+                    pointsData.find((point) => point.task_id == task.id)
                 );
-                Object.assign(task, overWriteData);
 
                 return task;
             });
@@ -209,11 +204,10 @@ export default {
         },
         //pointデータを送信
         async sendData() {
-            const response = await axios.post("/api/point", this.formData);
+            const response = await axios.post("/api/point", this._sendData);
 
             //色々初期化
-            this.formData.pointList = [];
-            this.sendFlag = false;
+            this.$store.dispatch("point/clearPoints");
             this.taskData = [];
             this.currentTask = 1;
 
@@ -236,8 +230,8 @@ export default {
         },
         //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
         putPoint(data) {
-            //task_idで重複削除
-            let list = this.formData.pointList.filter((item) => {
+            //task_id & user_id で重複削除
+            let list = this._sendData.filter((item) => {
                 if (
                     item.task_id !== data.task_id ||
                     item.user_id !== data.user_id
@@ -247,22 +241,17 @@ export default {
             });
             list.push(data);
             //送信用データの格納
-            this.formData.pointList = list;
-            this.sendFlag = true;
+            this.$store.dispatch("point/putPoints", list);
 
             //再描画用　pointを更新
-            this.taskData.forEach((task, index) => {
-                if (task.id === data.task_id) {
-                    this.$set(this.taskData[index], "point", data.point);
-                    this.$set(this.taskData[index], "updated", true);
-                }
-            });
-        },
-        confirm() {
-            return window.confirm(
-                "変更した採点データが保存されていません。このままページを離脱しますか？"
+            let targetTask = this.taskData.find(
+                (task) => task.id === data.task_id
             );
+
+            this.$set(targetTask, "point", data.point);
+            this.$set(targetTask, "updated", true);
         },
+
         ifShopLeader() {
             if (this.currentAuth == 2) {
                 this.shopId = this.getShopId;
@@ -277,12 +266,13 @@ export default {
             category: "options/taskCategory",
             categoryLabels: "options/categoryLabels",
             getShopId: "auth/getShopId",
+            _sendData: "point/getSendData",
+            _sendFlag: "point/getSendDataFlag",
         }),
         filterTask() {
-            const filteredTask = this.taskData.filter((task) => {
+            return this.taskData.filter((task) => {
                 return task.category_id == this.currentTask;
             });
-            return filteredTask;
         },
     },
     watch: {
@@ -291,29 +281,14 @@ export default {
             this.user = null;
             this.currentTask = 1;
             this.taskData = null;
-            this.pointData = null;
             this.fetchUsers();
         },
         user() {
             this.getTaskWithPoint();
         },
     },
-    //ページの移動前にpointデータが残っていたら確認
-    beforeRouteLeave(to, from, next) {
-        if (this.sendFlag) {
-            if (this.confirm() === false) return;
-            next();
-        }
-        next();
-    },
     mounted() {
         this.ifShopLeader();
-        let self = this;
-        window.onbeforeunload = function () {
-            if (self.sendFlag) {
-                return "未保存のデータがあります。処理を実行しますが？";
-            }
-        };
     },
 };
 </script>

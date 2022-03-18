@@ -59,10 +59,15 @@ Route::delete('/task', 'TaskController@deleteTask');
 //タスク一覧取得
 Route::get('/task', 'TaskController@indexTask');
 
+//店舗ごとのタスク一覧取得
+Route::get('/task/{id}', 'TaskController@taskOfShop');
+
 //リーダーポイント　追加
 Route::post('/point', 'LeaderPointController@putPoint');
 
 //ユーザー別リーダーポイント　取得
 Route::get('/point', 'LeaderPointController@getPointByUserId');
+
+
 
 
