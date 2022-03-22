@@ -43,7 +43,7 @@ class User extends Authenticatable
      * リレーション
      * @return hasMany
      */
-    public function givenPoints()
+    public function points()
     {
         return $this->hasMany('App\Models\LeaderPoint');
     }

@@ -68,6 +68,9 @@ Route::post('/point', 'LeaderPointController@putPoint');
 //ユーザー別リーダーポイント　取得
 Route::get('/point', 'LeaderPointController@getPointByUserId');
 
+//店舗別ユーザーとポイント　取得
+Route::get('/point/{id}', 'LeaderPointController@getPointsWithUsersBelongToShop');
+
 
 
 

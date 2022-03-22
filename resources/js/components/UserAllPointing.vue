@@ -23,6 +23,11 @@
                 </div>
             </div>
             <div v-if="taskData" class="task-data-area">
+                <h3>ポジション</h3>
+                <ul>
+                    <li @click="changePosition(1)">ホール</li>
+                    <li @click="changePosition(2)">キッチン</li>
+                </ul>
                 <ul class="category-area">
                     <li
                         v-for="cate in category"
@@ -36,15 +41,17 @@
                 </ul>
                 <div class="task-group">
                     <div
-                        v-for="(user, index) in users"
+                        v-for="(user, index) in usersFilteredPosition"
                         :key="`user${index}:${user.id}`"
+                        class="task-user"
                     >
-                        {{ user.name }}
+                        <p class="task-user__name">{{ user.name }}</p>
                         <div
                             v-for="(task, index) in filterTask(user.id)"
                             :key="`${index}:${task.task_id}`"
+                            class="task-user__point"
                         >
-                            {{ task.user_id }}
+                            <span>{{ task.point }}</span>
                         </div>
                     </div>
                 </div>
@@ -72,6 +79,7 @@ export default {
         return {
             shopId: null,
             currentTask: 1,
+            currentPosition: 1,
             users: null,
             showModal: false,
             mainData: [],
@@ -83,9 +91,11 @@ export default {
     },
     methods: {
         async fetchUsersAndTasks() {
-            const response = await axios.get(`/api/user/get/${this.shopId}`);
+            const response = await axios.get(`/api/point/${this.shopId}`);
 
             let data = response.data.data;
+
+            console.log(data);
 
             this.users = data.filter((user) => {
                 return user.authority == 3;
@@ -102,12 +112,22 @@ export default {
                     obj.position_id = user.position_id;
                     obj.category_id = task.category_id;
                     obj.task_id = task.id;
+                    obj.updated = false;
                     obj.point = 0;
                     obj.point_id = null;
-                    obj.updated = false;
+                    if (user.points.length) {
+                        let target = user.points.find((point) => {
+                            return point.task_id === task.id;
+                        });
+                        if (target) {
+                            obj.point = target.point;
+                            obj.point_id = target.id;
+                        }
+                    }
                     this.mainData.push(obj);
                 });
             });
+
         },
         //pointデータを送信
         async sendData() {
@@ -134,6 +154,9 @@ export default {
         //ポイント編集モーダルクローズ
         closePointEdit() {
             this.showModal = false;
+        },
+        changePosition(key) {
+            this.currentPosition = key;
         },
         //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
         putPoint(data) {
@@ -165,13 +188,6 @@ export default {
                 this.fetchUsers();
             }
         },
-        filtered(id) {
-            const res = this.mainData.filter((data) => {
-                data.user_id == id;
-            });
-
-            return res;
-        },
     },
     computed: {
         ...mapGetters({
@@ -189,9 +205,14 @@ export default {
                     return task.category_id == this.currentTask;
                 });
                 return test.filter((item) => {
-                    return item.user_id == id
-                })
+                    return item.user_id == id;
+                });
             };
+        },
+        usersFilteredPosition() {
+            return this.users.filter((user) => {
+                return user.position_id === this.currentPosition;
+            });
         },
     },
     watch: {
@@ -260,6 +281,19 @@ export default {
         top: 50%;
         left: 50%;
         transform: translateY(-50%) translateX(-50%);
+    }
+}
+.task-user {
+    display: flex;
+    align-items: stretch;
+    &__name {
+        width: 100px;
+        border: 1px solid;
+    }
+    &__point {
+        border: 1px solid;
+        width: 3em;
+        text-align: center;
     }
 }
 </style>

@@ -2408,6 +2408,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2415,6 +2422,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return {
       shopId: null,
       currentTask: 1,
+      currentPosition: 1,
       users: null,
       showModal: false,
       mainData: [],
@@ -2435,18 +2443,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.get("/api/user/get/".concat(_this.shopId));
+                return axios.get("/api/point/".concat(_this.shopId));
 
               case 2:
                 response = _context.sent;
                 data = response.data.data;
+                console.log(data);
                 _this.users = data.filter(function (user) {
                   return user.authority == 3;
                 });
-                _context.next = 7;
+                _context.next = 8;
                 return axios.get("/api/task/".concat(_this.shopId));
 
-              case 7:
+              case 8:
                 resTask = _context.sent;
                 _this.taskData = resTask.data;
 
@@ -2457,15 +2466,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     obj.position_id = user.position_id;
                     obj.category_id = task.category_id;
                     obj.task_id = task.id;
+                    obj.updated = false;
                     obj.point = 0;
                     obj.point_id = null;
-                    obj.updated = false;
+
+                    if (user.points.length) {
+                      var target = user.points.find(function (point) {
+                        return point.task_id === task.id;
+                      });
+
+                      if (target) {
+                        obj.point = target.point;
+                        obj.point_id = target.id;
+                      }
+                    }
 
                     _this.mainData.push(obj);
                   });
                 });
 
-              case 10:
+              case 11:
               case "end":
                 return _context.stop();
             }
@@ -2519,6 +2539,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     closePointEdit: function closePointEdit() {
       this.showModal = false;
     },
+    changePosition: function changePosition(key) {
+      this.currentPosition = key;
+    },
     //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
     putPoint: function putPoint(data) {
       //task_id & user_id で重複削除
@@ -2543,12 +2566,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         this.shopId = this.getShopId;
         this.fetchUsers();
       }
-    },
-    filtered: function filtered(id) {
-      var res = this.mainData.filter(function (data) {
-        data.user_id == id;
-      });
-      return res;
     }
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
@@ -2571,6 +2588,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           return item.user_id == id;
         });
       };
+    },
+    usersFilteredPosition: function usersFilteredPosition() {
+      var _this4 = this;
+
+      return this.users.filter(function (user) {
+        return user.position_id === _this4.currentPosition;
+      });
     }
   }),
   watch: {
@@ -9789,7 +9813,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".select-box-area[data-v-5f95ecad] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-5f95ecad]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-5f95ecad] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-5f95ecad] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
+exports.push([module.i, ".select-box-area[data-v-5f95ecad] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-5f95ecad]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-5f95ecad] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-5f95ecad] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}\n.task-user[data-v-5f95ecad] {\n  display: flex;\n  align-items: stretch;\n}\n.task-user__name[data-v-5f95ecad] {\n  width: 100px;\n  border: 1px solid;\n}\n.task-user__point[data-v-5f95ecad] {\n  border: 1px solid;\n  width: 3em;\n  text-align: center;\n}", ""]);
 
 // exports
 
@@ -46652,6 +46676,34 @@ var render = function () {
         _vm._v(" "),
         _vm.taskData
           ? _c("div", { staticClass: "task-data-area" }, [
+              _c("h3", [_vm._v("ポジション")]),
+              _vm._v(" "),
+              _c("ul", [
+                _c(
+                  "li",
+                  {
+                    on: {
+                      click: function ($event) {
+                        return _vm.changePosition(1)
+                      },
+                    },
+                  },
+                  [_vm._v("ホール")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "li",
+                  {
+                    on: {
+                      click: function ($event) {
+                        return _vm.changePosition(2)
+                      },
+                    },
+                  },
+                  [_vm._v("キッチン")]
+                ),
+              ]),
+              _vm._v(" "),
               _c(
                 "ul",
                 { staticClass: "category-area" },
@@ -46683,24 +46735,27 @@ var render = function () {
               _c(
                 "div",
                 { staticClass: "task-group" },
-                _vm._l(_vm.users, function (user, index) {
+                _vm._l(_vm.usersFilteredPosition, function (user, index) {
                   return _c(
                     "div",
-                    { key: "user" + index + ":" + user.id },
+                    {
+                      key: "user" + index + ":" + user.id,
+                      staticClass: "task-user",
+                    },
                     [
-                      _vm._v(
-                        "\n                    " +
-                          _vm._s(user.name) +
-                          "\n                    "
-                      ),
+                      _c("p", { staticClass: "task-user__name" }, [
+                        _vm._v(_vm._s(user.name)),
+                      ]),
+                      _vm._v(" "),
                       _vm._l(_vm.filterTask(user.id), function (task, index) {
-                        return _c("div", { key: index + ":" + task.task_id }, [
-                          _vm._v(
-                            "\n                        " +
-                              _vm._s(task.user_id) +
-                              "\n                    "
-                          ),
-                        ])
+                        return _c(
+                          "div",
+                          {
+                            key: index + ":" + task.task_id,
+                            staticClass: "task-user__point",
+                          },
+                          [_c("span", [_vm._v(_vm._s(task.point))])]
+                        )
                       }),
                     ],
                     2
