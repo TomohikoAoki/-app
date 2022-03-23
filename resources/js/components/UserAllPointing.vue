@@ -50,8 +50,17 @@
                             v-for="(task, index) in filterTask(user.id)"
                             :key="`${index}:${task.task_id}`"
                             class="task-user__point"
+                            @click="openPointEdit($event, task)"
                         >
-                            <span>{{ task.point }}</span>
+                            <span
+                                :class="{
+                                    point1: task.point == 1,
+                                    point2: task.point == 2,
+                                    point3: task.point == 3,
+                                    point4: task.point == 4,
+                                    point5: task.point == 5,
+                                }"
+                            ></span>
                         </div>
                     </div>
                 </div>
@@ -60,7 +69,7 @@
         <ModalPointEdit
             v-if="showModal"
             :task="taskProps"
-            :user="userProps"
+            :data="dataProps"
             @emitClose="closePointEdit"
             @emitPoint="putPoint"
         ></ModalPointEdit>
@@ -91,6 +100,9 @@ export default {
     },
     methods: {
         async fetchUsersAndTasks() {
+            this.mainData = [];
+            this.taskData = null;
+            this.users = null;
             const response = await axios.get(`/api/point/${this.shopId}`);
 
             let data = response.data.data;
@@ -127,7 +139,6 @@ export default {
                     this.mainData.push(obj);
                 });
             });
-
         },
         //pointデータを送信
         async sendData() {
@@ -146,10 +157,10 @@ export default {
             this.currentTask = key;
         },
         //ポイント編集モーダルオープン
-        openPointEdit(event, task) {
+        openPointEdit(event, data) {
             this.showModal = true;
-            this.taskProps = task;
-            this.userProps = this.user;
+            this.taskProps = this.taskData;
+            this.dataProps = data;
         },
         //ポイント編集モーダルクローズ
         closePointEdit() {
@@ -283,17 +294,52 @@ export default {
         transform: translateY(-50%) translateX(-50%);
     }
 }
-.task-user {
-    display: flex;
-    align-items: stretch;
-    &__name {
-        width: 100px;
-        border: 1px solid;
-    }
-    &__point {
-        border: 1px solid;
-        width: 3em;
-        text-align: center;
+.task-group {
+    overflow-x: scroll;
+    .task-user {
+        display: flex;
+        align-items: stretch;
+        flex-wrap: nowrap;
+
+        &__name {
+            min-width: 100px;
+            border: 1px solid;
+        }
+        &__point {
+            border: 1px solid;
+            min-width: 3em;
+            text-align: center;
+            flex: 1;
+            span {
+                display: block;
+                width: 1em;
+                height: 1em;
+                border-radius: 50%; /*角丸*/
+                border: 1px solid;
+                margin: 0 auto;
+                content: "";
+                &.point1 {
+                    background-color: #fff;
+                    border: none;
+                }
+                &.point2 {
+                    background-color: rgb(203, 240, 144);
+                    border: none;
+                }
+                &.point3 {
+                    background-color: rgb(252, 249, 119);
+                    border: none;
+                }
+                &.point4 {
+                    background-color: rgb(151, 144, 252);
+                    border: none;
+                }
+                &.point5 {
+                    background-color: rgb(241, 170, 112);
+                    border: none;
+                }
+            }
+        }
     }
 }
 </style>

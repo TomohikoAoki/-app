@@ -66,6 +66,16 @@ localize('ja', dict);
 
 //vee-validation end
 
+import Helpers from "./helpers"
+
+const plugin = {
+    install() {
+        Vue.prototype.$helpers = Helpers
+    }
+}
+
+Vue.use(plugin)
+
 const createApp = async() => {
     await store.dispatch("auth/currentUser");
     await store.dispatch("options/getShops");

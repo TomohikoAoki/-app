@@ -3,7 +3,7 @@
         <div class="modaler-content">
             <h3>採点</h3>
             <div>
-                <p class="context">{{ task.content }}</p>
+                <p class="context">{{ filterTask.content }}</p>
                 <ValidationObserver ref="obs" v-slot="ObserverProps">
                     <ValidationProvider rules="required|oneOf:1,2,3,4,5" name="タスク内容">
                         <div slot-scope="ProviderProps">
@@ -66,14 +66,14 @@ import {
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
-    props: ["task","user"],
+    props: ["data","task"],
     data() {
         return {
             pointData: {
-                task_id: this.task.id,
-                point: this.task.point,
-                user_id: this.user.id,
-                id: this.task.point_id,
+                task_id: this.data.id,
+                point: this.data.point,
+                user_id: this.data.user_id,
+                id: this.data.point_id,
             },
         };
     },
@@ -92,6 +92,16 @@ export default {
             }
             this.$emit('emitPoint', obj)
             this.closeModal();
+        },
+    },
+    computed: {
+        filterTask() {
+            if (this.$helpers.isType(this.task) === 'Object'){
+                return this.task
+            }
+            return this.task.find((item) => {
+                return item.id == this.data.task_id
+            })
         },
     },
     mounted() {

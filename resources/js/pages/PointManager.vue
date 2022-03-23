@@ -1,7 +1,12 @@
 <template>
     <div>
         <h2>POINT MANAGE</h2>
-        <UserAllPointing></UserAllPointing>
+        <ul>
+            <li @click="currentComponent = 'user'">個別採点</li>
+            <li @click="currentComponent = 'all'">まとめて採点</li>
+        </ul>
+        <UserPointing v-if="currentComponent === 'user'"></UserPointing>
+        <UserAllPointing v-if="currentComponent === 'all'"></UserAllPointing>
     </div>
 </template>
 
@@ -11,6 +16,11 @@ import UserAllPointing from '../components/UserAllPointing.vue';
 import { mapGetters } from 'vuex';
 
 export default {
+    data() {
+        return {
+            currentComponent: 'user'
+        }
+    },
     components: {
         UserPointing,
         UserAllPointing,

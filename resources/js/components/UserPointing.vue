@@ -52,14 +52,14 @@
                         {{ categoryLabels[currentTask] }}
                     </h4>
                     <div
-                        v-for="(task, index) in filterTask"
-                        :key="task.id"
+                        v-for="(task, index) in filterMainData"
+                        :key="task.task_id"
                         class="task"
                         :class="{ updated: task.updated === true }"
                         @click="openPointEdit($event, task)"
                     >
                         <p class="task__index">{{ index + 1 }}</p>
-                        <p class="task__body">{{ task.content }}</p>
+                        <p class="task__body">{{ filterTaskContent(task.task_id) }}</p>
                         <p class="task__point">
                             <span
                                 :class="{
@@ -77,8 +77,8 @@
         </div>
         <ModalPointEdit
             v-if="showModal"
+            :data="dataProps"
             :task="taskProps"
-            :user="userProps"
             @emitClose="closePointEdit"
             @emitPoint="putPoint"
         ></ModalPointEdit>
@@ -100,6 +100,7 @@ export default {
             users: null,
             currentTask: 1,
             taskData: null,
+            mainData: [],
             showModal: false,
         };
     },
@@ -118,11 +119,15 @@ export default {
         },
         //タスクデータにポイントデータをmergeして取得
         async getTaskWithPoint() {
+            this.taskData = []
+            this.mainData = []
             //店舗とポジションに紐付いたタスクデータ取得
             const response = await axios.get(
                 `/api/task?shop=${this.shopId}&position=${this.user.position_id}`
             );
             let tasks = response.data;
+
+            this.taskData = tasks
 
             //ユーザーに紐付いたポイントデータ取得
             const resPoints = await axios.get(
@@ -180,27 +185,33 @@ export default {
                 delete point.editor; //無くてもいい
             });
 
-            this.taskData = [];
+            let Data = []
 
             //タスクデータにpointDataをプロパティにまとめてthis.taskDataに挿入
             tasks.forEach((task) => {
                 //全タスクデータにpoint:0とpoint_id:nullを追加
-                Object.assign(task, {
-                    point: 0,
-                    point_id: null,
-                    updated: false,
-                });
+                let obj = {}
+                obj.point = 0
+                obj.user_id = this.user.id
+                obj.point_id = null
+                obj.updated = false
+                obj.task_id = task.id
+                obj.position_id = this.user.position_id
+                obj.category_id = task.category_id
 
                 //ポイントデータとタスクデータが紐付いている場合は上書き
-                Object.assign(
-                    task,
-                    pointsData.find((point) => point.task_id == task.id)
-                );
+                if(pointsData.length){
+                    let ow = pointsData.find((point) => point.task_id == task.id)
+                    if(ow) {
+                        obj.point = ow.point
+                        obj.point_id = ow.point_id
+                    }
+                }
 
-                return task;
+                Data.push(obj)
             });
 
-            this.taskData = tasks;
+            this.mainData = Data;
         },
         //pointデータを送信
         async sendData() {
@@ -221,8 +232,8 @@ export default {
         //ポイント編集モーダルオープン
         openPointEdit(event, task) {
             this.showModal = true;
-            this.taskProps = task;
-            this.userProps = this.user;
+            this.dataProps = task;
+            this.taskProps = this.taskData;
         },
         //ポイント編集モーダルクローズ
         closePointEdit() {
@@ -269,11 +280,17 @@ export default {
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
-        filterTask() {
-            return this.taskData.filter((task) => {
+        filterMainData() {
+            return this.mainData.filter((task) => {
                 return task.category_id == this.currentTask;
             });
         },
+        filterTaskContent() {
+            return function (taskId) {
+                let task = this.taskData.find((item) => item.id === taskId)
+                return task.content
+            }
+        }
     },
     watch: {
         shopId: function () {

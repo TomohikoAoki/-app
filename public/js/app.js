@@ -2277,14 +2277,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["task", "user"],
+  props: ["data", "task"],
   data: function data() {
     return {
       pointData: {
-        task_id: this.task.id,
-        point: this.task.point,
-        user_id: this.user.id,
-        id: this.task.point_id
+        task_id: this.data.id,
+        point: this.data.point,
+        user_id: this.data.user_id,
+        id: this.data.point_id
       }
     };
   },
@@ -2305,6 +2305,19 @@ __webpack_require__.r(__webpack_exports__);
 
       this.$emit('emitPoint', obj);
       this.closeModal();
+    }
+  },
+  computed: {
+    filterTask: function filterTask() {
+      var _this = this;
+
+      if (this.$helpers.isType(this.task) === 'Object') {
+        return this.task;
+      }
+
+      return this.task.find(function (item) {
+        return item.id == _this.data.task_id;
+      });
     }
   },
   mounted: function mounted() {
@@ -2415,6 +2428,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2442,20 +2464,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
+                _this.mainData = [];
+                _this.taskData = null;
+                _this.users = null;
+                _context.next = 5;
                 return axios.get("/api/point/".concat(_this.shopId));
 
-              case 2:
+              case 5:
                 response = _context.sent;
                 data = response.data.data;
                 console.log(data);
                 _this.users = data.filter(function (user) {
                   return user.authority == 3;
                 });
-                _context.next = 8;
+                _context.next = 11;
                 return axios.get("/api/task/".concat(_this.shopId));
 
-              case 8:
+              case 11:
                 resTask = _context.sent;
                 _this.taskData = resTask.data;
 
@@ -2485,7 +2510,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   });
                 });
 
-              case 11:
+              case 14:
               case "end":
                 return _context.stop();
             }
@@ -2530,10 +2555,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.currentTask = key;
     },
     //ポイント編集モーダルオープン
-    openPointEdit: function openPointEdit(event, task) {
+    openPointEdit: function openPointEdit(event, data) {
       this.showModal = true;
-      this.taskProps = task;
-      this.userProps = this.user;
+      this.taskProps = this.taskData;
+      this.dataProps = data;
     },
     //ポイント編集モーダルクローズ
     closePointEdit: function closePointEdit() {
@@ -2737,6 +2762,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       users: null,
       currentTask: 1,
       taskData: null,
+      mainData: [],
       showModal: false
     };
   },
@@ -2776,22 +2802,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response, tasks, resPoints, pointsData, localData, nullIdData;
+        var response, tasks, resPoints, pointsData, localData, nullIdData, Data;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _context2.next = 2;
+                _this2.taskData = [];
+                _this2.mainData = []; //店舗とポジションに紐付いたタスクデータ取得
+
+                _context2.next = 4;
                 return axios.get("/api/task?shop=".concat(_this2.shopId, "&position=").concat(_this2.user.position_id));
 
-              case 2:
+              case 4:
                 response = _context2.sent;
-                tasks = response.data; //ユーザーに紐付いたポイントデータ取得
+                tasks = response.data;
+                _this2.taskData = tasks; //ユーザーに紐付いたポイントデータ取得
 
-                _context2.next = 6;
+                _context2.next = 9;
                 return axios.get("api/point?user_id=".concat(_this2.user.id));
 
-              case 6:
+              case 9:
                 resPoints = _context2.sent;
                 pointsData = resPoints.data; //ポイントデータ加工
                 //既にsendDataにデータがある場合、ユーザーを切り替えても点数変更が描画に反映されるように処理
@@ -2847,24 +2877,35 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   delete point.id;
                   delete point.editor; //無くてもいい
                 });
-                _this2.taskData = []; //タスクデータにpointDataをプロパティにまとめてthis.taskDataに挿入
+                Data = []; //タスクデータにpointDataをプロパティにまとめてthis.taskDataに挿入
 
                 tasks.forEach(function (task) {
                   //全タスクデータにpoint:0とpoint_id:nullを追加
-                  Object.assign(task, {
-                    point: 0,
-                    point_id: null,
-                    updated: false
-                  }); //ポイントデータとタスクデータが紐付いている場合は上書き
+                  var obj = {};
+                  obj.point = 0;
+                  obj.user_id = _this2.user.id;
+                  obj.point_id = null;
+                  obj.updated = false;
+                  obj.task_id = task.id;
+                  obj.position_id = _this2.user.position_id;
+                  obj.category_id = task.category_id; //ポイントデータとタスクデータが紐付いている場合は上書き
 
-                  Object.assign(task, pointsData.find(function (point) {
-                    return point.task_id == task.id;
-                  }));
-                  return task;
+                  if (pointsData.length) {
+                    var ow = pointsData.find(function (point) {
+                      return point.task_id == task.id;
+                    });
+
+                    if (ow) {
+                      obj.point = ow.point;
+                      obj.point_id = ow.point_id;
+                    }
+                  }
+
+                  Data.push(obj);
                 });
-                _this2.taskData = tasks;
+                _this2.mainData = Data;
 
-              case 15:
+              case 18:
               case "end":
                 return _context2.stop();
             }
@@ -2911,8 +2952,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     //ポイント編集モーダルオープン
     openPointEdit: function openPointEdit(event, task) {
       this.showModal = true;
-      this.taskProps = task;
-      this.userProps = this.user;
+      this.dataProps = task;
+      this.taskProps = this.taskData;
     },
     //ポイント編集モーダルクローズ
     closePointEdit: function closePointEdit() {
@@ -2953,12 +2994,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
-    filterTask: function filterTask() {
+    filterMainData: function filterMainData() {
       var _this4 = this;
 
-      return this.taskData.filter(function (task) {
+      return this.mainData.filter(function (task) {
         return task.category_id == _this4.currentTask;
       });
+    },
+    filterTaskContent: function filterTaskContent() {
+      return function (taskId) {
+        var task = this.taskData.find(function (item) {
+          return item.id === taskId;
+        });
+        return task.content;
+      };
     }
   }),
   watch: {
@@ -4195,10 +4244,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      currentComponent: 'user'
+    };
+  },
   components: {
     UserPointing: _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
     UserAllPointing: _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
@@ -9813,7 +9872,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".select-box-area[data-v-5f95ecad] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-5f95ecad]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-5f95ecad] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-5f95ecad] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}\n.task-user[data-v-5f95ecad] {\n  display: flex;\n  align-items: stretch;\n}\n.task-user__name[data-v-5f95ecad] {\n  width: 100px;\n  border: 1px solid;\n}\n.task-user__point[data-v-5f95ecad] {\n  border: 1px solid;\n  width: 3em;\n  text-align: center;\n}", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\n.select-box-area[data-v-5f95ecad] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-5f95ecad]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-5f95ecad] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-5f95ecad] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}\n.task-group[data-v-5f95ecad] {\n  overflow-x: scroll;\n}\n.task-group .task-user[data-v-5f95ecad] {\n  display: flex;\n  align-items: stretch;\n  flex-wrap: nowrap;\n}\n.task-group .task-user__name[data-v-5f95ecad] {\n  min-width: 100px;\n  border: 1px solid;\n}\n.task-group .task-user__point[data-v-5f95ecad] {\n  border: 1px solid;\n  min-width: 3em;\n  text-align: center;\n  flex: 1;\n}\n.task-group .task-user__point span[data-v-5f95ecad] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task-group .task-user__point span.point1[data-v-5f95ecad] {\n  background-color: #fff;\n  border: none;\n}\n.task-group .task-user__point span.point2[data-v-5f95ecad] {\n  background-color: #cbf090;\n  border: none;\n}\n.task-group .task-user__point span.point3[data-v-5f95ecad] {\n  background-color: #fcf977;\n  border: none;\n}\n.task-group .task-user__point span.point4[data-v-5f95ecad] {\n  background-color: #9790fc;\n  border: none;\n}\n.task-group .task-user__point span.point5[data-v-5f95ecad] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
 
 // exports
 
@@ -46374,7 +46433,7 @@ var render = function () {
           "div",
           [
             _c("p", { staticClass: "context" }, [
-              _vm._v(_vm._s(_vm.task.content)),
+              _vm._v(_vm._s(_vm.filterTask.content)),
             ]),
             _vm._v(" "),
             _c("ValidationObserver", {
@@ -46753,8 +46812,23 @@ var render = function () {
                           {
                             key: index + ":" + task.task_id,
                             staticClass: "task-user__point",
+                            on: {
+                              click: function ($event) {
+                                return _vm.openPointEdit($event, task)
+                              },
+                            },
                           },
-                          [_c("span", [_vm._v(_vm._s(task.point))])]
+                          [
+                            _c("span", {
+                              class: {
+                                point1: task.point == 1,
+                                point2: task.point == 2,
+                                point3: task.point == 3,
+                                point4: task.point == 4,
+                                point5: task.point == 5,
+                              },
+                            }),
+                          ]
                         )
                       }),
                     ],
@@ -46769,7 +46843,7 @@ var render = function () {
       _vm._v(" "),
       _vm.showModal
         ? _c("ModalPointEdit", {
-            attrs: { task: _vm.taskProps, user: _vm.userProps },
+            attrs: { task: _vm.taskProps, data: _vm.dataProps },
             on: { emitClose: _vm.closePointEdit, emitPoint: _vm.putPoint },
           })
         : _vm._e(),
@@ -46969,11 +47043,11 @@ var render = function () {
                     ),
                   ]),
                   _vm._v(" "),
-                  _vm._l(_vm.filterTask, function (task, index) {
+                  _vm._l(_vm.filterMainData, function (task, index) {
                     return _c(
                       "div",
                       {
-                        key: task.id,
+                        key: task.task_id,
                         staticClass: "task",
                         class: { updated: task.updated === true },
                         on: {
@@ -46988,7 +47062,7 @@ var render = function () {
                         ]),
                         _vm._v(" "),
                         _c("p", { staticClass: "task__body" }, [
-                          _vm._v(_vm._s(task.content)),
+                          _vm._v(_vm._s(_vm.filterTaskContent(task.task_id))),
                         ]),
                         _vm._v(" "),
                         _c("p", { staticClass: "task__point" }, [
@@ -47014,7 +47088,7 @@ var render = function () {
       _vm._v(" "),
       _vm.showModal
         ? _c("ModalPointEdit", {
-            attrs: { task: _vm.taskProps, user: _vm.userProps },
+            attrs: { data: _vm.dataProps, task: _vm.taskProps },
             on: { emitClose: _vm.closePointEdit, emitPoint: _vm.putPoint },
           })
         : _vm._e(),
@@ -49527,7 +49601,39 @@ var render = function () {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    [_c("h2", [_vm._v("POINT MANAGE")]), _vm._v(" "), _c("UserAllPointing")],
+    [
+      _c("h2", [_vm._v("POINT MANAGE")]),
+      _vm._v(" "),
+      _c("ul", [
+        _c(
+          "li",
+          {
+            on: {
+              click: function ($event) {
+                _vm.currentComponent = "user"
+              },
+            },
+          },
+          [_vm._v("個別採点")]
+        ),
+        _vm._v(" "),
+        _c(
+          "li",
+          {
+            on: {
+              click: function ($event) {
+                _vm.currentComponent = "all"
+              },
+            },
+          },
+          [_vm._v("まとめて採点")]
+        ),
+      ]),
+      _vm._v(" "),
+      _vm.currentComponent === "user" ? _c("UserPointing") : _vm._e(),
+      _vm._v(" "),
+      _vm.currentComponent === "all" ? _c("UserAllPointing") : _vm._e(),
+    ],
     1
   )
 }
@@ -67181,6 +67287,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vee_validate_dist_locale_ja_json__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vee-validate/dist/locale/ja.json */ "./node_modules/vee-validate/dist/locale/ja.json");
 var vee_validate_dist_locale_ja_json__WEBPACK_IMPORTED_MODULE_7___namespace = /*#__PURE__*/__webpack_require__.t(/*! vee-validate/dist/locale/ja.json */ "./node_modules/vee-validate/dist/locale/ja.json", 1);
 /* harmony import */ var vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vee-validate/dist/rules */ "./node_modules/vee-validate/dist/rules.js");
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./helpers */ "./resources/js/helpers.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -67226,6 +67333,14 @@ var dict = {
 };
 Object(vee_validate__WEBPACK_IMPORTED_MODULE_6__["localize"])('ja', vee_validate_dist_locale_ja_json__WEBPACK_IMPORTED_MODULE_7__);
 Object(vee_validate__WEBPACK_IMPORTED_MODULE_6__["localize"])('ja', dict); //vee-validation end
+
+
+var plugin = {
+  install: function install() {
+    vue__WEBPACK_IMPORTED_MODULE_2___default.a.prototype.$helpers = _helpers__WEBPACK_IMPORTED_MODULE_9__["default"];
+  }
+};
+vue__WEBPACK_IMPORTED_MODULE_2___default.a.use(plugin);
 
 var createApp = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
@@ -68058,6 +68173,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BaseButton_vue_vue_type_template_id_8511f546_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
+
+/***/ }),
+
+/***/ "./resources/js/helpers.js":
+/*!*********************************!*\
+  !*** ./resources/js/helpers.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  isType: function isType(x) {
+    return x != x ? "NaN" : x === Infinity || x === -Infinity ? "Infinity" : Object.prototype.toString.call(x).slice(8, -1);
+  }
+});
 
 /***/ }),
 
