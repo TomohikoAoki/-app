@@ -2281,7 +2281,7 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       pointData: {
-        task_id: this.data.id,
+        task_id: this.data.task_id,
         point: this.data.point,
         user_id: this.data.user_id,
         id: this.data.point_id
@@ -2297,23 +2297,13 @@ __webpack_require__.r(__webpack_exports__);
       this.$emit("emitClose");
     },
     emitPoint: function emitPoint() {
-      var obj = {};
-
-      for (var key in this.pointData) {
-        obj[key] = this.pointData[key];
-      }
-
-      this.$emit('emitPoint', obj);
+      this.$emit('emitPoint', this.pointData);
       this.closeModal();
     }
   },
   computed: {
     filterTask: function filterTask() {
       var _this = this;
-
-      if (this.$helpers.isType(this.task) === 'Object') {
-        return this.task;
-      }
 
       return this.task.find(function (item) {
         return item.id == _this.data.task_id;
@@ -2416,41 +2406,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      shopId: null,
       currentTask: 1,
       currentPosition: 1,
       users: null,
       showModal: false,
-      mainData: [],
-      taskData: null
+      taskData: null,
+      viewData: null
     };
   },
+  props: ["shop"],
   components: {
     ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
@@ -2459,95 +2428,42 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var response, data, resTask;
+        var response, resTask;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this.mainData = [];
                 _this.taskData = null;
                 _this.users = null;
-                _context.next = 5;
-                return axios.get("/api/point/".concat(_this.shopId));
+                _context.next = 4;
+                return axios.get("/api/point/".concat(_this.shop));
 
-              case 5:
+              case 4:
                 response = _context.sent;
-                data = response.data.data;
-                console.log(data);
-                _this.users = data.filter(function (user) {
+                _this.users = response.data.data.filter(function (user) {
                   return user.authority == 3;
                 });
-                _context.next = 11;
-                return axios.get("/api/task/".concat(_this.shopId));
+                _context.next = 8;
+                return axios.get("/api/task/".concat(_this.shop));
 
-              case 11:
+              case 8:
                 resTask = _context.sent;
-                _this.taskData = resTask.data;
+                _this.taskData = resTask.data; //この場所重要　v-if的に
+
+                _this.viewData = [];
 
                 _this.users.forEach(function (user) {
-                  _this.taskData.forEach(function (task) {
-                    var obj = {};
-                    obj.user_id = user.id;
-                    obj.position_id = user.position_id;
-                    obj.category_id = task.category_id;
-                    obj.task_id = task.id;
-                    obj.updated = false;
-                    obj.point = 0;
-                    obj.point_id = null;
+                  var data = _this.$helpers.createViewData(_this.taskData, user, _this._sendData);
 
-                    if (user.points.length) {
-                      var target = user.points.find(function (point) {
-                        return point.task_id === task.id;
-                      });
-
-                      if (target) {
-                        obj.point = target.point;
-                        obj.point_id = target.id;
-                      }
-                    }
-
-                    _this.mainData.push(obj);
-                  });
+                  _this.viewData = _this.viewData.concat(data);
                 });
 
-              case 14:
+              case 12:
               case "end":
                 return _context.stop();
             }
           }
         }, _callee);
-      }))();
-    },
-    //pointデータを送信
-    sendData: function sendData() {
-      var _this2 = this;
-
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.next = 2;
-                return axios.post("/api/point", _this2._sendData);
-
-              case 2:
-                response = _context2.sent;
-
-                //色々初期化
-                _this2.$store.dispatch("point/clearPoints");
-
-                _this2.taskData = [];
-                _this2.currentTask = 1; //タスク再読み込み
-
-                _this2.getTaskWithPoint();
-
-              case 7:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2);
       }))();
     },
     //カテゴリー切り替え
@@ -2580,34 +2496,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       this.$store.dispatch("point/putPoints", list); //再描画用　pointを更新
 
-      var targetTask = this.taskData.find(function (task) {
-        return task.id === data.task_id;
+      var targetTask = this.viewData.find(function (task) {
+        if (task.task_id === data.task_id && task.user_id === data.user_id) {
+          return true;
+        }
       });
       this.$set(targetTask, "point", data.point);
       this.$set(targetTask, "updated", true);
-    },
-    ifShopLeader: function ifShopLeader() {
-      if (this.currentAuth == 2) {
-        this.shopId = this.getShopId;
-        this.fetchUsers();
-      }
     }
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
-    currentAuth: "auth/getAuthority",
-    shops: "options/Shops",
     category: "options/taskCategory",
     categoryLabels: "options/categoryLabels",
-    getShopId: "auth/getShopId",
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
     filterTask: function filterTask() {
       return function (id) {
-        var _this3 = this;
+        var _this2 = this;
 
-        var test = this.mainData.filter(function (task) {
-          return task.category_id == _this3.currentTask;
+        var test = this.viewData.filter(function (task) {
+          return task.category_id == _this2.currentTask;
         });
         return test.filter(function (item) {
           return item.user_id == id;
@@ -2615,15 +2524,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       };
     },
     usersFilteredPosition: function usersFilteredPosition() {
-      var _this4 = this;
+      var _this3 = this;
 
       return this.users.filter(function (user) {
-        return user.position_id === _this4.currentPosition;
+        return user.position_id === _this3.currentPosition;
       });
     }
   }),
   watch: {
-    shopId: function shopId() {
+    shop: function shop() {
       this.users = null;
       this.currentTask = 1;
       this.taskData = null;
@@ -2631,7 +2540,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   },
   mounted: function mounted() {
-    this.ifShopLeader();
+    if (this.shop) {
+      this.fetchUsersAndTasks();
+    }
   }
 });
 
@@ -2726,46 +2637,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      shopId: null,
       user: null,
       users: null,
       currentTask: 1,
       taskData: null,
-      mainData: [],
+      viewData: [],
       showModal: false
     };
   },
+  props: ['shop'],
   components: {
     ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
@@ -2780,7 +2665,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.get("/api/user/get/".concat(_this.shopId));
+                return axios.get("/api/user/get/".concat(_this.shop));
 
               case 2:
                 response = _context.sent;
@@ -2797,21 +2682,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee);
       }))();
     },
-    //タスクデータにポイントデータをmergeして取得
     getTaskWithPoint: function getTaskWithPoint() {
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response, tasks, resPoints, pointsData, localData, nullIdData, Data;
+        var response, tasks, resPoints, user, data;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _this2.taskData = [];
-                _this2.mainData = []; //店舗とポジションに紐付いたタスクデータ取得
+                _this2.viewData = []; //店舗とポジションに紐付いたタスクデータ取得
 
                 _context2.next = 4;
-                return axios.get("/api/task?shop=".concat(_this2.shopId, "&position=").concat(_this2.user.position_id));
+                return axios.get("/api/task?shop=".concat(_this2.shop, "&position=").concat(_this2.user.position_id));
 
               case 4:
                 response = _context2.sent;
@@ -2823,89 +2707,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 9:
                 resPoints = _context2.sent;
-                pointsData = resPoints.data; //ポイントデータ加工
-                //既にsendDataにデータがある場合、ユーザーを切り替えても点数変更が描画に反映されるように処理
+                user = resPoints.data.data;
+                data = _this2.$helpers.createViewData(_this2.taskData, user, _this2._sendData);
+                _this2.viewData = data;
 
-                localData = [];
-
-                if (_this2._sendFlag) {
-                  //sendDataの中のユーザーに紐付いたデータをフィルタリング
-                  localData = _this2._sendData.filter(function (item) {
-                    return item.user_id == _this2.user.id;
-                  });
-                } //localDataがあれば
-
-
-                if (localData.length) {
-                  //apiで取得したpointsDataをlocalDataで上書き
-                  pointsData.forEach(function (point) {
-                    var overWriteData = localData.find(function (data) {
-                      return data.task_id === point.task_id;
-                    });
-
-                    if (overWriteData) {
-                      point.point = overWriteData.point;
-                      point.updated = true; //変更箇所確認用
-                    }
-                  }); //新規のデータはpointDataと紐付けられないのでpushする
-                  //id=nullでフィルタリング
-
-                  nullIdData = localData.filter(function (item) {
-                    return item.id === null;
-                  });
-
-                  if (nullIdData) {
-                    //そのままぶっこむと参照になってsendDataに影響するので
-                    //新規オブジェクトを作ってpointsDataにpush(値渡し)
-                    nullIdData.forEach(function (item) {
-                      var object = {};
-
-                      for (var key in item) {
-                        object[key] = item[key];
-                      }
-
-                      object.updated = true; //変更箇所確認用
-
-                      pointsData.push(object);
-                    });
-                  }
-                } //idが重複するのでpoint_idに変更
-
-
-                pointsData.forEach(function (point) {
-                  point.point_id = point.id;
-                  delete point.id;
-                  delete point.editor; //無くてもいい
-                });
-                Data = []; //タスクデータにpointDataをプロパティにまとめてthis.taskDataに挿入
-
-                tasks.forEach(function (task) {
-                  //全タスクデータにpoint:0とpoint_id:nullを追加
-                  var obj = {};
-                  obj.point = 0;
-                  obj.user_id = _this2.user.id;
-                  obj.point_id = null;
-                  obj.updated = false;
-                  obj.task_id = task.id;
-                  obj.position_id = _this2.user.position_id;
-                  obj.category_id = task.category_id; //ポイントデータとタスクデータが紐付いている場合は上書き
-
-                  if (pointsData.length) {
-                    var ow = pointsData.find(function (point) {
-                      return point.task_id == task.id;
-                    });
-
-                    if (ow) {
-                      obj.point = ow.point;
-                      obj.point_id = ow.point_id;
-                    }
-                  }
-
-                  Data.push(obj);
-                });
-                _this2.mainData = Data;
-
-              case 18:
+              case 13:
               case "end":
                 return _context2.stop();
             }
@@ -2913,46 +2719,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee2);
       }))();
     },
-    //pointデータを送信
-    sendData: function sendData() {
-      var _this3 = this;
-
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
-        var response;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                _context3.next = 2;
-                return axios.post("/api/point", _this3._sendData);
-
-              case 2:
-                response = _context3.sent;
-
-                //色々初期化
-                _this3.$store.dispatch("point/clearPoints");
-
-                _this3.taskData = [];
-                _this3.currentTask = 1; //タスク再読み込み
-
-                _this3.getTaskWithPoint();
-
-              case 7:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, _callee3);
-      }))();
-    },
     //カテゴリー切り替え
     changeTask: function changeTask(key) {
       this.currentTask = key;
     },
     //ポイント編集モーダルオープン
-    openPointEdit: function openPointEdit(event, task) {
+    openPointEdit: function openPointEdit(event, data) {
       this.showModal = true;
-      this.dataProps = task;
+      this.dataProps = data;
       this.taskProps = this.taskData;
     },
     //ポイント編集モーダルクローズ
@@ -2972,33 +2746,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       this.$store.dispatch("point/putPoints", list); //再描画用　pointを更新
 
-      var targetTask = this.taskData.find(function (task) {
-        return task.id === data.task_id;
+      var targetTask = this.viewData.find(function (task) {
+        return task.task_id === data.task_id;
       });
       this.$set(targetTask, "point", data.point);
       this.$set(targetTask, "updated", true);
-    },
-    ifShopLeader: function ifShopLeader() {
-      if (this.currentAuth == 2) {
-        this.shopId = this.getShopId;
-        this.fetchUsers();
-      }
     }
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
-    currentAuth: "auth/getAuthority",
-    shops: "options/Shops",
     category: "options/taskCategory",
     categoryLabels: "options/categoryLabels",
-    getShopId: "auth/getShopId",
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
     filterMainData: function filterMainData() {
-      var _this4 = this;
+      var _this3 = this;
 
-      return this.mainData.filter(function (task) {
-        return task.category_id == _this4.currentTask;
+      return this.viewData.filter(function (task) {
+        return task.category_id == _this3.currentTask;
       });
     },
     filterTaskContent: function filterTaskContent() {
@@ -3011,7 +2776,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   }),
   watch: {
-    shopId: function shopId() {
+    shop: function shop() {
       this.users = null;
       this.user = null;
       this.currentTask = 1;
@@ -3023,7 +2788,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   },
   mounted: function mounted() {
-    this.ifShopLeader();
+    if (this.shop) {
+      this.fetchUsers();
+    }
   }
 });
 
@@ -4228,9 +3995,17 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../components/UserPointing.vue */ "./resources/js/components/UserPointing.vue");
-/* harmony import */ var _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/UserAllPointing.vue */ "./resources/js/components/UserAllPointing.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/UserPointing.vue */ "./resources/js/components/UserPointing.vue");
+/* harmony import */ var _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/UserAllPointing.vue */ "./resources/js/components/UserAllPointing.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -4249,28 +4024,101 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      currentComponent: 'user'
+      currentComponent: "user",
+      shopId: null
     };
   },
   components: {
-    UserPointing: _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
-    UserAllPointing: _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+    UserPointing: _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
+    UserAllPointing: _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapGetters"])({
-    _sendFlag: "point/getSendDataFlag"
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_3__["mapGetters"])({
+    _sendFlag: "point/getSendDataFlag",
+    _sendData: "point/getSendData",
+    shops: "options/Shops",
+    currentAuth: "auth/getAuthority",
+    getShopId: "auth/getShopId"
   })),
   methods: {
+    //pointデータを送信
+    sendData: function sendData() {
+      var _this = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return axios.post("/api/point", _this._sendData);
+
+              case 2:
+                response = _context.sent;
+
+                //色々初期化
+                _this.$store.dispatch("point/clearPoints");
+
+                _this.taskData = [];
+                _this.currentTask = 1; //タスク再読み込み
+
+                _this.getTaskWithPoint();
+
+              case 7:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }))();
+    },
     confirm: function confirm() {
       return window.confirm("変更した採点データが保存されていません。このままページを離脱しますか？");
+    },
+    ifShopLeader: function ifShopLeader() {
+      if (this.currentAuth == 2) {
+        this.shopId = this.getShopId;
+      }
     }
   },
   mounted: function mounted() {
+    this.ifShopLeader();
     var self = this;
 
     window.onbeforeunload = function () {
@@ -4283,7 +4131,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   beforeRouteLeave: function beforeRouteLeave(to, from, next) {
     if (this._sendFlag) {
       if (this.confirm() === false) return;
-      this.$store.dispatch('point/clearPoints');
+      this.$store.dispatch("point/clearPoints");
       next();
     }
 
@@ -9872,7 +9720,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "@charset \"UTF-8\";\n.select-box-area[data-v-5f95ecad] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-5f95ecad]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-5f95ecad] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-5f95ecad] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}\n.task-group[data-v-5f95ecad] {\n  overflow-x: scroll;\n}\n.task-group .task-user[data-v-5f95ecad] {\n  display: flex;\n  align-items: stretch;\n  flex-wrap: nowrap;\n}\n.task-group .task-user__name[data-v-5f95ecad] {\n  min-width: 100px;\n  border: 1px solid;\n}\n.task-group .task-user__point[data-v-5f95ecad] {\n  border: 1px solid;\n  min-width: 3em;\n  text-align: center;\n  flex: 1;\n}\n.task-group .task-user__point span[data-v-5f95ecad] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task-group .task-user__point span.point1[data-v-5f95ecad] {\n  background-color: #fff;\n  border: none;\n}\n.task-group .task-user__point span.point2[data-v-5f95ecad] {\n  background-color: #cbf090;\n  border: none;\n}\n.task-group .task-user__point span.point3[data-v-5f95ecad] {\n  background-color: #fcf977;\n  border: none;\n}\n.task-group .task-user__point span.point4[data-v-5f95ecad] {\n  background-color: #9790fc;\n  border: none;\n}\n.task-group .task-user__point span.point5[data-v-5f95ecad] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-wrap[data-v-5f95ecad] {\n  overflow-x: scroll;\n  padding: 20px 0;\n}\n.task-wrap .task-group[data-v-5f95ecad] {\n  display: table;\n  border: 1px solid;\n}\n.task-wrap .task-group .task-user[data-v-5f95ecad] {\n  display: table-row;\n}\n.task-wrap .task-group .task-user__name[data-v-5f95ecad] {\n  min-width: 120px;\n  border-bottom: 1px dotted;\n  display: table-cell;\n  vertical-align: middle;\n  padding: 0.4em 0.3em;\n}\n.task-wrap .task-group .task-user__point[data-v-5f95ecad] {\n  min-width: 3em;\n  text-align: center;\n  display: table-cell;\n  border-left: 1px solid;\n  border-bottom: 1px dotted;\n  vertical-align: middle;\n}\n.task-wrap .task-group .task-user__point[data-v-5f95ecad]:hover {\n  background-color: #38466d;\n}\n.task-wrap .task-group .task-user__point.updated[data-v-5f95ecad] {\n  background-color: #5d5d5f;\n}\n.task-wrap .task-group .task-user__point.updated[data-v-5f95ecad]:hover {\n  background-color: #38466d;\n}\n.task-wrap .task-group .task-user__point span[data-v-5f95ecad] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task-wrap .task-group .task-user__point span.point1[data-v-5f95ecad] {\n  background-color: #fff;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point2[data-v-5f95ecad] {\n  background-color: #cbf090;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point3[data-v-5f95ecad] {\n  background-color: #fcf977;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point4[data-v-5f95ecad] {\n  background-color: #9790fc;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point5[data-v-5f95ecad] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
 
 // exports
 
@@ -9891,7 +9739,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "@charset \"UTF-8\";\n.select-box-area[data-v-d1d90ab0] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-d1d90ab0]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-d1d90ab0] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-d1d90ab0] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-d1d90ab0] {\n  list-style: none;\n}\n.category-area .select-category[data-v-d1d90ab0] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-d1d90ab0] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-group[data-v-d1d90ab0] {\n  border: 1px solid;\n  margin: 1em 0;\n}\n.task-group__title[data-v-d1d90ab0] {\n  padding: 0.7em 0 0.7em 1em;\n  background-color: #7b7e88;\n  color: #313644;\n  margin: 0;\n  line-height: 1em;\n}\n.task[data-v-d1d90ab0] {\n  display: flex;\n  border-bottom: 1px dotted #929292cb;\n  margin: 0;\n  cursor: pointer;\n  box-sizing: border-box;\n}\n.task[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task.updated[data-v-d1d90ab0] {\n  background-color: #5d5d5f;\n}\n.task.updated[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task__index[data-v-d1d90ab0] {\n  width: 3em;\n  text-align: center;\n  margin: 0;\n  border-right: 1px solid;\n  padding: 1em 0;\n  box-sizing: border-box;\n}\n.task__body[data-v-d1d90ab0] {\n  margin: 0;\n  padding: 1em 0.5em;\n  box-sizing: border-box;\n  flex: 2;\n}\n.task__point[data-v-d1d90ab0] {\n  margin: 0;\n  box-sizing: border-box;\n  padding: 1em 0;\n  width: 3em;\n  text-align: center;\n  border-left: 1px solid;\n}\n.task__point span[data-v-d1d90ab0] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task__point span.point1[data-v-d1d90ab0] {\n  background-color: #fff;\n  border: none;\n}\n.task__point span.point2[data-v-d1d90ab0] {\n  background-color: #cbf090;\n  border: none;\n}\n.task__point span.point3[data-v-d1d90ab0] {\n  background-color: #fcf977;\n  border: none;\n}\n.task__point span.point4[data-v-d1d90ab0] {\n  background-color: #9790fc;\n  border: none;\n}\n.task__point span.point5[data-v-d1d90ab0] {\n  background-color: #f1aa70;\n  border: none;\n}\n.send-data[data-v-d1d90ab0] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-d1d90ab0] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\n.select-box-area[data-v-d1d90ab0] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-d1d90ab0]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-d1d90ab0] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-d1d90ab0] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-d1d90ab0] {\n  list-style: none;\n}\n.category-area .select-category[data-v-d1d90ab0] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-d1d90ab0] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-group[data-v-d1d90ab0] {\n  border: 1px solid;\n  margin: 1em 0;\n}\n.task-group__title[data-v-d1d90ab0] {\n  padding: 0.7em 0 0.7em 1em;\n  background-color: #7b7e88;\n  color: #313644;\n  margin: 0;\n  line-height: 1em;\n}\n.task[data-v-d1d90ab0] {\n  display: flex;\n  border-bottom: 1px dotted #929292cb;\n  margin: 0;\n  cursor: pointer;\n  box-sizing: border-box;\n}\n.task[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task.updated[data-v-d1d90ab0] {\n  background-color: #5d5d5f;\n}\n.task.updated[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task__index[data-v-d1d90ab0] {\n  width: 3em;\n  text-align: center;\n  margin: 0;\n  border-right: 1px solid;\n  padding: 1em 0;\n  box-sizing: border-box;\n}\n.task__body[data-v-d1d90ab0] {\n  margin: 0;\n  padding: 1em 0.5em;\n  box-sizing: border-box;\n  flex: 2;\n}\n.task__point[data-v-d1d90ab0] {\n  margin: 0;\n  box-sizing: border-box;\n  padding: 1em 0;\n  width: 3em;\n  text-align: center;\n  border-left: 1px solid;\n}\n.task__point span[data-v-d1d90ab0] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task__point span.point1[data-v-d1d90ab0] {\n  background-color: #fff;\n  border: none;\n}\n.task__point span.point2[data-v-d1d90ab0] {\n  background-color: #cbf090;\n  border: none;\n}\n.task__point span.point3[data-v-d1d90ab0] {\n  background-color: #fcf977;\n  border: none;\n}\n.task__point span.point4[data-v-d1d90ab0] {\n  background-color: #9790fc;\n  border: none;\n}\n.task__point span.point5[data-v-d1d90ab0] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
 
 // exports
 
@@ -9987,6 +9835,25 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 // module
 exports.push([module.i, "h2 {\n  text-align: center;\n}\nh3 {\n  font-size: 1.3em;\n}\n.operation-listbox a {\n  display: block;\n}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, ".select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-fd6558f4]:disabled {\n  color: #c5c5c5;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
 
 // exports
 
@@ -42407,6 +42274,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../node_modules/css-loader!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--7-2!../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../node_modules/vue-loader/lib??vue-loader-options!./PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/ShopManage.vue?vue&type=style&index=0&lang=scss&":
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/ShopManage.vue?vue&type=style&index=0&lang=scss& ***!
@@ -46670,70 +46567,7 @@ var render = function () {
     { staticClass: "point-manage" },
     [
       _c("div", [
-        _c("div", { staticClass: "select-box-area" }, [
-          _vm.currentAuth == 1
-            ? _c("div", { staticClass: "form-group row" }, [
-                _c("label", { staticClass: "label", attrs: { for: "shop" } }, [
-                  _vm._v("店舗選択"),
-                ]),
-                _vm._v(" "),
-                _c(
-                  "select",
-                  {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.shopId,
-                        expression: "shopId",
-                      },
-                    ],
-                    staticClass: "form-control",
-                    attrs: { disabled: _vm._sendFlag },
-                    on: {
-                      change: function ($event) {
-                        var $$selectedVal = Array.prototype.filter
-                          .call($event.target.options, function (o) {
-                            return o.selected
-                          })
-                          .map(function (o) {
-                            var val = "_value" in o ? o._value : o.value
-                            return val
-                          })
-                        _vm.shopId = $event.target.multiple
-                          ? $$selectedVal
-                          : $$selectedVal[0]
-                      },
-                    },
-                  },
-                  _vm._l(_vm.shops, function (shop) {
-                    return _c(
-                      "option",
-                      { key: shop.value, domProps: { value: shop.value } },
-                      [
-                        _vm._v(
-                          "\n                        " +
-                            _vm._s(shop.label) +
-                            "\n                    "
-                        ),
-                      ]
-                    )
-                  }),
-                  0
-                ),
-                _vm._v(" "),
-                _vm._sendFlag
-                  ? _c("p", { staticClass: "danger small" }, [
-                      _vm._v(
-                        "\n                    更新を完了しないと店舗の変更はできません。\n                "
-                      ),
-                    ])
-                  : _vm._e(),
-              ])
-            : _vm._e(),
-        ]),
-        _vm._v(" "),
-        _vm.taskData
+        _vm.viewData
           ? _c("div", { staticClass: "task-data-area" }, [
               _c("h3", [_vm._v("ポジション")]),
               _vm._v(" "),
@@ -46791,52 +46625,55 @@ var render = function () {
                 0
               ),
               _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "task-group" },
-                _vm._l(_vm.usersFilteredPosition, function (user, index) {
-                  return _c(
-                    "div",
-                    {
-                      key: "user" + index + ":" + user.id,
-                      staticClass: "task-user",
-                    },
-                    [
-                      _c("p", { staticClass: "task-user__name" }, [
-                        _vm._v(_vm._s(user.name)),
-                      ]),
-                      _vm._v(" "),
-                      _vm._l(_vm.filterTask(user.id), function (task, index) {
-                        return _c(
-                          "div",
-                          {
-                            key: index + ":" + task.task_id,
-                            staticClass: "task-user__point",
-                            on: {
-                              click: function ($event) {
-                                return _vm.openPointEdit($event, task)
+              _c("div", { staticClass: "task-wrap" }, [
+                _c(
+                  "div",
+                  { staticClass: "task-group" },
+                  _vm._l(_vm.usersFilteredPosition, function (user, index) {
+                    return _c(
+                      "div",
+                      {
+                        key: "user" + index + ":" + user.id,
+                        staticClass: "task-user",
+                      },
+                      [
+                        _c("p", { staticClass: "task-user__name" }, [
+                          _vm._v(_vm._s(user.name)),
+                        ]),
+                        _vm._v(" "),
+                        _vm._l(_vm.filterTask(user.id), function (task, index) {
+                          return _c(
+                            "div",
+                            {
+                              key: index + ":" + task.task_id,
+                              staticClass: "task-user__point",
+                              class: { updated: task.updated === true },
+                              on: {
+                                click: function ($event) {
+                                  return _vm.openPointEdit($event, task)
+                                },
                               },
                             },
-                          },
-                          [
-                            _c("span", {
-                              class: {
-                                point1: task.point == 1,
-                                point2: task.point == 2,
-                                point3: task.point == 3,
-                                point4: task.point == 4,
-                                point5: task.point == 5,
-                              },
-                            }),
-                          ]
-                        )
-                      }),
-                    ],
-                    2
-                  )
-                }),
-                0
-              ),
+                            [
+                              _c("span", {
+                                class: {
+                                  point1: task.point == 1,
+                                  point2: task.point == 2,
+                                  point3: task.point == 3,
+                                  point4: task.point == 4,
+                                  point5: task.point == 5,
+                                },
+                              }),
+                            ]
+                          )
+                        }),
+                      ],
+                      2
+                    )
+                  }),
+                  0
+                ),
+              ]),
             ])
           : _vm._e(),
       ]),
@@ -46846,12 +46683,6 @@ var render = function () {
             attrs: { task: _vm.taskProps, data: _vm.dataProps },
             on: { emitClose: _vm.closePointEdit, emitPoint: _vm.putPoint },
           })
-        : _vm._e(),
-      _vm._v(" "),
-      _vm._sendFlag
-        ? _c("div", { staticClass: "send-data", on: { click: _vm.sendData } }, [
-            _c("span", [_vm._v("更新")]),
-          ])
         : _vm._e(),
     ],
     1
@@ -46883,146 +46714,47 @@ var render = function () {
     "div",
     { staticClass: "point-manage" },
     [
-      _c("div", [
-        _c("div", { staticClass: "select-box-area" }, [
-          _vm.currentAuth == 1
-            ? _c("div", { staticClass: "form-group row" }, [
-                _c("label", { staticClass: "label", attrs: { for: "shop" } }, [
-                  _vm._v("店舗選択"),
-                ]),
-                _vm._v(" "),
-                _c(
-                  "select",
-                  {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.shopId,
-                        expression: "shopId",
-                      },
-                    ],
-                    staticClass: "form-control",
-                    attrs: { disabled: _vm._sendFlag },
-                    on: {
-                      change: function ($event) {
-                        var $$selectedVal = Array.prototype.filter
-                          .call($event.target.options, function (o) {
-                            return o.selected
-                          })
-                          .map(function (o) {
-                            var val = "_value" in o ? o._value : o.value
-                            return val
-                          })
-                        _vm.shopId = $event.target.multiple
-                          ? $$selectedVal
-                          : $$selectedVal[0]
-                      },
-                    },
-                  },
-                  _vm._l(_vm.shops, function (shop) {
-                    return _c(
-                      "option",
-                      { key: shop.value, domProps: { value: shop.value } },
-                      [
-                        _vm._v(
-                          "\n                        " +
-                            _vm._s(shop.label) +
-                            "\n                    "
-                        ),
-                      ]
-                    )
-                  }),
-                  0
-                ),
-                _vm._v(" "),
-                _vm._sendFlag
-                  ? _c("p", { staticClass: "danger small" }, [
-                      _vm._v(
-                        "\n                    更新を完了しないと店舗の変更はできません。\n                "
-                      ),
-                    ])
-                  : _vm._e(),
-              ])
-            : _vm._e(),
-          _vm._v(" "),
-          _vm.users
-            ? _c("div", { staticClass: "form-group row" }, [
-                _c("label", { staticClass: "label" }, [_vm._v("ユーザー選択")]),
-                _vm._v(" "),
-                _c(
-                  "select",
-                  {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.user,
-                        expression: "user",
-                      },
-                    ],
-                    staticClass: "form-control",
-                    on: {
-                      change: function ($event) {
-                        var $$selectedVal = Array.prototype.filter
-                          .call($event.target.options, function (o) {
-                            return o.selected
-                          })
-                          .map(function (o) {
-                            var val = "_value" in o ? o._value : o.value
-                            return val
-                          })
-                        _vm.user = $event.target.multiple
-                          ? $$selectedVal
-                          : $$selectedVal[0]
-                      },
-                    },
-                  },
-                  _vm._l(_vm.users, function (user) {
-                    return _c(
-                      "option",
-                      { key: user.id, domProps: { value: user } },
-                      [
-                        _vm._v(
-                          "\n                        " +
-                            _vm._s(user.name) +
-                            "\n                    "
-                        ),
-                      ]
-                    )
-                  }),
-                  0
-                ),
-              ])
-            : _vm._e(),
-        ]),
-        _vm._v(" "),
-        _vm.taskData
-          ? _c("div", { staticClass: "task-data-area" }, [
-              _c("h3", { staticClass: "task-data-area__title" }, [
-                _vm._v(_vm._s(_vm.user.name) + "さんの評価"),
-              ]),
+      _c("div", { staticClass: "select-box-area" }, [
+        _vm.users
+          ? _c("div", { staticClass: "form-group row" }, [
+              _c("label", { staticClass: "label" }, [_vm._v("ユーザー選択")]),
               _vm._v(" "),
               _c(
-                "ul",
-                { staticClass: "category-area" },
-                _vm._l(_vm.category, function (cate) {
-                  return _c(
-                    "li",
+                "select",
+                {
+                  directives: [
                     {
-                      key: cate.value,
-                      staticClass: "select-category",
-                      class: { active: _vm.currentTask == cate.value },
-                      on: {
-                        click: function ($event) {
-                          return _vm.changeTask(cate.value)
-                        },
-                      },
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.user,
+                      expression: "user",
                     },
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: function ($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function (o) {
+                          return o.selected
+                        })
+                        .map(function (o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.user = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    },
+                  },
+                },
+                _vm._l(_vm.users, function (user) {
+                  return _c(
+                    "option",
+                    { key: user.id, domProps: { value: user } },
                     [
                       _vm._v(
                         "\n                    " +
-                          _vm._s(cate.label) +
+                          _vm._s(user.name) +
                           "\n                "
                       ),
                     ]
@@ -47030,73 +46762,107 @@ var render = function () {
                 }),
                 0
               ),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "task-group" },
-                [
-                  _c("h4", { staticClass: "task-group__title" }, [
-                    _vm._v(
-                      "\n                    " +
-                        _vm._s(_vm.categoryLabels[_vm.currentTask]) +
-                        "\n                "
-                    ),
-                  ]),
-                  _vm._v(" "),
-                  _vm._l(_vm.filterMainData, function (task, index) {
-                    return _c(
-                      "div",
-                      {
-                        key: task.task_id,
-                        staticClass: "task",
-                        class: { updated: task.updated === true },
-                        on: {
-                          click: function ($event) {
-                            return _vm.openPointEdit($event, task)
-                          },
-                        },
-                      },
-                      [
-                        _c("p", { staticClass: "task__index" }, [
-                          _vm._v(_vm._s(index + 1)),
-                        ]),
-                        _vm._v(" "),
-                        _c("p", { staticClass: "task__body" }, [
-                          _vm._v(_vm._s(_vm.filterTaskContent(task.task_id))),
-                        ]),
-                        _vm._v(" "),
-                        _c("p", { staticClass: "task__point" }, [
-                          _c("span", {
-                            class: {
-                              point1: task.point == 1,
-                              point2: task.point == 2,
-                              point3: task.point == 3,
-                              point4: task.point == 4,
-                              point5: task.point == 5,
-                            },
-                          }),
-                        ]),
-                      ]
-                    )
-                  }),
-                ],
-                2
-              ),
             ])
           : _vm._e(),
       ]),
+      _vm._v(" "),
+      _vm.taskData
+        ? _c("div", { staticClass: "task-data-area" }, [
+            _c("h3", { staticClass: "task-data-area__title" }, [
+              _vm._v(_vm._s(_vm.user.name) + "さんの評価"),
+            ]),
+            _vm._v(" "),
+            _c(
+              "ul",
+              { staticClass: "category-area" },
+              _vm._l(_vm.category, function (cate) {
+                return _c(
+                  "li",
+                  {
+                    key: cate.value,
+                    staticClass: "select-category",
+                    class: { active: _vm.currentTask == cate.value },
+                    on: {
+                      click: function ($event) {
+                        return _vm.changeTask(cate.value)
+                      },
+                    },
+                  },
+                  [
+                    _vm._v(
+                      "\n                " +
+                        _vm._s(cate.label) +
+                        "\n            "
+                    ),
+                  ]
+                )
+              }),
+              0
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "task-group" },
+              [
+                _c("h4", { staticClass: "task-group__title" }, [
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(_vm.categoryLabels[_vm.currentTask]) +
+                      "\n            "
+                  ),
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.filterMainData, function (task, index) {
+                  return _c(
+                    "div",
+                    {
+                      key: task.task_id,
+                      staticClass: "task",
+                      class: { updated: task.updated === true },
+                      on: {
+                        click: function ($event) {
+                          return _vm.openPointEdit($event, task)
+                        },
+                      },
+                    },
+                    [
+                      _c("p", { staticClass: "task__index" }, [
+                        _vm._v(_vm._s(index + 1)),
+                      ]),
+                      _vm._v(" "),
+                      _c("p", { staticClass: "task__body" }, [
+                        _vm._v(
+                          "\n                    " +
+                            _vm._s(_vm.filterTaskContent(task.task_id)) +
+                            "\n                "
+                        ),
+                      ]),
+                      _vm._v(" "),
+                      _c("p", { staticClass: "task__point" }, [
+                        _c("span", {
+                          class: {
+                            point1: task.point == 1,
+                            point2: task.point == 2,
+                            point3: task.point == 3,
+                            point4: task.point == 4,
+                            point5: task.point == 5,
+                          },
+                        }),
+                      ]),
+                    ]
+                  )
+                }),
+              ],
+              2
+            ),
+          ])
+        : _vm._e(),
       _vm._v(" "),
       _vm.showModal
         ? _c("ModalPointEdit", {
             attrs: { data: _vm.dataProps, task: _vm.taskProps },
             on: { emitClose: _vm.closePointEdit, emitPoint: _vm.putPoint },
           })
-        : _vm._e(),
-      _vm._v(" "),
-      _vm._sendFlag
-        ? _c("div", { staticClass: "send-data", on: { click: _vm.sendData } }, [
-            _c("span", [_vm._v("更新")]),
-          ])
         : _vm._e(),
     ],
     1
@@ -49604,6 +49370,69 @@ var render = function () {
     [
       _c("h2", [_vm._v("POINT MANAGE")]),
       _vm._v(" "),
+      _c("div", { staticClass: "select-box-area" }, [
+        _vm.currentAuth == 1
+          ? _c("div", { staticClass: "form-group row" }, [
+              _c("label", { staticClass: "label", attrs: { for: "shop" } }, [
+                _vm._v("店舗選択"),
+              ]),
+              _vm._v(" "),
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.shopId,
+                      expression: "shopId",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: { disabled: _vm._sendFlag },
+                  on: {
+                    change: function ($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function (o) {
+                          return o.selected
+                        })
+                        .map(function (o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.shopId = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    },
+                  },
+                },
+                _vm._l(_vm.shops, function (shop) {
+                  return _c(
+                    "option",
+                    { key: shop.value, domProps: { value: shop.value } },
+                    [
+                      _vm._v(
+                        "\n                    " +
+                          _vm._s(shop.label) +
+                          "\n                "
+                      ),
+                    ]
+                  )
+                }),
+                0
+              ),
+              _vm._v(" "),
+              _vm._sendFlag
+                ? _c("p", { staticClass: "danger small" }, [
+                    _vm._v(
+                      "\n                更新を完了しないと店舗の変更はできません。\n            "
+                    ),
+                  ])
+                : _vm._e(),
+            ])
+          : _vm._e(),
+      ]),
+      _vm._v(" "),
       _c("ul", [
         _c(
           "li",
@@ -49614,7 +49443,7 @@ var render = function () {
               },
             },
           },
-          [_vm._v("個別採点")]
+          [_vm._v("個別表示")]
         ),
         _vm._v(" "),
         _c(
@@ -49626,13 +49455,39 @@ var render = function () {
               },
             },
           },
-          [_vm._v("まとめて採点")]
+          [_vm._v("全体表示")]
         ),
       ]),
       _vm._v(" "),
-      _vm.currentComponent === "user" ? _c("UserPointing") : _vm._e(),
+      _c("UserPointing", {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.currentComponent === "user",
+            expression: "currentComponent === 'user'",
+          },
+        ],
+        attrs: { shop: _vm.shopId },
+      }),
       _vm._v(" "),
-      _vm.currentComponent === "all" ? _c("UserAllPointing") : _vm._e(),
+      _c("UserAllPointing", {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.currentComponent === "all",
+            expression: "currentComponent === 'all'",
+          },
+        ],
+        attrs: { shop: _vm.shopId },
+      }),
+      _vm._v(" "),
+      _vm._sendFlag
+        ? _c("div", { staticClass: "send-data", on: { click: _vm.sendData } }, [
+            _c("span", [_vm._v("更新")]),
+          ])
+        : _vm._e(),
     ],
     1
   )
@@ -68188,6 +68043,76 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   isType: function isType(x) {
     return x != x ? "NaN" : x === Infinity || x === -Infinity ? "Infinity" : Object.prototype.toString.call(x).slice(8, -1);
+  },
+  //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
+  //画面表示用のデータの配列を作成する
+  createViewData: function createViewData(tasks, user) {
+    var local = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var dataArray = [];
+    tasks.forEach(function (task) {
+      //taskごとのview用データ初期化
+      var data = {};
+      data.task_id = task.id;
+      data.category_id = task.category_id;
+      data.point = 0;
+      data.point_id = null;
+      data.user_id = user.id;
+      data.position_id = user.position_id;
+      data.updated = false;
+      var points = user.points; //send前のデータがあればpointに上書き　＆　新規pointを追加
+
+      if (local.length) {
+        var localData = local.filter(function (item) {
+          return item.user_id === user.id;
+        });
+        points.forEach(function (point) {
+          var tgPoint = localData.find(function (item) {
+            return item.id === point.id;
+          });
+
+          if (tgPoint) {
+            point.point = tgPoint.point;
+            point.updated = true;
+          }
+        }); //新規のデータはpointDataと紐付けられないのでフィルタリングして
+        //pushで追加する
+
+        var nullId = localData.filter(function (item) {
+          return item.id === null;
+        });
+
+        if (nullId) {
+          //そのままぶっこむと参照になってsendDataに影響するので
+          //新規オブジェクトを作ってpointsDataにpush(値渡し)
+          nullId.forEach(function (item) {
+            var obj = {};
+
+            for (var key in item) {
+              obj[key] = item[key];
+            }
+
+            obj.updated = true;
+            points.push(obj);
+          });
+        }
+      } // ユーザーに紐付いたpointData or send前のデータ　があれば
+
+
+      if (points.length) {
+        var target = points.find(function (point) {
+          return point.task_id === task.id;
+        });
+
+        if (target) {
+          data.point = target.point;
+          data.point_id = target.id;
+          data.updated = target.updated;
+        }
+      }
+
+      dataArray.push(data);
+    });
+    return dataArray;
   }
 });
 
@@ -68518,7 +68443,9 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PointManager_vue_vue_type_template_id_fd6558f4_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PointManager.vue?vue&type=template&id=fd6558f4&scoped=true& */ "./resources/js/pages/PointManager.vue?vue&type=template&id=fd6558f4&scoped=true&");
 /* harmony import */ var _PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PointManager.vue?vue&type=script&lang=js& */ "./resources/js/pages/PointManager.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _PointManager_vue_vue_type_style_index_0_id_fd6558f4_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true& */ "./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
 
 
 
@@ -68526,7 +68453,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
   _PointManager_vue_vue_type_template_id_fd6558f4_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
   _PointManager_vue_vue_type_template_id_fd6558f4_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -68555,6 +68482,22 @@ component.options.__file = "resources/js/pages/PointManager.vue"
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./PointManager.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true&":
+/*!*******************************************************************************************************!*\
+  !*** ./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true& ***!
+  \*******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_style_index_0_id_fd6558f4_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader!../../../node_modules/css-loader!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--7-2!../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../node_modules/vue-loader/lib??vue-loader-options!./PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/PointManager.vue?vue&type=style&index=0&id=fd6558f4&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_style_index_0_id_fd6558f4_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_style_index_0_id_fd6558f4_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_style_index_0_id_fd6558f4_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PointManager_vue_vue_type_style_index_0_id_fd6558f4_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+
 
 /***/ }),
 

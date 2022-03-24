@@ -70,7 +70,7 @@ export default {
     data() {
         return {
             pointData: {
-                task_id: this.data.id,
+                task_id: this.data.task_id,
                 point: this.data.point,
                 user_id: this.data.user_id,
                 id: this.data.point_id,
@@ -86,19 +86,13 @@ export default {
             this.$emit("emitClose");
         },
         emitPoint() {
-            let obj = {}
-            for(let key in this.pointData) {
-                obj[key] = this.pointData[key]
-            }
-            this.$emit('emitPoint', obj)
+
+            this.$emit('emitPoint', this.pointData)
             this.closeModal();
         },
     },
     computed: {
         filterTask() {
-            if (this.$helpers.isType(this.task) === 'Object'){
-                return this.task
-            }
             return this.task.find((item) => {
                 return item.id == this.data.task_id
             })

@@ -1,77 +1,54 @@
 <template>
     <div class="point-manage">
-        <div>
-            <div class="select-box-area">
-                <div class="form-group row" v-if="currentAuth == 1">
-                    <label class="label" for="shop">店舗選択</label>
-                    <select
-                        v-model="shopId"
-                        class="form-control"
-                        :disabled="_sendFlag"
-                    >
-                        <option
-                            v-for="shop in shops"
-                            :key="shop.value"
-                            :value="shop.value"
-                        >
-                            {{ shop.label }}
-                        </option>
-                    </select>
-                    <p v-if="_sendFlag" class="danger small">
-                        更新を完了しないと店舗の変更はできません。
-                    </p>
-                </div>
-                <div v-if="users" class="form-group row">
-                    <label class="label">ユーザー選択</label>
-                    <select v-model="user" class="form-control">
-                        <option
-                            v-for="user in users"
-                            :key="user.id"
-                            :value="user"
-                        >
-                            {{ user.name }}
-                        </option>
-                    </select>
-                </div>
+        <div class="select-box-area">
+            <div v-if="users" class="form-group row">
+                <label class="label">ユーザー選択</label>
+                <select v-model="user" class="form-control">
+                    <option v-for="user in users" :key="user.id" :value="user">
+                        {{ user.name }}
+                    </option>
+                </select>
             </div>
-            <div v-if="taskData" class="task-data-area">
-                <h3 class="task-data-area__title">{{ user.name }}さんの評価</h3>
-                <ul class="category-area">
-                    <li
-                        v-for="cate in category"
-                        :key="cate.value"
-                        @click="changeTask(cate.value)"
-                        class="select-category"
-                        :class="{ active: currentTask == cate.value }"
-                    >
-                        {{ cate.label }}
-                    </li>
-                </ul>
-                <div class="task-group">
-                    <h4 class="task-group__title">
-                        {{ categoryLabels[currentTask] }}
-                    </h4>
-                    <div
-                        v-for="(task, index) in filterMainData"
-                        :key="task.task_id"
-                        class="task"
-                        :class="{ updated: task.updated === true }"
-                        @click="openPointEdit($event, task)"
-                    >
-                        <p class="task__index">{{ index + 1 }}</p>
-                        <p class="task__body">{{ filterTaskContent(task.task_id) }}</p>
-                        <p class="task__point">
-                            <span
-                                :class="{
-                                    point1: task.point == 1,
-                                    point2: task.point == 2,
-                                    point3: task.point == 3,
-                                    point4: task.point == 4,
-                                    point5: task.point == 5,
-                                }"
-                            ></span>
-                        </p>
-                    </div>
+        </div>
+        <div v-if="taskData" class="task-data-area">
+            <h3 class="task-data-area__title">{{ user.name }}さんの評価</h3>
+            <ul class="category-area">
+                <li
+                    v-for="cate in category"
+                    :key="cate.value"
+                    @click="changeTask(cate.value)"
+                    class="select-category"
+                    :class="{ active: currentTask == cate.value }"
+                >
+                    {{ cate.label }}
+                </li>
+            </ul>
+            <div class="task-group">
+                <h4 class="task-group__title">
+                    {{ categoryLabels[currentTask] }}
+                </h4>
+                <div
+                    v-for="(task, index) in filterMainData"
+                    :key="task.task_id"
+                    class="task"
+                    :class="{ updated: task.updated === true }"
+                    @click="openPointEdit($event, task)"
+                >
+                    <p class="task__index">{{ index + 1 }}</p>
+                    <p class="task__body">
+                        {{ filterTaskContent(task.task_id) }}
+                    </p>
+                    <p class="task__point">
+                        <span
+                            :class="{
+                                point1: task.point == 1,
+                                point2: task.point == 2,
+                                point3: task.point == 3,
+                                point4: task.point == 4,
+                                point5: task.point == 5,
+                            }"
+                        ></span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -82,9 +59,6 @@
             @emitClose="closePointEdit"
             @emitPoint="putPoint"
         ></ModalPointEdit>
-        <div v-if="_sendFlag" @click="sendData" class="send-data">
-            <span>更新</span>
-        </div>
     </div>
 </template>
 
@@ -95,21 +69,21 @@ import ModalPointEdit from "./ModalPointEdit.vue";
 export default {
     data() {
         return {
-            shopId: null,
             user: null,
             users: null,
             currentTask: 1,
             taskData: null,
-            mainData: [],
+            viewData: [],
             showModal: false,
         };
     },
+    props: ['shop'],
     components: {
         ModalPointEdit,
     },
     methods: {
         async fetchUsers() {
-            const response = await axios.get(`/api/user/get/${this.shopId}`);
+            const response = await axios.get(`/api/user/get/${this.shop}`);
 
             let data = response.data.data;
 
@@ -117,122 +91,40 @@ export default {
                 return user.authority == 3;
             });
         },
-        //タスクデータにポイントデータをmergeして取得
         async getTaskWithPoint() {
-            this.taskData = []
-            this.mainData = []
+            this.taskData = [];
+            this.viewData = [];
             //店舗とポジションに紐付いたタスクデータ取得
             const response = await axios.get(
-                `/api/task?shop=${this.shopId}&position=${this.user.position_id}`
+                `/api/task?shop=${this.shop}&position=${this.user.position_id}`
             );
             let tasks = response.data;
 
-            this.taskData = tasks
+            this.taskData = tasks;
 
             //ユーザーに紐付いたポイントデータ取得
             const resPoints = await axios.get(
                 `api/point?user_id=${this.user.id}`
             );
-            let pointsData = resPoints.data;
+            let user = resPoints.data.data;
 
-            //ポイントデータ加工
-            //既にsendDataにデータがある場合、ユーザーを切り替えても点数変更が描画に反映されるように処理
-            let localData = [];
-            if (this._sendFlag) {
-                //sendDataの中のユーザーに紐付いたデータをフィルタリング
-                localData = this._sendData.filter((item) => {
-                    return item.user_id == this.user.id;
-                });
-            }
+            let data = this.$helpers.createViewData(
+                this.taskData,
+                user,
+                this._sendData
+            );
 
-            //localDataがあれば
-            if (localData.length) {
-                //apiで取得したpointsDataをlocalDataで上書き
-                pointsData.forEach((point) => {
-                    let overWriteData = localData.find(
-                        (data) => data.task_id === point.task_id
-                    );
-                    if (overWriteData) {
-                        point.point = overWriteData.point;
-                        point.updated = true; //変更箇所確認用
-                    }
-                });
-
-                //新規のデータはpointDataと紐付けられないのでpushする
-                //id=nullでフィルタリング
-                let nullIdData = localData.filter((item) => {
-                    return item.id === null;
-                });
-
-                if (nullIdData) {
-                    //そのままぶっこむと参照になってsendDataに影響するので
-                    //新規オブジェクトを作ってpointsDataにpush(値渡し)
-                    nullIdData.forEach((item) => {
-                        let object = {};
-                        for (let key in item) {
-                            object[key] = item[key];
-                        }
-                        object.updated = true; //変更箇所確認用
-                        pointsData.push(object);
-                    });
-                }
-            }
-
-            //idが重複するのでpoint_idに変更
-            pointsData.forEach((point) => {
-                point.point_id = point.id;
-                delete point.id;
-                delete point.editor; //無くてもいい
-            });
-
-            let Data = []
-
-            //タスクデータにpointDataをプロパティにまとめてthis.taskDataに挿入
-            tasks.forEach((task) => {
-                //全タスクデータにpoint:0とpoint_id:nullを追加
-                let obj = {}
-                obj.point = 0
-                obj.user_id = this.user.id
-                obj.point_id = null
-                obj.updated = false
-                obj.task_id = task.id
-                obj.position_id = this.user.position_id
-                obj.category_id = task.category_id
-
-                //ポイントデータとタスクデータが紐付いている場合は上書き
-                if(pointsData.length){
-                    let ow = pointsData.find((point) => point.task_id == task.id)
-                    if(ow) {
-                        obj.point = ow.point
-                        obj.point_id = ow.point_id
-                    }
-                }
-
-                Data.push(obj)
-            });
-
-            this.mainData = Data;
+            this.viewData = data;
         },
-        //pointデータを送信
-        async sendData() {
-            const response = await axios.post("/api/point", this._sendData);
 
-            //色々初期化
-            this.$store.dispatch("point/clearPoints");
-            this.taskData = [];
-            this.currentTask = 1;
-
-            //タスク再読み込み
-            this.getTaskWithPoint();
-        },
         //カテゴリー切り替え
         changeTask(key) {
             this.currentTask = key;
         },
         //ポイント編集モーダルオープン
-        openPointEdit(event, task) {
+        openPointEdit(event, data) {
             this.showModal = true;
-            this.dataProps = task;
+            this.dataProps = data;
             this.taskProps = this.taskData;
         },
         //ポイント編集モーダルクローズ
@@ -255,45 +147,37 @@ export default {
             this.$store.dispatch("point/putPoints", list);
 
             //再描画用　pointを更新
-            let targetTask = this.taskData.find(
-                (task) => task.id === data.task_id
+
+            let targetTask = this.viewData.find(
+                (task) => task.task_id === data.task_id
             );
 
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
         },
 
-        ifShopLeader() {
-            if (this.currentAuth == 2) {
-                this.shopId = this.getShopId;
-                this.fetchUsers();
-            }
-        },
     },
     computed: {
         ...mapGetters({
-            currentAuth: "auth/getAuthority",
-            shops: "options/Shops",
             category: "options/taskCategory",
             categoryLabels: "options/categoryLabels",
-            getShopId: "auth/getShopId",
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
         filterMainData() {
-            return this.mainData.filter((task) => {
+            return this.viewData.filter((task) => {
                 return task.category_id == this.currentTask;
             });
         },
         filterTaskContent() {
             return function (taskId) {
-                let task = this.taskData.find((item) => item.id === taskId)
-                return task.content
-            }
-        }
+                let task = this.taskData.find((item) => item.id === taskId);
+                return task.content;
+            };
+        },
     },
     watch: {
-        shopId: function () {
+        shop: function () {
             this.users = null;
             this.user = null;
             this.currentTask = 1;
@@ -305,7 +189,9 @@ export default {
         },
     },
     mounted() {
-        this.ifShopLeader();
+        if(this.shop) {
+            this.fetchUsers();
+        }
     },
 };
 </script>
@@ -420,26 +306,6 @@ export default {
                 border: none;
             }
         }
-    }
-}
-.send-data {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: #f7f2e0;
-    width: 70px;
-    height: 70px;
-    text-align: center;
-    border-radius: 50%;
-    color: #38466d;
-    cursor: pointer;
-    span {
-        display: block;
-        margin: 0 auto;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateY(-50%) translateX(-50%);
     }
 }
 </style>

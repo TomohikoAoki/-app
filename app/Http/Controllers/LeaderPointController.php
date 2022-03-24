@@ -17,10 +17,9 @@ class LeaderPointController extends Controller
 
     public function getPointByUserId(Request $request)
     {
-        $userId = $request->input('user_id');
-        $points = User::find($userId)->points()->get();
+        $user = User::find($request->input('user_id'));
 
-        return response($points, 200);
+        return new UserWithPointResource($user);
     }
 
     public function getPointsWithUsersBelongToShop(string $shopId)
