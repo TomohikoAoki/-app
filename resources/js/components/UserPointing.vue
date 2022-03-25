@@ -10,7 +10,7 @@
                 </select>
             </div>
         </div>
-        <div v-if="taskData" class="task-data-area">
+        <div v-if="viewData" class="task-data-area">
             <h3 class="task-data-area__title">{{ user.name }}さんの評価</h3>
             <ul class="category-area">
                 <li
@@ -70,47 +70,23 @@ export default {
     data() {
         return {
             user: null,
-            users: null,
             currentTask: 1,
-            taskData: null,
-            viewData: [],
+            viewData: null,
             showModal: false,
         };
     },
-    props: ['shop'],
+    props: ['shop', 'taskData', 'users'],
     components: {
         ModalPointEdit,
     },
     methods: {
-        async fetchUsers() {
-            const response = await axios.get(`/api/user/get/${this.shop}`);
+        createView() {
 
-            let data = response.data.data;
-
-            this.users = data.filter((user) => {
-                return user.authority == 3;
-            });
-        },
-        async getTaskWithPoint() {
-            this.taskData = [];
-            this.viewData = [];
-            //店舗とポジションに紐付いたタスクデータ取得
-            const response = await axios.get(
-                `/api/task?shop=${this.shop}&position=${this.user.position_id}`
-            );
-            let tasks = response.data;
-
-            this.taskData = tasks;
-
-            //ユーザーに紐付いたポイントデータ取得
-            const resPoints = await axios.get(
-                `api/point?user_id=${this.user.id}`
-            );
-            let user = resPoints.data.data;
-
+            //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
+            //画面表示用のデータの配列を作成する関数
             let data = this.$helpers.createViewData(
                 this.taskData,
-                user,
+                this.user,
                 this._sendData
             );
 
@@ -178,20 +154,17 @@ export default {
     },
     watch: {
         shop: function () {
-            this.users = null;
             this.user = null;
             this.currentTask = 1;
-            this.taskData = null;
-            this.fetchUsers();
+            this.viewData = null
         },
         user() {
-            this.getTaskWithPoint();
+            if(this.user) {
+                this.createView();
+            }
         },
     },
     mounted() {
-        if(this.shop) {
-            this.fetchUsers();
-        }
     },
 };
 </script>

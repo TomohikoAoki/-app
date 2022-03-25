@@ -23,16 +23,20 @@
             </div>
         </div>
         <ul>
-            <li @click="currentComponent = 'user'">個別表示</li>
-            <li @click="currentComponent = 'all'">全体表示</li>
+            <li @click="changeComponent(1)">個別表示</li>
+            <li @click="changeComponent(2)">全体表示</li>
         </ul>
         <UserPointing
-            v-show="currentComponent === 'user'"
+            v-if="currentComponent === 1"
             :shop="shopId"
+            :taskData="taskData"
+            :users="users"
         ></UserPointing>
         <UserAllPointing
-            v-show="currentComponent === 'all'"
+            v-if="currentComponent === 2"
             :shop="shopId"
+            :taskData="taskData"
+            :users="users"
         ></UserAllPointing>
         <div v-if="_sendFlag" @click="sendData" class="send-data">
             <span>更新</span>
@@ -48,8 +52,10 @@ import { mapGetters } from "vuex";
 export default {
     data() {
         return {
-            currentComponent: "user",
+            currentComponent: 1,
             shopId: null,
+            taskData: null,
+            users: null,
         };
     },
     components: {
@@ -66,17 +72,22 @@ export default {
         }),
     },
     methods: {
+        async getTask() {
+
+            const responseTask = await axios.get(`api/task/${this.shopId}`);
+            const responseUser = await axios.get(`api/point/${this.shopId}`);
+
+            this.taskData = responseTask.data.data;
+            this.users = responseUser.data.data;
+        },
         //pointデータを送信
         async sendData() {
             const response = await axios.post("/api/point", this._sendData);
 
-            //色々初期化
+            //初期化
             this.$store.dispatch("point/clearPoints");
-            this.taskData = [];
-            this.currentTask = 1;
 
-            //タスク再読み込み
-            this.getTaskWithPoint();
+            this.getTask()
         },
         confirm() {
             return window.confirm(
@@ -88,9 +99,12 @@ export default {
                 this.shopId = this.getShopId;
             }
         },
+        changeComponent(key) {
+            this.currentComponent = key;
+        },
     },
     mounted() {
-        this.ifShopLeader()
+        this.ifShopLeader();
         let self = this;
         window.onbeforeunload = function () {
             if (self._sendFlag) {
@@ -106,6 +120,16 @@ export default {
             next();
         }
         next();
+    },
+    watch: {
+        shopId: function () {
+            if (this.shopId) {
+                this.currentComponent = 1;
+                this.taskData = null;
+                this.user = null;
+                this.getTask();
+            }
+        },
     },
 };
 </script>

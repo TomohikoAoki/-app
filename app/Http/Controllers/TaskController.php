@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Shop;
+use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
 {
@@ -46,6 +47,8 @@ class TaskController extends Controller
 
     public function taskOfShop(string $id)
     {
-        return Shop::find($id)->tasks()->get();
+        $tasks = Shop::find($id)->tasks()->get();
+
+        return TaskResource::collection($tasks);
     }
 }

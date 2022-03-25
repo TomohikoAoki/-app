@@ -67,34 +67,23 @@ export default {
         return {
             currentTask: 1,
             currentPosition: 1,
-            users: null,
             showModal: false,
-            taskData: null,
             viewData: null,
         };
     },
-    props: ["shop"],
+    props: ["shop", 'taskData', 'users'],
     components: {
         ModalPointEdit,
     },
     methods: {
-        async fetchUsersAndTasks() {
-            this.taskData = null;
-            this.users = null;
-            const response = await axios.get(`/api/point/${this.shop}`);
+        createView() {
 
-            this.users = response.data.data.filter((user) => {
-                return user.authority == 3;
-            });
-
-            const resTask = await axios.get(`/api/task/${this.shop}`);
-
-            this.taskData = resTask.data;
-
-            //この場所重要　v-if的に
+            //初期化
             this.viewData = [];
 
             this.users.forEach((user) => {
+                //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
+                //画面表示用のデータの配列を作成する関数
                 let data = this.$helpers.createViewData(
                     this.taskData,
                     user,
@@ -172,17 +161,22 @@ export default {
         },
     },
     watch: {
-        shop: function () {
-            this.users = null;
-            this.currentTask = 1;
-            this.taskData = null;
-            this.fetchUsersAndTasks();
+        taskData: function () {
+            if(this.users) {
+                this.createView();
+            }
         },
+        users: function () {
+            if(this.taskData) {
+                this.createView();
+            }
+        },
+        shop: function() {
+            this.viewData = null
+        }
     },
     mounted() {
-        if (this.shop) {
-            this.fetchUsersAndTasks();
-        }
+        this.createView()
     },
 };
 </script>

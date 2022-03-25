@@ -24,7 +24,7 @@ class LeaderPointController extends Controller
 
     public function getPointsWithUsersBelongToShop(string $shopId)
     {
-       $users = Shop::find($shopId)->users()->get();
+       $users = Shop::find($shopId)->users()->where('authority', 3)->get();
 
        return UserWithPointResource::collection($users);
     }

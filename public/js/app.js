@@ -2330,21 +2330,13 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 //
 //
@@ -2413,58 +2405,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return {
       currentTask: 1,
       currentPosition: 1,
-      users: null,
       showModal: false,
-      taskData: null,
       viewData: null
     };
   },
-  props: ["shop"],
+  props: ["shop", 'taskData', 'users'],
   components: {
-    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   methods: {
-    fetchUsersAndTasks: function fetchUsersAndTasks() {
+    createView: function createView() {
       var _this = this;
 
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var response, resTask;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _this.taskData = null;
-                _this.users = null;
-                _context.next = 4;
-                return axios.get("/api/point/".concat(_this.shop));
+      //初期化
+      this.viewData = [];
+      this.users.forEach(function (user) {
+        //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
+        //画面表示用のデータの配列を作成する関数
+        var data = _this.$helpers.createViewData(_this.taskData, user, _this._sendData);
 
-              case 4:
-                response = _context.sent;
-                _this.users = response.data.data.filter(function (user) {
-                  return user.authority == 3;
-                });
-                _context.next = 8;
-                return axios.get("/api/task/".concat(_this.shop));
-
-              case 8:
-                resTask = _context.sent;
-                _this.taskData = resTask.data; //この場所重要　v-if的に
-
-                _this.viewData = [];
-
-                _this.users.forEach(function (user) {
-                  var data = _this.$helpers.createViewData(_this.taskData, user, _this._sendData);
-
-                  _this.viewData = _this.viewData.concat(data);
-                });
-
-              case 12:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee);
-      }))();
+        _this.viewData = _this.viewData.concat(data);
+      });
     },
     //カテゴリー切り替え
     changeTask: function changeTask(key) {
@@ -2505,7 +2466,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.$set(targetTask, "updated", true);
     }
   },
-  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     category: "options/taskCategory",
     categoryLabels: "options/categoryLabels",
     _sendData: "point/getSendData",
@@ -2532,17 +2493,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   }),
   watch: {
+    taskData: function taskData() {
+      if (this.users) {
+        this.createView();
+      }
+    },
+    users: function users() {
+      if (this.taskData) {
+        this.createView();
+      }
+    },
     shop: function shop() {
-      this.users = null;
-      this.currentTask = 1;
-      this.taskData = null;
-      this.fetchUsersAndTasks();
+      this.viewData = null;
     }
   },
   mounted: function mounted() {
-    if (this.shop) {
-      this.fetchUsersAndTasks();
-    }
+    this.createView();
   }
 });
 
@@ -2557,21 +2523,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 //
 //
@@ -2643,81 +2601,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   data: function data() {
     return {
       user: null,
-      users: null,
       currentTask: 1,
-      taskData: null,
-      viewData: [],
+      viewData: null,
       showModal: false
     };
   },
-  props: ['shop'],
+  props: ['shop', 'taskData', 'users'],
   components: {
-    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   methods: {
-    fetchUsers: function fetchUsers() {
-      var _this = this;
-
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var response, data;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return axios.get("/api/user/get/".concat(_this.shop));
-
-              case 2:
-                response = _context.sent;
-                data = response.data.data;
-                _this.users = data.filter(function (user) {
-                  return user.authority == 3;
-                });
-
-              case 5:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee);
-      }))();
-    },
-    getTaskWithPoint: function getTaskWithPoint() {
-      var _this2 = this;
-
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response, tasks, resPoints, user, data;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _this2.taskData = [];
-                _this2.viewData = []; //店舗とポジションに紐付いたタスクデータ取得
-
-                _context2.next = 4;
-                return axios.get("/api/task?shop=".concat(_this2.shop, "&position=").concat(_this2.user.position_id));
-
-              case 4:
-                response = _context2.sent;
-                tasks = response.data;
-                _this2.taskData = tasks; //ユーザーに紐付いたポイントデータ取得
-
-                _context2.next = 9;
-                return axios.get("api/point?user_id=".concat(_this2.user.id));
-
-              case 9:
-                resPoints = _context2.sent;
-                user = resPoints.data.data;
-                data = _this2.$helpers.createViewData(_this2.taskData, user, _this2._sendData);
-                _this2.viewData = data;
-
-              case 13:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2);
-      }))();
+    createView: function createView() {
+      //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
+      //画面表示用のデータの配列を作成する関数
+      var data = this.$helpers.createViewData(this.taskData, this.user, this._sendData);
+      this.viewData = data;
     },
     //カテゴリー切り替え
     changeTask: function changeTask(key) {
@@ -2753,17 +2651,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.$set(targetTask, "updated", true);
     }
   },
-  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     category: "options/taskCategory",
     categoryLabels: "options/categoryLabels",
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
     filterMainData: function filterMainData() {
-      var _this3 = this;
+      var _this = this;
 
       return this.viewData.filter(function (task) {
-        return task.category_id == _this3.currentTask;
+        return task.category_id == _this.currentTask;
       });
     },
     filterTaskContent: function filterTaskContent() {
@@ -2777,21 +2675,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   }),
   watch: {
     shop: function shop() {
-      this.users = null;
       this.user = null;
       this.currentTask = 1;
-      this.taskData = null;
-      this.fetchUsers();
+      this.viewData = null;
     },
     user: function user() {
-      this.getTaskWithPoint();
+      if (this.user) {
+        this.createView();
+      }
     }
   },
-  mounted: function mounted() {
-    if (this.shop) {
-      this.fetchUsers();
-    }
-  }
+  mounted: function mounted() {}
 });
 
 /***/ }),
@@ -4054,14 +3948,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      currentComponent: "user",
-      shopId: null
+      currentComponent: 1,
+      shopId: null,
+      taskData: null,
+      users: null
     };
   },
   components: {
@@ -4076,36 +3976,63 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     getShopId: "auth/getShopId"
   })),
   methods: {
-    //pointデータを送信
-    sendData: function sendData() {
+    getTask: function getTask() {
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var response;
+        var responseTask, responseUser;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.post("/api/point", _this._sendData);
+                return axios.get("api/task/".concat(_this.shopId));
 
               case 2:
-                response = _context.sent;
+                responseTask = _context.sent;
+                _context.next = 5;
+                return axios.get("api/point/".concat(_this.shopId));
 
-                //色々初期化
-                _this.$store.dispatch("point/clearPoints");
+              case 5:
+                responseUser = _context.sent;
+                _this.taskData = responseTask.data.data;
+                _this.users = responseUser.data.data;
 
-                _this.taskData = [];
-                _this.currentTask = 1; //タスク再読み込み
-
-                _this.getTaskWithPoint();
-
-              case 7:
+              case 8:
               case "end":
                 return _context.stop();
             }
           }
         }, _callee);
+      }))();
+    },
+    //pointデータを送信
+    sendData: function sendData() {
+      var _this2 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return axios.post("/api/point", _this2._sendData);
+
+              case 2:
+                response = _context2.sent;
+
+                //初期化
+                _this2.$store.dispatch("point/clearPoints");
+
+                _this2.getTask();
+
+              case 5:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
       }))();
     },
     confirm: function confirm() {
@@ -4115,6 +4042,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (this.currentAuth == 2) {
         this.shopId = this.getShopId;
       }
+    },
+    changeComponent: function changeComponent(key) {
+      this.currentComponent = key;
     }
   },
   mounted: function mounted() {
@@ -4136,6 +4066,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
 
     next();
+  },
+  watch: {
+    shopId: function shopId() {
+      if (this.shopId) {
+        this.currentComponent = 1;
+        this.taskData = null;
+        this.user = null;
+        this.getTask();
+      }
+    }
   }
 });
 
@@ -46766,7 +46706,7 @@ var render = function () {
           : _vm._e(),
       ]),
       _vm._v(" "),
-      _vm.taskData
+      _vm.viewData
         ? _c("div", { staticClass: "task-data-area" }, [
             _c("h3", { staticClass: "task-data-area__title" }, [
               _vm._v(_vm._s(_vm.user.name) + "さんの評価"),
@@ -49439,7 +49379,7 @@ var render = function () {
           {
             on: {
               click: function ($event) {
-                _vm.currentComponent = "user"
+                return _vm.changeComponent(1)
               },
             },
           },
@@ -49451,7 +49391,7 @@ var render = function () {
           {
             on: {
               click: function ($event) {
-                _vm.currentComponent = "all"
+                return _vm.changeComponent(2)
               },
             },
           },
@@ -49459,29 +49399,25 @@ var render = function () {
         ),
       ]),
       _vm._v(" "),
-      _c("UserPointing", {
-        directives: [
-          {
-            name: "show",
-            rawName: "v-show",
-            value: _vm.currentComponent === "user",
-            expression: "currentComponent === 'user'",
-          },
-        ],
-        attrs: { shop: _vm.shopId },
-      }),
+      _vm.currentComponent === 1
+        ? _c("UserPointing", {
+            attrs: {
+              shop: _vm.shopId,
+              taskData: _vm.taskData,
+              users: _vm.users,
+            },
+          })
+        : _vm._e(),
       _vm._v(" "),
-      _c("UserAllPointing", {
-        directives: [
-          {
-            name: "show",
-            rawName: "v-show",
-            value: _vm.currentComponent === "all",
-            expression: "currentComponent === 'all'",
-          },
-        ],
-        attrs: { shop: _vm.shopId },
-      }),
+      _vm.currentComponent === 2
+        ? _c("UserAllPointing", {
+            attrs: {
+              shop: _vm.shopId,
+              taskData: _vm.taskData,
+              users: _vm.users,
+            },
+          })
+        : _vm._e(),
       _vm._v(" "),
       _vm._sendFlag
         ? _c("div", { staticClass: "send-data", on: { click: _vm.sendData } }, [
@@ -68049,29 +67985,21 @@ __webpack_require__.r(__webpack_exports__);
   createViewData: function createViewData(tasks, user) {
     var local = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     var dataArray = [];
-    tasks.forEach(function (task) {
-      //taskごとのview用データ初期化
-      var data = {};
-      data.task_id = task.id;
-      data.category_id = task.category_id;
-      data.point = 0;
-      data.point_id = null;
-      data.user_id = user.id;
-      data.position_id = user.position_id;
-      data.updated = false;
-      var points = user.points; //send前のデータがあればpointに上書き　＆　新規pointを追加
+    var points = user.points ? user.points : []; //send前のデータがあればpointを上書き　＆　新規pointを追加
 
-      if (local.length) {
-        var localData = local.filter(function (item) {
-          return item.user_id === user.id;
-        });
+    if (local.length) {
+      var localData = local.filter(function (item) {
+        return item.user_id === user.id;
+      });
+
+      if (localData.length) {
         points.forEach(function (point) {
-          var tgPoint = localData.find(function (item) {
+          var target = localData.find(function (item) {
             return item.id === point.id;
           });
 
-          if (tgPoint) {
-            point.point = tgPoint.point;
+          if (target) {
+            point.point = target.point;
             point.updated = true;
           }
         }); //新規のデータはpointDataと紐付けられないのでフィルタリングして
@@ -68081,7 +68009,7 @@ __webpack_require__.r(__webpack_exports__);
           return item.id === null;
         });
 
-        if (nullId) {
+        if (nullId.length) {
           //そのままぶっこむと参照になってsendDataに影響するので
           //新規オブジェクトを作ってpointsDataにpush(値渡し)
           nullId.forEach(function (item) {
@@ -68095,8 +68023,19 @@ __webpack_require__.r(__webpack_exports__);
             points.push(obj);
           });
         }
-      } // ユーザーに紐付いたpointData or send前のデータ　があれば
+      }
+    }
 
+    tasks.forEach(function (task) {
+      //taskごとのview用データ初期化
+      var data = {};
+      data.task_id = task.id;
+      data.category_id = task.category_id;
+      data.point = 0;
+      data.point_id = null;
+      data.user_id = user.id;
+      data.position_id = user.position_id;
+      data.updated = false; // ユーザーに紐付いたpointData or send前のデータ　があれば
 
       if (points.length) {
         var target = points.find(function (point) {
