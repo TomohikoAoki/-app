@@ -31,12 +31,14 @@
             :shop="shopId"
             :taskData="taskData"
             :users="users"
+            ref="point"
         ></UserPointing>
         <UserAllPointing
             v-if="currentComponent === 2"
             :shop="shopId"
             :taskData="taskData"
             :users="users"
+            ref="point"
         ></UserAllPointing>
         <div v-if="_sendFlag" @click="sendData" class="send-data">
             <span>更新</span>
@@ -86,6 +88,12 @@ export default {
 
             //初期化
             this.$store.dispatch("point/clearPoints");
+
+            this.taskData = null
+            this.users = null
+            this.currentComponent = 1;
+
+            this.$refs.point.iniData()
 
             this.getTask()
         },

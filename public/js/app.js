@@ -2444,6 +2444,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     changePosition: function changePosition(key) {
       this.currentPosition = key;
     },
+    iniData: function iniData() {
+      this.currentTask = 1;
+      this.currentPosition = 1;
+      this.viewData = null;
+    },
     //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
     putPoint: function putPoint(data) {
       //task_id & user_id で重複削除
@@ -2494,21 +2499,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }),
   watch: {
     taskData: function taskData() {
-      if (this.users) {
+      if (this.users && this.taskData) {
         this.createView();
       }
     },
     users: function users() {
-      if (this.taskData) {
+      if (this.users && this.taskData) {
         this.createView();
       }
     },
     shop: function shop() {
-      this.viewData = null;
+      this.iniData();
     }
   },
   mounted: function mounted() {
-    this.createView();
+    if (this.users && this.taskData) {
+      this.createView();
+    }
   }
 });
 
@@ -2631,6 +2638,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     closePointEdit: function closePointEdit() {
       this.showModal = false;
     },
+    iniData: function iniData() {
+      this.user = null;
+      this.currentTask = 1;
+      this.viewData = null;
+    },
     //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
     putPoint: function putPoint(data) {
       //task_id & user_id で重複削除
@@ -2675,9 +2687,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }),
   watch: {
     shop: function shop() {
-      this.user = null;
-      this.currentTask = 1;
-      this.viewData = null;
+      this.iniData();
     },
     user: function user() {
       if (this.user) {
@@ -3952,6 +3962,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 
 
@@ -4025,9 +4037,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 //初期化
                 _this2.$store.dispatch("point/clearPoints");
 
+                _this2.taskData = null;
+                _this2.users = null;
+                _this2.currentComponent = 1;
+
+                _this2.$refs.point.iniData();
+
                 _this2.getTask();
 
-              case 5:
+              case 9:
               case "end":
                 return _context2.stop();
             }
@@ -49401,6 +49419,7 @@ var render = function () {
       _vm._v(" "),
       _vm.currentComponent === 1
         ? _c("UserPointing", {
+            ref: "point",
             attrs: {
               shop: _vm.shopId,
               taskData: _vm.taskData,
@@ -49411,6 +49430,7 @@ var render = function () {
       _vm._v(" "),
       _vm.currentComponent === 2
         ? _c("UserAllPointing", {
+            ref: "point",
             attrs: {
               shop: _vm.shopId,
               taskData: _vm.taskData,

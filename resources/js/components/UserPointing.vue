@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import ModalPointEdit from "./ModalPointEdit.vue";
 
 export default {
@@ -81,7 +81,6 @@ export default {
     },
     methods: {
         createView() {
-
             //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
             //画面表示用のデータの配列を作成する関数
             let data = this.$helpers.createViewData(
@@ -106,6 +105,11 @@ export default {
         //ポイント編集モーダルクローズ
         closePointEdit() {
             this.showModal = false;
+        },
+        iniData() {
+            this.user = null
+            this.currentTask = 1
+            this.viewData = null
         },
         //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
         putPoint(data) {
@@ -154,9 +158,7 @@ export default {
     },
     watch: {
         shop: function () {
-            this.user = null;
-            this.currentTask = 1;
-            this.viewData = null
+            this.iniData()
         },
         user() {
             if(this.user) {

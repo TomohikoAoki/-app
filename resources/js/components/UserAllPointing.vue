@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import ModalPointEdit from "./ModalPointEdit.vue";
 
 export default {
@@ -109,6 +109,11 @@ export default {
         },
         changePosition(key) {
             this.currentPosition = key;
+        },
+        iniData() {
+            this.currentTask = 1
+            this.currentPosition = 1
+            this.viewData = null
         },
         //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
         putPoint(data) {
@@ -162,21 +167,23 @@ export default {
     },
     watch: {
         taskData: function () {
-            if(this.users) {
+            if(this.users && this.taskData) {
                 this.createView();
             }
         },
         users: function () {
-            if(this.taskData) {
+            if(this.users && this.taskData) {
                 this.createView();
             }
         },
         shop: function() {
-            this.viewData = null
+            this.iniData()
         }
     },
     mounted() {
-        this.createView()
+        if(this.users && this.taskData) {
+                this.createView();
+            }
     },
 };
 </script>
