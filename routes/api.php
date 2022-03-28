@@ -60,7 +60,7 @@ Route::delete('/task', 'TaskController@deleteTask');
 Route::get('/task', 'TaskController@indexTask');
 
 //店舗ごとのタスク一覧取得
-Route::get('/task/{id}', 'TaskController@taskOfShop');
+Route::get('/task/{id}', 'TaskController@tasksOfShop');
 
 //リーダーポイント　追加
 Route::post('/point', 'LeaderPointController@putPoint');

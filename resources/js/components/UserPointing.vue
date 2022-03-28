@@ -75,7 +75,7 @@ export default {
             showModal: false,
         };
     },
-    props: ['shop', 'taskData', 'users'],
+    props: ["shop", "taskData", "users"],
     components: {
         ModalPointEdit,
     },
@@ -106,12 +106,13 @@ export default {
         closePointEdit() {
             this.showModal = false;
         },
+        //初期化
         iniData() {
-            this.user = null
-            this.currentTask = 1
-            this.viewData = null
+            this.user = null;
+            this.currentTask = 1;
+            this.viewData = null;
         },
-        //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
+        //送信用データを配列で格納　＆　再描画の為にviewDataを更新
         putPoint(data) {
             //task_id & user_id で重複削除
             let list = this._sendData.filter((item) => {
@@ -127,15 +128,19 @@ export default {
             this.$store.dispatch("point/putPoints", list);
 
             //再描画用　pointを更新
-
-            let targetTask = this.viewData.find(
-                (task) => task.task_id === data.task_id
-            );
+            let targetTask = this.viewData.find((task) => {
+                if (
+                    task.task_id === data.task_id &&
+                    task.user_id === data.user_id
+                ) {
+                    return true;
+                }
+            });
 
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
-        },
 
+        },
     },
     computed: {
         ...mapGetters({
@@ -158,16 +163,15 @@ export default {
     },
     watch: {
         shop: function () {
-            this.iniData()
+            this.iniData();
         },
         user() {
-            if(this.user) {
+            if (this.user) {
                 this.createView();
             }
         },
     },
-    mounted() {
-    },
+    mounted() {},
 };
 </script>
 

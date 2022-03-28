@@ -15,7 +15,7 @@ export default {
         let points = user.points ? user.points : [];
 
         //send前のデータがあればpointを上書き　＆　新規pointを追加
-        if (local.length) {
+        if (local) {
             let localData = local.filter((item) => item.user_id === user.id);
 
             if (localData.length) {

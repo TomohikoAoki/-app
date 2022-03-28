@@ -32,7 +32,7 @@
                 <h3 class="task-data-area__title">TASK</h3>
                 <ul class="category-area">
                     <li
-                        v-for="cate in category"
+                        v-for="cate in filterCategory"
                         :key="cate.value"
                         @click="changeTask(cate.value)"
                         class="select-category"
@@ -42,9 +42,7 @@
                     </li>
                 </ul>
                 <div class="task-group">
-                    <h4 class="task-group__title">
-                        {{ categoryLabels[currentTask] }}
-                    </h4>
+                    <h4 class="task-group__title"></h4>
                     <div
                         v-for="(task, index) in filterTask"
                         :key="task.id"
@@ -139,7 +137,6 @@ export default {
             shops: "options/Shops",
             positions: "options/Positions",
             category: "options/taskCategory",
-            categoryLabels: "options/categoryLabels",
         }),
         ...mapState("auth", {
             currentAuth: function (state) {
@@ -150,27 +147,32 @@ export default {
             },
         }),
         filterTask() {
-            return this.taskData[this.currentTask];
+            return this.taskData.filter((item) => {
+                if (
+                    (item.position_id == this.positionId ||
+                        item.position_id == 3) &&
+                    item.category_id == this.currentTask
+                ) {
+                    return true;
+                }
+            });
+        },
+        filterCategory() {
+            let list = this.category(this.shopId).filter(
+                (item) =>
+                    item.position_id == this.positionId || item.position_id == 3
+            );
+            return list;
         },
     },
     methods: {
         async getTask() {
-            const response = await axios.get(
-                `/api/task?shop=${this.shopId}&position=${this.positionId}`
-            );
+            const response = await axios.get(`/api/task/${this.shopId}`);
 
-            this.taskData = {};
+            this.taskData = [];
 
-            response.data.forEach((data) => {
-                let categoryId = data.category_id;
+            this.taskData = response.data.data;
 
-                if (categoryId in this.taskData) {
-                    this.taskData[categoryId].push(data);
-                    return false;
-                }
-
-                this.taskData[categoryId] = [data];
-            });
         },
         //新規タスク登録
         async addTask() {

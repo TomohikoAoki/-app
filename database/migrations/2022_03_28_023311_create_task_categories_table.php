@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProfilesTable extends Migration
+class CreateTaskCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,12 @@ class CreateProfilesTable extends Migration
      */
     public function up()
     {
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('task_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_code')->unique()->nullable();
+            $table->string('label');
             $table->unsignedBigInteger('shop_id');
-            $table->unsignedBigInteger('user_id');
             $table->unsignedInteger('position_id');
-            $table->unsignedInteger('lunk')->nullable();
-            $table->string('email')->unique()->nullable();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('shop_id')->references('id')->on('shops');
         });
     }
@@ -34,6 +30,6 @@ class CreateProfilesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('task_categories');
     }
 }

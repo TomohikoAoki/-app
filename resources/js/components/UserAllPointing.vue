@@ -110,6 +110,7 @@ export default {
         changePosition(key) {
             this.currentPosition = key;
         },
+        //初期化
         iniData() {
             this.currentTask = 1
             this.currentPosition = 1
@@ -167,23 +168,18 @@ export default {
     },
     watch: {
         taskData: function () {
-            if(this.users && this.taskData) {
-                this.createView();
-            }
+            if(this.users && this.taskData) this.createView();
         },
         users: function () {
-            if(this.users && this.taskData) {
-                this.createView();
-            }
+            if(this.users && this.taskData) this.createView();
         },
         shop: function() {
             this.iniData()
         }
     },
     mounted() {
-        if(this.users && this.taskData) {
-                this.createView();
-            }
+        if(this.users && this.taskData) this.createView();
+
     },
 };
 </script>

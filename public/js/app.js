@@ -2444,6 +2444,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     changePosition: function changePosition(key) {
       this.currentPosition = key;
     },
+    //初期化
     iniData: function iniData() {
       this.currentTask = 1;
       this.currentPosition = 1;
@@ -2499,23 +2500,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }),
   watch: {
     taskData: function taskData() {
-      if (this.users && this.taskData) {
-        this.createView();
-      }
+      if (this.users && this.taskData) this.createView();
     },
     users: function users() {
-      if (this.users && this.taskData) {
-        this.createView();
-      }
+      if (this.users && this.taskData) this.createView();
     },
     shop: function shop() {
       this.iniData();
     }
   },
   mounted: function mounted() {
-    if (this.users && this.taskData) {
-      this.createView();
-    }
+    if (this.users && this.taskData) this.createView();
   }
 });
 
@@ -2613,7 +2608,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       showModal: false
     };
   },
-  props: ['shop', 'taskData', 'users'],
+  props: ["shop", "taskData", "users"],
   components: {
     ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
@@ -2638,12 +2633,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     closePointEdit: function closePointEdit() {
       this.showModal = false;
     },
+    //初期化
     iniData: function iniData() {
       this.user = null;
       this.currentTask = 1;
       this.viewData = null;
     },
-    //送信用データを配列で格納　＆　再描画の為にtaskDataを更新
+    //送信用データを配列で格納　＆　再描画の為にviewDataを更新
     putPoint: function putPoint(data) {
       //task_id & user_id で重複削除
       var list = this._sendData.filter(function (item) {
@@ -2657,7 +2653,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.$store.dispatch("point/putPoints", list); //再描画用　pointを更新
 
       var targetTask = this.viewData.find(function (task) {
-        return task.task_id === data.task_id;
+        if (task.task_id === data.task_id && task.user_id === data.user_id) {
+          return true;
+        }
       });
       this.$set(targetTask, "point", data.point);
       this.$set(targetTask, "updated", true);
@@ -4364,8 +4362,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
 
 
 
@@ -4391,8 +4387,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   computed: _objectSpread(_objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
     shops: "options/Shops",
     positions: "options/Positions",
-    category: "options/taskCategory",
-    categoryLabels: "options/categoryLabels"
+    category: "options/taskCategory"
   })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])("auth", {
     currentAuth: function currentAuth(state) {
       if (state.user.authority === 2) {
@@ -4403,12 +4398,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   })), {}, {
     filterTask: function filterTask() {
-      return this.taskData[this.currentTask];
+      var _this = this;
+
+      return this.taskData.filter(function (item) {
+        if ((item.position_id == _this.positionId || item.position_id == 3) && item.category_id == _this.currentTask) {
+          return true;
+        }
+      });
+    },
+    filterCategory: function filterCategory() {
+      var _this2 = this;
+
+      var list = this.category(this.shopId).filter(function (item) {
+        return item.position_id == _this2.positionId || item.position_id == 3;
+      });
+      return list;
     }
   }),
   methods: {
     getTask: function getTask() {
-      var _this = this;
+      var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
         var response;
@@ -4417,22 +4426,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.get("/api/task?shop=".concat(_this.shopId, "&position=").concat(_this.positionId));
+                return axios.get("/api/task/".concat(_this3.shopId));
 
               case 2:
                 response = _context.sent;
-                _this.taskData = {};
-                response.data.forEach(function (data) {
-                  var categoryId = data.category_id;
-
-                  if (categoryId in _this.taskData) {
-                    _this.taskData[categoryId].push(data);
-
-                    return false;
-                  }
-
-                  _this.taskData[categoryId] = [data];
-                });
+                _this3.taskData = [];
+                _this3.taskData = response.data.data;
 
               case 5:
               case "end":
@@ -4444,7 +4443,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     //新規タスク登録
     addTask: function addTask() {
-      var _this2 = this;
+      var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
         var response, categoryId;
@@ -4452,26 +4451,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _this2.taskForm["shop_id"] = _this2.shopId;
-                _this2.taskForm["position_id"] = _this2.positionId;
-                _this2.taskForm["category_id"] = _this2.currentTask;
+                _this4.taskForm["shop_id"] = _this4.shopId;
+                _this4.taskForm["position_id"] = _this4.positionId;
+                _this4.taskForm["category_id"] = _this4.currentTask;
                 _context2.next = 5;
-                return axios.post("/api/task", _this2.taskForm);
+                return axios.post("/api/task", _this4.taskForm);
 
               case 5:
                 response = _context2.sent;
 
                 if (response.status === 201) {
-                  _this2.showForm = false;
-                  _this2.taskForm = {
+                  _this4.showForm = false;
+                  _this4.taskForm = {
                     content: ""
                   };
                   categoryId = response.data.category_id;
 
-                  if (_this2.taskData[categoryId]) {
-                    _this2.taskData[categoryId].push(response.data);
+                  if (_this4.taskData[categoryId]) {
+                    _this4.taskData[categoryId].push(response.data);
                   } else {
-                    _this2.$set(_this2.taskData, categoryId, [response.data]);
+                    _this4.$set(_this4.taskData, categoryId, [response.data]);
                   }
                 }
 
@@ -49673,7 +49672,7 @@ var render = function () {
               _c(
                 "ul",
                 { staticClass: "category-area" },
-                _vm._l(_vm.category, function (cate) {
+                _vm._l(_vm.filterCategory, function (cate) {
                   return _c(
                     "li",
                     {
@@ -49702,13 +49701,7 @@ var render = function () {
                 "div",
                 { staticClass: "task-group" },
                 [
-                  _c("h4", { staticClass: "task-group__title" }, [
-                    _vm._v(
-                      "\n                    " +
-                        _vm._s(_vm.categoryLabels[_vm.currentTask]) +
-                        "\n                "
-                    ),
-                  ]),
+                  _c("h4", { staticClass: "task-group__title" }),
                   _vm._v(" "),
                   _vm._l(_vm.filterTask, function (task, index) {
                     return _c(
@@ -68007,7 +68000,7 @@ __webpack_require__.r(__webpack_exports__);
     var dataArray = [];
     var points = user.points ? user.points : []; //send前のデータがあればpointを上書き　＆　新規pointを追加
 
-    if (local.length) {
+    if (local) {
       var localData = local.filter(function (item) {
         return item.user_id === user.id;
       });
@@ -69374,7 +69367,7 @@ var state = {
     label: "キッチン"
   }, {
     value: "3",
-    label: "その他"
+    label: "共通"
   }],
   lunks: [{
     value: "1",
@@ -69419,25 +69412,79 @@ var state = {
   }],
   taskCate: [{
     value: "1",
-    label: "NHK・身だしなみ"
+    label: "NHK・身だしなみ",
+    shop_id: "1",
+    position_id: "3"
   }, {
     value: "2",
-    label: "お茶番・バッシング"
+    label: "お茶番・バッシング",
+    shop_id: "1",
+    position_id: "1"
   }, {
     value: "3",
-    label: "運び"
+    label: "運び",
+    shop_id: "1",
+    position_id: "1"
   }, {
     value: "4",
-    label: "オーダー"
+    label: "オーダー",
+    shop_id: "1",
+    position_id: "1"
   }, {
     value: "5",
-    label: "セッター"
+    label: "セッター",
+    shop_id: "1",
+    position_id: "1"
   }, {
     value: "6",
-    label: "パートナー"
+    label: "パートナー",
+    shop_id: "1",
+    position_id: "1"
   }, {
     value: "7",
-    label: "花番"
+    label: "花番",
+    shop_id: "1",
+    position_id: "1"
+  }, {
+    value: "8",
+    label: "キャベツ切る",
+    shop_id: "1",
+    position_id: "2"
+  }, {
+    value: "9",
+    label: "ガルニ",
+    shop_id: "1",
+    position_id: "2"
+  }, {
+    value: "10",
+    label: "仕込み",
+    shop_id: "1",
+    position_id: "2"
+  }, {
+    value: "11",
+    label: "揚げ技術",
+    shop_id: "1",
+    position_id: "2"
+  }, {
+    value: "12",
+    label: "準備・片付け",
+    shop_id: "1",
+    position_id: "2"
+  }, {
+    value: "13",
+    label: "皿洗い・炊飯",
+    shop_id: "1",
+    position_id: "2"
+  }, {
+    value: "14",
+    label: "お茶番・バッシング",
+    shop_id: "2",
+    position_id: "1"
+  }, {
+    value: "15",
+    label: "キャベツ切る",
+    shop_id: "2",
+    position_id: "2"
   }]
 };
 var getters = {
@@ -69454,7 +69501,11 @@ var getters = {
     return state.authority;
   },
   taskCategory: function taskCategory(state) {
-    return state.taskCate;
+    return function (shopId) {
+      return state.taskCate.filter(function (item) {
+        return item.shop_id == shopId;
+      });
+    };
   },
   shopLabels: function shopLabels(state) {
     return $_makeLabels(state.shops);
@@ -69469,7 +69520,12 @@ var getters = {
     return $_makeLabels(state.authority);
   },
   categoryLabels: function categoryLabels(state) {
-    return $_makeLabels(state.taskCate);
+    return function (shopId) {
+      var list = state.taskCate.filter(function (item) {
+        return item.shop_id == shopId;
+      });
+      return $_makeLabels(list);
+    };
   }
 };
 var mutations = {

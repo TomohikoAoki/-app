@@ -45,7 +45,7 @@ class TaskController extends Controller
         return Task::where('shop_id', $shopId)->where('position_id', $positionId)->orderByRaw('category_id asc', 'id asc')->get();
     }
 
-    public function taskOfShop(string $id)
+    public function tasksOfShop(string $id)
     {
         $tasks = Shop::find($id)->tasks()->get();
 
