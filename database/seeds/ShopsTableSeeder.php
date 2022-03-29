@@ -13,6 +13,7 @@ class ShopsTableSeeder extends Seeder
     public function run()
     {
         $shopData = [
+            ['id' => 0, 'shop_name' => '共通'],
             ['shop_name' => 'とんＱつくば本店'],
             ['shop_name' => 'とんＱ水戸千波店'],
             ['shop_name' => 'とんＱ守谷ふれあい店'],

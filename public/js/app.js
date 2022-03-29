@@ -2398,6 +2398,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2409,7 +2421,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       viewData: null
     };
   },
-  props: ["shop", 'taskData', 'users'],
+  props: ["shop", "taskData", "users"],
   components: {
     ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
@@ -2419,10 +2431,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       //初期化
       this.viewData = [];
-      this.users.forEach(function (user) {
+      var currentUsers = this.users.filter(function (user) {
+        return user.position_id == _this.currentPosition;
+      });
+      var currentTasks = this.taskData.filter(function (task) {
+        return task.position_id == _this.currentPosition || task.position_id == 3;
+      });
+      currentUsers.forEach(function (user) {
         //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
         //画面表示用のデータの配列を作成する関数
-        var data = _this.$helpers.createViewData(_this.taskData, user, _this._sendData);
+        var data = _this.$helpers.createViewData(currentTasks, user, _this._sendData);
 
         _this.viewData = _this.viewData.concat(data);
       });
@@ -2443,6 +2461,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     changePosition: function changePosition(key) {
       this.currentPosition = key;
+      this.createView();
     },
     //初期化
     iniData: function iniData() {
@@ -2474,7 +2493,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     category: "options/taskCategory",
-    categoryLabels: "options/categoryLabels",
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
@@ -2496,6 +2514,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       return this.users.filter(function (user) {
         return user.position_id === _this3.currentPosition;
       });
+    },
+    //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
+    //共通は３
+    //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
+    filterCategory: function filterCategory() {
+      var _this4 = this;
+
+      if (this.category(this.shop).length) {
+        var list = this.category(this.shop).filter(function (item) {
+          return item.position_id == _this4.currentPosition || item.position_id == 3;
+        });
+        this.currentTask = list[0].value;
+        return list;
+      }
+
+      return [];
     }
   }),
   watch: {
@@ -2595,19 +2629,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       user: null,
-      currentTask: 1,
+      currentTask: null,
       viewData: null,
       showModal: false
     };
   },
+  //shopId,店舗のタスクデータ全部,店舗のユーザー全員
   props: ["shop", "taskData", "users"],
   components: {
     ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
@@ -2636,7 +2669,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     //初期化
     iniData: function iniData() {
       this.user = null;
-      this.currentTask = 1;
+      this.currentTask = null;
       this.viewData = null;
     },
     //送信用データを配列で格納　＆　再描画の為にviewDataを更新
@@ -2663,10 +2696,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     category: "options/taskCategory",
-    categoryLabels: "options/categoryLabels",
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
+    //viewDataをカテゴリーでフィルタリング
     filterMainData: function filterMainData() {
       var _this = this;
 
@@ -2674,6 +2707,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return task.category_id == _this.currentTask;
       });
     },
+    //タスクのcontent表示のため、viewDataと紐付ける
     filterTaskContent: function filterTaskContent() {
       return function (taskId) {
         var task = this.taskData.find(function (item) {
@@ -2681,6 +2715,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
         return task.content;
       };
+    },
+    //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
+    //共通は３
+    //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
+    filterCategory: function filterCategory() {
+      var _this2 = this;
+
+      if (this.category(this.shop).length) {
+        var list = this.category(this.shop).filter(function (item) {
+          return item.position_id == _this2.user.position_id || item.position_id == 3;
+        });
+        this.currentTask = list[0].value;
+        return list;
+      }
+
+      return [];
     }
   }),
   watch: {
@@ -3962,6 +4012,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -4362,6 +4425,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
 
 
 
@@ -4369,9 +4433,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       shopId: null,
-      positionId: 1,
+      positionId: null,
       taskData: null,
-      currentTask: 1,
+      currentTask: null,
       showModal: false,
       showForm: false,
       taskForm: {
@@ -4401,7 +4465,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this = this;
 
       return this.taskData.filter(function (item) {
-        if ((item.position_id == _this.positionId || item.position_id == 3) && item.category_id == _this.currentTask) {
+        if (item.position_id == _this.positionId && item.category_id == _this.currentTask) {
           return true;
         }
       });
@@ -4410,8 +4474,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this2 = this;
 
       var list = this.category(this.shopId).filter(function (item) {
-        return item.position_id == _this2.positionId || item.position_id == 3;
+        return item.position_id == _this2.positionId;
       });
+      this.currentTask = list[0].value;
       return list;
     }
   }),
@@ -4446,7 +4511,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response, categoryId;
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -4465,13 +4530,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   _this4.taskForm = {
                     content: ""
                   };
-                  categoryId = response.data.category_id;
 
-                  if (_this4.taskData[categoryId]) {
-                    _this4.taskData[categoryId].push(response.data);
-                  } else {
-                    _this4.$set(_this4.taskData, categoryId, [response.data]);
-                  }
+                  _this4.taskData.push(response.data);
                 }
 
               case 7:
@@ -9677,7 +9737,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "@charset \"UTF-8\";\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-wrap[data-v-5f95ecad] {\n  overflow-x: scroll;\n  padding: 20px 0;\n}\n.task-wrap .task-group[data-v-5f95ecad] {\n  display: table;\n  border: 1px solid;\n}\n.task-wrap .task-group .task-user[data-v-5f95ecad] {\n  display: table-row;\n}\n.task-wrap .task-group .task-user__name[data-v-5f95ecad] {\n  min-width: 120px;\n  border-bottom: 1px dotted;\n  display: table-cell;\n  vertical-align: middle;\n  padding: 0.4em 0.3em;\n}\n.task-wrap .task-group .task-user__point[data-v-5f95ecad] {\n  min-width: 3em;\n  text-align: center;\n  display: table-cell;\n  border-left: 1px solid;\n  border-bottom: 1px dotted;\n  vertical-align: middle;\n}\n.task-wrap .task-group .task-user__point[data-v-5f95ecad]:hover {\n  background-color: #38466d;\n}\n.task-wrap .task-group .task-user__point.updated[data-v-5f95ecad] {\n  background-color: #5d5d5f;\n}\n.task-wrap .task-group .task-user__point.updated[data-v-5f95ecad]:hover {\n  background-color: #38466d;\n}\n.task-wrap .task-group .task-user__point span[data-v-5f95ecad] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task-wrap .task-group .task-user__point span.point1[data-v-5f95ecad] {\n  background-color: #fff;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point2[data-v-5f95ecad] {\n  background-color: #cbf090;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point3[data-v-5f95ecad] {\n  background-color: #fcf977;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point4[data-v-5f95ecad] {\n  background-color: #9790fc;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point5[data-v-5f95ecad] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\n.point-manage[data-v-5f95ecad] {\n  border-top: 1px dotted;\n  margin: 40px 0 0 0;\n  padding: 40px 0 0 0;\n}\n.select-position[data-v-5f95ecad] {\n  display: flex;\n  width: 350px;\n  margin: 0 auto;\n  vertical-align: middle;\n  justify-content: center;\n}\n.select-position p[data-v-5f95ecad] {\n  font-weight: bold;\n  padding: 0.5em 1em 0.5em 0;\n  margin: 0;\n}\n.select-position ul[data-v-5f95ecad] {\n  display: flex;\n  margin: 0;\n  padding: 0;\n  border: 1px solid;\n  border-radius: 5px;\n  list-style: none;\n  width: 250px;\n}\n.select-position ul li[data-v-5f95ecad] {\n  flex: 1;\n  text-align: center;\n  padding: 0.5em 0;\n}\n.select-position ul li.active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.category-area[data-v-5f95ecad] {\n  list-style: none;\n}\n.category-area .select-category[data-v-5f95ecad] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-5f95ecad] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-data-area[data-v-5f95ecad] {\n  margin-top: 2em;\n  padding: 2em 0;\n  width: 100%;\n}\n.task-data-area__title[data-v-5f95ecad] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.task-wrap[data-v-5f95ecad] {\n  overflow-x: scroll;\n  padding: 20px 0;\n}\n.task-wrap .task-group[data-v-5f95ecad] {\n  display: table;\n  border: 1px solid;\n  border-collapse: collapse;\n}\n@media screen and (min-width: 500px) {\n.task-wrap .task-group[data-v-5f95ecad] {\n    font-size: 1.2em;\n}\n}\n@media screen and (min-width: 850px) {\n.task-wrap .task-group[data-v-5f95ecad] {\n    font-size: 1.4em;\n}\n}\n.task-wrap .task-group .task-user[data-v-5f95ecad] {\n  display: table-row;\n  border-bottom: 1px dotted;\n}\n.task-wrap .task-group .task-user__name[data-v-5f95ecad] {\n  min-width: 120px;\n  display: table-cell;\n  vertical-align: middle;\n  padding: 0.4em 0.3em;\n}\n.task-wrap .task-group .task-user__point[data-v-5f95ecad] {\n  min-width: 3em;\n  text-align: center;\n  display: table-cell;\n  border-left: 1px solid;\n  vertical-align: middle;\n}\n.task-wrap .task-group .task-user__point[data-v-5f95ecad]:hover {\n  background-color: #38466d;\n}\n.task-wrap .task-group .task-user__point.updated[data-v-5f95ecad] {\n  background-color: #5d5d5f;\n}\n.task-wrap .task-group .task-user__point.updated[data-v-5f95ecad]:hover {\n  background-color: #38466d;\n}\n.task-wrap .task-group .task-user__point span[data-v-5f95ecad] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task-wrap .task-group .task-user__point span.point1[data-v-5f95ecad] {\n  background-color: #fff;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point2[data-v-5f95ecad] {\n  background-color: #cbf090;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point3[data-v-5f95ecad] {\n  background-color: #fcf977;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point4[data-v-5f95ecad] {\n  background-color: #9790fc;\n  border: none;\n}\n.task-wrap .task-group .task-user__point span.point5[data-v-5f95ecad] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
 
 // exports
 
@@ -9696,7 +9756,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "@charset \"UTF-8\";\n.select-box-area[data-v-d1d90ab0] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-d1d90ab0]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-d1d90ab0] {\n  margin-top: 4em;\n  padding: 5em 0;\n  width: 100%;\n  border-top: 1px dotted;\n}\n.task-data-area__title[data-v-d1d90ab0] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-d1d90ab0] {\n  list-style: none;\n}\n.category-area .select-category[data-v-d1d90ab0] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-d1d90ab0] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-group[data-v-d1d90ab0] {\n  border: 1px solid;\n  margin: 1em 0;\n}\n.task-group__title[data-v-d1d90ab0] {\n  padding: 0.7em 0 0.7em 1em;\n  background-color: #7b7e88;\n  color: #313644;\n  margin: 0;\n  line-height: 1em;\n}\n.task[data-v-d1d90ab0] {\n  display: flex;\n  border-bottom: 1px dotted #929292cb;\n  margin: 0;\n  cursor: pointer;\n  box-sizing: border-box;\n}\n.task[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task.updated[data-v-d1d90ab0] {\n  background-color: #5d5d5f;\n}\n.task.updated[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task__index[data-v-d1d90ab0] {\n  width: 3em;\n  text-align: center;\n  margin: 0;\n  border-right: 1px solid;\n  padding: 1em 0;\n  box-sizing: border-box;\n}\n.task__body[data-v-d1d90ab0] {\n  margin: 0;\n  padding: 1em 0.5em;\n  box-sizing: border-box;\n  flex: 2;\n}\n.task__point[data-v-d1d90ab0] {\n  margin: 0;\n  box-sizing: border-box;\n  padding: 1em 0;\n  width: 3em;\n  text-align: center;\n  border-left: 1px solid;\n}\n.task__point span[data-v-d1d90ab0] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task__point span.point1[data-v-d1d90ab0] {\n  background-color: #fff;\n  border: none;\n}\n.task__point span.point2[data-v-d1d90ab0] {\n  background-color: #cbf090;\n  border: none;\n}\n.task__point span.point3[data-v-d1d90ab0] {\n  background-color: #fcf977;\n  border: none;\n}\n.task__point span.point4[data-v-d1d90ab0] {\n  background-color: #9790fc;\n  border: none;\n}\n.task__point span.point5[data-v-d1d90ab0] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\n.point-manage[data-v-d1d90ab0] {\n  border-top: 1px dotted;\n  margin: 40px 0 0 0;\n  padding: 40px 0 0 0;\n}\n.select-box-area[data-v-d1d90ab0] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-d1d90ab0]:disabled {\n  color: #c5c5c5;\n}\n.task-data-area[data-v-d1d90ab0] {\n  margin-top: 2em;\n  padding: 2em 0;\n  width: 100%;\n}\n.task-data-area__title[data-v-d1d90ab0] {\n  text-align: center;\n  font-size: 2em;\n  padding: 0 0 2em 0;\n}\n.category-area[data-v-d1d90ab0] {\n  list-style: none;\n}\n.category-area .select-category[data-v-d1d90ab0] {\n  display: inline-block;\n  cursor: pointer;\n  border: 1px solid;\n  padding: 1em;\n  margin: 0.2em;\n  border-radius: 2px;\n}\n.category-area .active[data-v-d1d90ab0] {\n  background-color: #ececec;\n  color: #313644;\n}\n.task-group[data-v-d1d90ab0] {\n  border: 1px solid;\n  margin: 1em 0;\n}\n.task-group__title[data-v-d1d90ab0] {\n  padding: 0.7em 0 0.7em 1em;\n  background-color: #7b7e88;\n  color: #313644;\n  margin: 0;\n  line-height: 1em;\n}\n.task[data-v-d1d90ab0] {\n  display: flex;\n  border-bottom: 1px dotted #929292cb;\n  margin: 0;\n  cursor: pointer;\n  box-sizing: border-box;\n}\n.task[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task.updated[data-v-d1d90ab0] {\n  background-color: #5d5d5f;\n}\n.task.updated[data-v-d1d90ab0]:hover {\n  background-color: #38466d;\n}\n.task__index[data-v-d1d90ab0] {\n  width: 3em;\n  text-align: center;\n  margin: 0;\n  border-right: 1px solid;\n  padding: 1em 0;\n  box-sizing: border-box;\n}\n.task__body[data-v-d1d90ab0] {\n  margin: 0;\n  padding: 1em 0.5em;\n  box-sizing: border-box;\n  flex: 2;\n}\n.task__point[data-v-d1d90ab0] {\n  margin: 0;\n  box-sizing: border-box;\n  padding: 1em 0;\n  width: 3em;\n  text-align: center;\n  border-left: 1px solid;\n}\n.task__point span[data-v-d1d90ab0] {\n  display: block;\n  width: 1em;\n  height: 1em;\n  border-radius: 50%;\n  /*角丸*/\n  border: 1px solid;\n  margin: 0 auto;\n  content: \"\";\n}\n.task__point span.point1[data-v-d1d90ab0] {\n  background-color: #fff;\n  border: none;\n}\n.task__point span.point2[data-v-d1d90ab0] {\n  background-color: #cbf090;\n  border: none;\n}\n.task__point span.point3[data-v-d1d90ab0] {\n  background-color: #fcf977;\n  border: none;\n}\n.task__point span.point4[data-v-d1d90ab0] {\n  background-color: #9790fc;\n  border: none;\n}\n.task__point span.point5[data-v-d1d90ab0] {\n  background-color: #f1aa70;\n  border: none;\n}", ""]);
 
 // exports
 
@@ -9810,7 +9870,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-fd6558f4]:disabled {\n  color: #c5c5c5;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
+exports.push([module.i, ".select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-fd6558f4]:disabled {\n  color: #c5c5c5;\n}\n.change-view[data-v-fd6558f4] {\n  display: flex;\n  margin: 40px auto 0 auto;\n  list-style: none;\n  border: 1px solid;\n  border-radius: 7px;\n  width: 340px;\n  padding: 0;\n}\n.change-view li[data-v-fd6558f4] {\n  flex: 1;\n  padding: 1em 0;\n  text-align: center;\n}\n.change-view li span[data-v-fd6558f4] {\n  vertical-align: middle;\n}\n.change-view li.active[data-v-fd6558f4] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
 
 // exports
 
@@ -46524,40 +46584,44 @@ var render = function () {
     { staticClass: "point-manage" },
     [
       _c("div", [
+        _c("div", { staticClass: "select-position" }, [
+          _c("p", [_vm._v("ポジション")]),
+          _vm._v(" "),
+          _c("ul", [
+            _c(
+              "li",
+              {
+                class: { active: _vm.currentPosition == 1 },
+                on: {
+                  click: function ($event) {
+                    return _vm.changePosition(1)
+                  },
+                },
+              },
+              [_vm._v("\n                    ホール\n                ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "li",
+              {
+                class: { active: _vm.currentPosition == 2 },
+                on: {
+                  click: function ($event) {
+                    return _vm.changePosition(2)
+                  },
+                },
+              },
+              [_vm._v("\n                    キッチン\n                ")]
+            ),
+          ]),
+        ]),
+        _vm._v(" "),
         _vm.viewData
           ? _c("div", { staticClass: "task-data-area" }, [
-              _c("h3", [_vm._v("ポジション")]),
-              _vm._v(" "),
-              _c("ul", [
-                _c(
-                  "li",
-                  {
-                    on: {
-                      click: function ($event) {
-                        return _vm.changePosition(1)
-                      },
-                    },
-                  },
-                  [_vm._v("ホール")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "li",
-                  {
-                    on: {
-                      click: function ($event) {
-                        return _vm.changePosition(2)
-                      },
-                    },
-                  },
-                  [_vm._v("キッチン")]
-                ),
-              ]),
-              _vm._v(" "),
               _c(
                 "ul",
                 { staticClass: "category-area" },
-                _vm._l(_vm.category, function (cate) {
+                _vm._l(_vm.filterCategory, function (cate) {
                   return _c(
                     "li",
                     {
@@ -46732,7 +46796,7 @@ var render = function () {
             _c(
               "ul",
               { staticClass: "category-area" },
-              _vm._l(_vm.category, function (cate) {
+              _vm._l(_vm.filterCategory, function (cate) {
                 return _c(
                   "li",
                   {
@@ -46761,13 +46825,7 @@ var render = function () {
               "div",
               { staticClass: "task-group" },
               [
-                _c("h4", { staticClass: "task-group__title" }, [
-                  _vm._v(
-                    "\n                " +
-                      _vm._s(_vm.categoryLabels[_vm.currentTask]) +
-                      "\n            "
-                  ),
-                ]),
+                _c("h4", { staticClass: "task-group__title" }),
                 _vm._v(" "),
                 _vm._l(_vm.filterMainData, function (task, index) {
                   return _c(
@@ -49390,29 +49448,41 @@ var render = function () {
           : _vm._e(),
       ]),
       _vm._v(" "),
-      _c("ul", [
+      _c("ul", { staticClass: "change-view" }, [
         _c(
           "li",
           {
+            class: { active: _vm.currentComponent === 1 },
             on: {
               click: function ($event) {
                 return _vm.changeComponent(1)
               },
             },
           },
-          [_vm._v("個別表示")]
+          [
+            _c("span", { staticClass: "material-icons-outlined" }, [
+              _vm._v("\n                format_align_justify "),
+            ]),
+            _vm._v("個別表示\n        "),
+          ]
         ),
         _vm._v(" "),
         _c(
           "li",
           {
+            class: { active: _vm.currentComponent === 2 },
             on: {
               click: function ($event) {
                 return _vm.changeComponent(2)
               },
             },
           },
-          [_vm._v("全体表示")]
+          [
+            _c("span", { staticClass: "material-icons-outlined" }, [
+              _vm._v(" apps "),
+            ]),
+            _vm._v("\n            全体表示\n        "),
+          ]
         ),
       ]),
       _vm._v(" "),
@@ -49892,7 +49962,7 @@ var render = function () {
             ])
           : _vm._e(),
       ]),
-      _vm._v(" "),
+      _vm._v("\n    " + _vm._s(_vm.currentTask) + "\n    "),
       _vm.showModal
         ? _c("ModalEdit", {
             attrs: { task: _vm.propsTask },

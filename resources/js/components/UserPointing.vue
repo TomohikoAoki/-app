@@ -14,7 +14,7 @@
             <h3 class="task-data-area__title">{{ user.name }}さんの評価</h3>
             <ul class="category-area">
                 <li
-                    v-for="cate in category"
+                    v-for="cate in filterCategory"
                     :key="cate.value"
                     @click="changeTask(cate.value)"
                     class="select-category"
@@ -24,9 +24,7 @@
                 </li>
             </ul>
             <div class="task-group">
-                <h4 class="task-group__title">
-                    {{ categoryLabels[currentTask] }}
-                </h4>
+                <h4 class="task-group__title"></h4>
                 <div
                     v-for="(task, index) in filterMainData"
                     :key="task.task_id"
@@ -70,11 +68,12 @@ export default {
     data() {
         return {
             user: null,
-            currentTask: 1,
+            currentTask: null,
             viewData: null,
             showModal: false,
         };
     },
+    //shopId,店舗のタスクデータ全部,店舗のユーザー全員
     props: ["shop", "taskData", "users"],
     components: {
         ModalPointEdit,
@@ -109,7 +108,7 @@ export default {
         //初期化
         iniData() {
             this.user = null;
-            this.currentTask = 1;
+            this.currentTask = null;
             this.viewData = null;
         },
         //送信用データを配列で格納　＆　再描画の為にviewDataを更新
@@ -139,26 +138,42 @@ export default {
 
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
-
         },
     },
     computed: {
         ...mapGetters({
             category: "options/taskCategory",
-            categoryLabels: "options/categoryLabels",
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
+        //viewDataをカテゴリーでフィルタリング
         filterMainData() {
             return this.viewData.filter((task) => {
                 return task.category_id == this.currentTask;
             });
         },
+        //タスクのcontent表示のため、viewDataと紐付ける
         filterTaskContent() {
             return function (taskId) {
                 let task = this.taskData.find((item) => item.id === taskId);
                 return task.content;
             };
+        },
+        //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
+        //共通は３
+        //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
+        filterCategory() {
+            if (this.category(this.shop).length) {
+                let list = this.category(this.shop).filter((item) => {
+                    return (
+                        item.position_id == this.user.position_id ||
+                        item.position_id == 3
+                    );
+                });
+                this.currentTask = list[0].value;
+                return list;
+            }
+            return []
         },
     },
     watch: {
@@ -176,6 +191,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.point-manage {
+    border-top: 1px dotted;
+    margin: 40px 0 0 0;
+    padding: 40px 0 0 0;
+}
 .select-box-area {
     max-width: 400px;
     margin: 10px auto;
@@ -184,10 +204,9 @@ export default {
     color: rgb(197, 197, 197);
 }
 .task-data-area {
-    margin-top: 4em;
-    padding: 5em 0;
+    margin-top: 2em;
+    padding: 2em 0;
     width: 100%;
-    border-top: 1px dotted;
     &__title {
         text-align: center;
         font-size: 2em;

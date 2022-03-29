@@ -98,6 +98,7 @@
                 </div>
             </div>
         </div>
+        {{ currentTask }}
         <ModalEdit
             v-if="showModal"
             @emitClose="closeEdit"
@@ -117,9 +118,9 @@ export default {
     data() {
         return {
             shopId: null,
-            positionId: 1,
+            positionId: null,
             taskData: null,
-            currentTask: 1,
+            currentTask: null,
             showModal: false,
             showForm: false,
             taskForm: {
@@ -149,8 +150,7 @@ export default {
         filterTask() {
             return this.taskData.filter((item) => {
                 if (
-                    (item.position_id == this.positionId ||
-                        item.position_id == 3) &&
+                    item.position_id == this.positionId &&
                     item.category_id == this.currentTask
                 ) {
                     return true;
@@ -159,9 +159,9 @@ export default {
         },
         filterCategory() {
             let list = this.category(this.shopId).filter(
-                (item) =>
-                    item.position_id == this.positionId || item.position_id == 3
+                (item) => item.position_id == this.positionId
             );
+            this.currentTask = list[0].value
             return list;
         },
     },
@@ -172,7 +172,6 @@ export default {
             this.taskData = [];
 
             this.taskData = response.data.data;
-
         },
         //新規タスク登録
         async addTask() {
@@ -186,13 +185,8 @@ export default {
                 this.showForm = false;
                 this.taskForm = { content: "" };
 
-                let categoryId = response.data.category_id;
+                this.taskData.push(response.data)
 
-                if (this.taskData[categoryId]) {
-                    this.taskData[categoryId].push(response.data);
-                } else {
-                    this.$set(this.taskData, categoryId, [response.data]);
-                }
             }
         },
         changeTask(key) {

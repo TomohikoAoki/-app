@@ -22,9 +22,22 @@
                 </p>
             </div>
         </div>
-        <ul>
-            <li @click="changeComponent(1)">個別表示</li>
-            <li @click="changeComponent(2)">全体表示</li>
+        <ul class="change-view">
+            <li
+                @click="changeComponent(1)"
+                :class="{ active: currentComponent === 1 }"
+            >
+                <span class="material-icons-outlined">
+                    format_align_justify </span
+                >個別表示
+            </li>
+            <li
+                @click="changeComponent(2)"
+                :class="{ active: currentComponent === 2 }"
+            >
+                <span class="material-icons-outlined"> apps </span>
+                全体表示
+            </li>
         </ul>
         <UserPointing
             v-if="currentComponent === 1"
@@ -75,7 +88,6 @@ export default {
     },
     methods: {
         async getTask() {
-
             const responseTask = await axios.get(`api/task/${this.shopId}`);
             const responseUser = await axios.get(`api/point/${this.shopId}`);
 
@@ -89,13 +101,13 @@ export default {
             //初期化
             this.$store.dispatch("point/clearPoints");
 
-            this.taskData = null
-            this.users = null
+            this.taskData = null;
+            this.users = null;
             this.currentComponent = 1;
 
-            this.$refs.point.iniData()
+            this.$refs.point.iniData();
 
-            this.getTask()
+            this.getTask();
         },
         confirm() {
             return window.confirm(
@@ -149,6 +161,27 @@ export default {
 }
 .form-control:disabled {
     color: rgb(197, 197, 197);
+}
+.change-view {
+    display: flex;
+    margin: 40px auto 0 auto;
+    list-style: none;
+    border: 1px solid;
+    border-radius: 7px;
+    width: 340px;
+    padding: 0;
+    li {
+        flex: 1;
+        padding: 1em 0;
+        text-align: center;
+        span {
+            vertical-align: middle;
+        }
+        &.active {
+            background-color: rgb(236, 236, 236);
+            color: #313644;
+        }
+    }
 }
 .send-data {
     position: fixed;
