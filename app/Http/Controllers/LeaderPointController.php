@@ -42,6 +42,6 @@ class LeaderPointController extends Controller
 
         }
 
-        return response('', 200);
+        return response('', 201);
     }
 }

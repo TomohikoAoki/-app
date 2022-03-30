@@ -10,6 +10,7 @@ const state = {
 
 const getters = {
     checkUser: (state) => !!state.user,
+    user: (state) => (state.user ? state.user : ""),
     getUserName: (state) => (state.user ? state.user.name : ""),
     getCurrentUserId: (state) => (state.user ? state.user.id : ""),
     getAuthority: (state) => (state.user ? state.user.authority : ""),
@@ -35,8 +36,6 @@ const actions = {
     async createUser({ commit }, data) {
         commit("setApiStatus", null);
         const response = await axios.post("/api/user/create", data);
-
-        console.log(response)
 
         if (response.status === CREATED) {
             commit("setApiStatus", true);

@@ -19,6 +19,7 @@
                 </ul>
             </div>
             <div v-if="viewData" class="task-data-area">
+                <!-- task category 選択 -->
                 <ul class="category-area">
                     <li
                         v-for="cate in filterCategory"
@@ -30,17 +31,31 @@
                         {{ cate.label }}
                     </li>
                 </ul>
+                <!-- 横スクロール用wrap -->
                 <div class="task-wrap">
+                    <!-- ここからテーブル -->
                     <div class="task-group">
+                        <!-- index添字用 -->
+                        <div class="task-index">
+                            <div class="task-index__empty"></div>
+                            <div
+                                class="task-index__index"
+                                v-for="n of taskIndex"
+                                :key="n"
+                            >
+                                {{ n }}
+                            </div>
+                        </div>
+                        <!-- ここからviewData -->
                         <div
-                            v-for="(user, index) in usersFilteredPosition"
-                            :key="`user${index}:${user.id}`"
+                            v-for="user in usersFilteredPosition"
+                            :key="`user:${user.id}`"
                             class="task-user"
                         >
                             <p class="task-user__name">{{ user.name }}</p>
                             <div
-                                v-for="(task, index) in filterTask(user.id)"
-                                :key="`${index}:${task.task_id}`"
+                                v-for="task in filterTask(user.id)"
+                                :key="`${user.id}:${task.task_id}`"
                                 class="task-user__point"
                                 :class="{ updated: task.updated === true }"
                                 @click="openPointEdit($event, task)"
@@ -81,6 +96,7 @@ export default {
             currentPosition: 1,
             showModal: false,
             viewData: null,
+            taskIndex: null,
         };
     },
     props: ["shop", "taskData", "users"],
@@ -92,6 +108,7 @@ export default {
             //初期化
             this.viewData = [];
 
+            //親コンポーネントから来たusersとtaskDataをpositionでフィルタリング
             let currentUsers = this.users.filter(
                 (user) => user.position_id == this.currentPosition
             );
@@ -127,6 +144,7 @@ export default {
         closePointEdit() {
             this.showModal = false;
         },
+        //ホールandキッチン切り替え
         changePosition(key) {
             this.currentPosition = key;
             this.createView();
@@ -172,12 +190,17 @@ export default {
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
+        //viewDataをcategoryとユーザーでフィルタリング
+        //index用に配列の要素数も
         filterTask() {
             return function (id) {
-                let test = this.viewData.filter(
+                let tasks = this.viewData.filter(
                     (task) => task.category_id == this.currentTask
                 );
-                return test.filter((item) => item.user_id == id);
+                let list = tasks.filter((item) => item.user_id == id);
+                this.taskIndex = list.length;
+
+                return list;
             };
         },
         usersFilteredPosition() {
@@ -187,7 +210,7 @@ export default {
         },
         //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
         //共通は３
-        //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
+        //カテゴリー初期値(currentTask)にカテゴリー配列の最初の配列のvalueを入れる
         filterCategory() {
             if (this.category(this.shop).length) {
                 let list = this.category(this.shop).filter((item) => {
@@ -258,6 +281,8 @@ export default {
 
 .category-area {
     list-style: none;
+    margin: 0;
+    padding: 0;
     .select-category {
         display: inline-block;
         cursor: pointer;
@@ -287,16 +312,32 @@ export default {
     .task-group {
         display: table;
         border: 1px solid;
-        border-collapse:collapse;
-        @media screen and (min-width:500px) {
+        border-collapse: collapse;
+        @media screen and (min-width: 500px) {
             font-size: 1.2em;
         }
-        @media screen and (min-width:850px) {
+        @media screen and (min-width: 850px) {
             font-size: 1.4em;
+        }
+        .task-index {
+            display: table-row;
+            border-bottom: 1px solid;
+            background-color: #525b61;
+            &__empty {
+                min-width: 120px;
+                display: table-cell;
+            }
+            &__index {
+                display: table-cell;
+                min-width: 3em;
+                text-align: center;
+                font-size: 0.8em;
+                color: #caced1;
+            }
         }
         .task-user {
             display: table-row;
-            border-bottom: 1px dotted;
+            border-bottom: 1px solid;
             &__name {
                 min-width: 120px;
                 display: table-cell;
@@ -307,7 +348,7 @@ export default {
                 min-width: 3em;
                 text-align: center;
                 display: table-cell;
-                border-left: 1px solid;
+                border-left: 1px dotted #a8a8a8;
                 vertical-align: middle;
                 &:hover {
                     background-color: #38466d;

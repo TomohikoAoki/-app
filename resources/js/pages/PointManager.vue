@@ -96,10 +96,7 @@ export default {
         },
         //pointデータを送信
         async sendData() {
-            const response = await axios.post("/api/point", this._sendData);
-
-            //初期化
-            this.$store.dispatch("point/clearPoints");
+            this.$store.dispatch('point/sendPoints')
 
             this.taskData = null;
             this.users = null;

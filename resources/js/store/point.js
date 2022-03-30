@@ -1,3 +1,5 @@
+import { CREATED } from '../util'
+
 const state = {
     sendData: [],
 }
@@ -22,6 +24,13 @@ const actions = {
     },
     clearPoints({ commit }) {
         commit('clearSendData')
+    },
+    async sendPoints({ state, commit }, shopId) {
+        const response = await axios.post("/api/point", state.sendData)
+
+        if (response.status === CREATED) {
+            commit('clearSendData')
+        }
     }
 }
 

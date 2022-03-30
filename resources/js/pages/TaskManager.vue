@@ -3,6 +3,7 @@
         <h2>TASK MANAGEMENT</h2>
         <div>
             <div class="select-box-area">
+                <!-- 店舗セレクトセクション -->
                 <div class="form-group row" v-if="currentAuth == 1">
                     <label class="label" for="shop">店舗選択</label>
                     <select v-model="shopId" class="form-control">
@@ -15,6 +16,7 @@
                         </option>
                     </select>
                 </div>
+                <!-- ポジションセレクトセクション -->
                 <div class="form-group row">
                     <label class="label">ポジション選択</label>
                     <select v-model="positionId" class="form-control">
@@ -30,7 +32,8 @@
             </div>
             <div v-if="taskData" class="task-data-area">
                 <h3 class="task-data-area__title">TASK</h3>
-                <ul class="category-area">
+                <!-- カテゴリーセレクトセクション -->
+                <ul class="category-area" v-if="filterCategory.length">
                     <li
                         v-for="cate in filterCategory"
                         :key="cate.value"
@@ -41,7 +44,9 @@
                         {{ cate.label }}
                     </li>
                 </ul>
-                <div class="task-group">
+                <div v-else>カテゴリーが登録されていません。</div>
+                <!-- タスク表示セクション -->
+                <div class="task-group" v-if="filterCategory.length">
                     <h4 class="task-group__title"></h4>
                     <div
                         v-for="(task, index) in filterTask"
@@ -96,9 +101,9 @@
                         </div>
                     </div>
                 </div>
+                <div v-else>カテゴリーが登録されていないと、タスクは登録できません。</div>
             </div>
         </div>
-        {{ currentTask }}
         <ModalEdit
             v-if="showModal"
             @emitClose="closeEdit"
@@ -158,11 +163,14 @@ export default {
             });
         },
         filterCategory() {
-            let list = this.category(this.shopId).filter(
-                (item) => item.position_id == this.positionId
-            );
-            this.currentTask = list[0].value
-            return list;
+            if (this.category(this.shopId).length) {
+                let list = this.category(this.shopId).filter(
+                    (item) => item.position_id == this.positionId
+                );
+                this.currentTask = list[0].value;
+                return list;
+            }
+            return []
         },
     },
     methods: {
@@ -185,8 +193,7 @@ export default {
                 this.showForm = false;
                 this.taskForm = { content: "" };
 
-                this.taskData.push(response.data)
-
+                this.taskData.push(response.data);
             }
         },
         changeTask(key) {
@@ -226,6 +233,7 @@ export default {
 <style lang="scss" scoped>
 .select-box-area {
     max-width: 400px;
+    width: 90%;
     margin: 10px auto;
 }
 .task-data-area {
@@ -241,6 +249,8 @@ export default {
 }
 .category-area {
     list-style: none;
+    margin: 0;
+    padding: 0;
     .select-category {
         display: inline-block;
         cursor: pointer;

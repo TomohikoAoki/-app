@@ -215,6 +215,8 @@ export default {
 }
 .category-area {
     list-style: none;
+    margin: 0;
+    padding: 0;
     .select-category {
         display: inline-block;
         cursor: pointer;
@@ -241,7 +243,7 @@ export default {
 }
 .task {
     display: flex;
-    border-bottom: 1px dotted #929292cb;
+    border-bottom: 1px solid #d6d6d6cb;
     margin: 0;
     cursor: pointer;
     box-sizing: border-box;
@@ -258,7 +260,7 @@ export default {
         width: 3em;
         text-align: center;
         margin: 0;
-        border-right: 1px solid;
+        border-right: 1px dotted #7b7e88;
         padding: 1em 0;
         box-sizing: border-box;
     }
@@ -274,7 +276,7 @@ export default {
         padding: 1em 0;
         width: 3em;
         text-align: center;
-        border-left: 1px solid;
+        border-left: 1px dotted #7b7e88;
         span {
             display: block;
             width: 1em;
