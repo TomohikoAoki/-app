@@ -4020,6 +4020,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -4029,7 +4035,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
     user: "auth/user",
-    taskCategory: "options/taskCategory"
+    taskCategory: "options/taskCategory",
+    tasks: "tasks/taskData",
+    pointsWithUser: "point/pointsWithUser"
   })), {}, {
     filterCategories: function filterCategories() {
       var _this = this;
@@ -4073,8 +4081,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var point = list.reduce(function (a, b) {
           return a + b.point;
         }, 0);
-        return Math.floor(point * rate);
+        return Number(this.$helpers.orgRound(point * rate, 10));
       };
+    },
+    generateColor: function generateColor(val) {
+      var keyColor = [0xff6464, 0xed973a, 0xdfe561, 0x40d87d, 0x00aaff];
+
+      if (val <= 25) {
+        return keyColor[0] - (keyColor[0] - keyColor[1]) / 100 * val;
+      } else if (25 < val && val <= 50) {
+        return keyColor[1] - (keyColor[1] - keyColor[2]) / 100 * val;
+      } else if (50 < val && val <= 75) {
+        return keyColor[2] - (keyColor[2] - keyColor[3]) / 100 * val;
+      } else if (75 < val && val <= 99) {
+        return keyColor[3] - (keyColor[3] - keyColor[4]) / 100 * val;
+      } else if (val === 100) {
+        return keyColor[4] - (keyColor[3] - keyColor[4]) / 100 * val;
+      }
     }
   }),
   methods: {
@@ -4082,24 +4105,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var responseTask, response, points, arrData, tasks;
+        var points, arrData, tasks;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.get("/api/task/".concat(_this2.user.shop_id));
+                return _this2.$store.dispatch("tasks/getTasks", _this2.user.shop_id);
 
               case 2:
-                responseTask = _context.sent;
-                _context.next = 5;
-                return axios.get("/api/point?user_id=".concat(_this2.user.id));
+                _context.next = 4;
+                return _this2.$store.dispatch("point/getPointWithUser", _this2.user.id);
 
-              case 5:
-                response = _context.sent;
-                points = response.data.data.points;
+              case 4:
+                points = _this2.pointsWithUser.points;
                 arrData = [];
-                tasks = responseTask.data.data.filter(function (task) {
+                tasks = _this2.tasks.filter(function (task) {
                   return task.position_id == _this2.user.position_id || task.position_id == 3;
                 });
                 tasks.forEach(function (task) {
@@ -4122,7 +4143,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
                 _this2.viewData = arrData;
 
-              case 11:
+              case 9:
               case "end":
                 return _context.stop();
             }
@@ -10071,7 +10092,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".all-area[data-v-7cb3ba5a] {\n  border: 2px solid;\n  text-align: center;\n  border-radius: 10px;\n  padding: 1em 0;\n  margin: 0 auto 1em auto;\n  max-width: 300px;\n}\n.all-area .point-label[data-v-7cb3ba5a] {\n  margin: 0;\n  font-size: 2em;\n}\n.all-area .point .current-point[data-v-7cb3ba5a] {\n  font-size: 3em;\n}\n.category-area[data-v-7cb3ba5a] {\n  display: flex;\n  flex-wrap: wrap;\n  width: 90%;\n  margin: 0 auto;\n  justify-content: center;\n}\n.category-area .category[data-v-7cb3ba5a] {\n  width: 47%;\n  border: 1px solid;\n  text-align: center;\n  border-radius: 10px;\n  padding: 1.2em 0 0.7em 0;\n  margin: 0.3em 0.3em;\n  max-width: 270px;\n}\n.category-area .category .point-label[data-v-7cb3ba5a] {\n  margin: 0;\n  font-size: 1.1em;\n}\n.category-area .category .point .current-point[data-v-7cb3ba5a] {\n  font-size: 3em;\n}\n.category-area > div[data-v-7cb3ba5a]:last-child {\n  visibility: hidden;\n}", ""]);
+exports.push([module.i, ".all-area[data-v-7cb3ba5a] {\n  border: 2px solid;\n  text-align: center;\n  border-radius: 10px;\n  padding: 1em 0;\n  margin: 0 auto 1em auto;\n  max-width: 300px;\n}\n.all-area .point-label[data-v-7cb3ba5a] {\n  margin: 0;\n  font-size: 2em;\n}\n.all-area .point .current-point[data-v-7cb3ba5a] {\n  font-size: 3em;\n}\n.category-area[data-v-7cb3ba5a] {\n  display: flex;\n  flex-wrap: wrap;\n  width: 90%;\n  margin: 0 auto;\n  justify-content: center;\n}\n.category-area .category[data-v-7cb3ba5a] {\n  width: 47%;\n  border: 1px solid;\n  text-align: center;\n  border-radius: 10px;\n  padding: 1.2em 0 0.7em 0;\n  margin: 0.3em 0.3em;\n  max-width: 270px;\n  color: #ff6464;\n}\n.category-area .category .point-label[data-v-7cb3ba5a] {\n  margin: 0;\n  font-size: 1.1em;\n}\n.category-area .category .point .current-point[data-v-7cb3ba5a] {\n  font-size: 3em;\n}\n.category-area .category.color20over[data-v-7cb3ba5a] {\n  color: #ed973a;\n}\n.category-area .category.color40over[data-v-7cb3ba5a] {\n  color: #dfe561;\n}\n.category-area .category.color60over[data-v-7cb3ba5a] {\n  color: #40d87d;\n}\n.category-area .category.color80over[data-v-7cb3ba5a] {\n  color: #00aaff;\n}\n.category-area > div[data-v-7cb3ba5a]:last-child {\n  visibility: hidden;\n}", ""]);
 
 // exports
 
@@ -49654,7 +49675,16 @@ var render = function () {
               _vm._l(_vm.filterCategories, function (category) {
                 return _c(
                   "div",
-                  { key: category.value, staticClass: "category" },
+                  {
+                    key: category.value,
+                    staticClass: "category",
+                    class: {
+                      color20over: _vm.achieveRate(category.value) > 20,
+                      color40over: _vm.achieveRate(category.value) > 40,
+                      color60over: _vm.achieveRate(category.value) > 60,
+                      color80over: _vm.achieveRate(category.value) > 80,
+                    },
+                  },
                   [
                     _c("p", { staticClass: "point-label" }, [
                       _vm._v(_vm._s(category.label)),
@@ -70074,7 +70104,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 var state = {
-  sendData: []
+  sendData: [],
+  pointsWithUser: null
 };
 var getters = {
   getSendData: function getSendData(state) {
@@ -70082,6 +70113,9 @@ var getters = {
   },
   getSendDataFlag: function getSendDataFlag(state) {
     return state.sendData.length !== 0;
+  },
+  pointsWithUser: function pointsWithUser(state) {
+    return state.pointsWithUser ? state.pointsWithUser : "";
   }
 };
 var mutations = {
@@ -70090,6 +70124,9 @@ var mutations = {
   },
   clearSendData: function clearSendData(state) {
     state.sendData = [];
+  },
+  setPointsWithUser: function setPointsWithUser(state, data) {
+    state.pointsWithUser = data;
   }
 };
 var actions = {
@@ -70125,6 +70162,32 @@ var actions = {
           }
         }
       }, _callee);
+    }))();
+  },
+  getPointWithUser: function getPointWithUser(_ref4, userId) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+      var commit, response;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              commit = _ref4.commit;
+              _context2.next = 3;
+              return axios.get("/api/point?user_id=".concat(userId));
+
+            case 3:
+              response = _context2.sent;
+
+              if (response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"]) {
+                commit('setPointsWithUser', response.data.data);
+              }
+
+            case 5:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
     }))();
   }
 };

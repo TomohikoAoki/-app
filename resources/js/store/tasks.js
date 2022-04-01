@@ -22,6 +22,7 @@ const actions = {
 
         if (response.status === OK) {
             commit('setTasks', response.data.data)
+
         }
     }
 }

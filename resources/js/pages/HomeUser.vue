@@ -17,6 +17,12 @@
                     v-for="category in filterCategories"
                     :key="category.value"
                     class="category"
+                    :class="{
+                        color20over: achieveRate(category.value) > 20,
+                        color40over: achieveRate(category.value) > 40,
+                        color60over: achieveRate(category.value) > 60,
+                        color80over: achieveRate(category.value) > 80,
+                    }"
                 >
                     <p class="point-label">{{ category.label }}</p>
                     <div class="point">
@@ -47,6 +53,8 @@ export default {
         ...mapGetters({
             user: "auth/user",
             taskCategory: "options/taskCategory",
+            tasks: "tasks/taskData",
+            pointsWithUser: "point/pointsWithUser",
         }),
         filterCategories() {
             return this.taskCategory(this.user.shop_id).filter(
@@ -95,25 +103,21 @@ export default {
                     return a + b.point;
                 }, 0);
 
-                return Math.floor(point * rate);
+                return Number(this.$helpers.orgRound(point * rate, 10));
             };
         },
     },
     methods: {
         async createViewData() {
-            const responseTask = await axios.get(
-                `/api/task/${this.user.shop_id}`
-            );
+            await this.$store.dispatch("tasks/getTasks", this.user.shop_id);
 
-            const response = await axios.get(
-                `/api/point?user_id=${this.user.id}`
-            );
+            await this.$store.dispatch("point/getPointWithUser", this.user.id);
 
-            let points = response.data.data.points;
+            let points = this.pointsWithUser.points;
 
             let arrData = [];
 
-            let tasks = responseTask.data.data.filter(
+            let tasks = this.tasks.filter(
                 (task) =>
                     task.position_id == this.user.position_id ||
                     task.position_id == 3
@@ -135,6 +139,7 @@ export default {
 
                 arrData.push(obj);
             });
+
             this.viewData = arrData;
         },
     },
@@ -176,6 +181,7 @@ export default {
         padding: 1.2em 0 0.7em 0;
         margin: 0.3em 0.3em;
         max-width: 270px;
+        color: #ff6464;
         .point-label {
             margin: 0;
             font-size: 1.1em;
@@ -184,6 +190,18 @@ export default {
             .current-point {
                 font-size: 3em;
             }
+        }
+        &.color20over {
+            color: #ed973a;
+        }
+        &.color40over {
+            color: #dfe561;
+        }
+        &.color60over {
+            color: #40d87d;
+        }
+        &.color80over {
+            color: #00aaff;
         }
     }
     & > div:last-child {
