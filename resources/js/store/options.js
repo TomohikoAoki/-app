@@ -100,8 +100,6 @@ const actions = {
             categories.push(item);
         })
 
-        console.log(categories);
-
         commit('setCategories', categories);
     }
 };

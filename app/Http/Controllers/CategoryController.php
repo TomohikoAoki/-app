@@ -7,16 +7,26 @@ use App\Models\Category;
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except('index');
+    }
+
     public function index() {
         return Category::get();
     }
 
     public function create(Request $request)
     {
+        logger($request);
+
+
         $category = Category::create([
             'label' => $request['label'],
             'position_id' => $request['position_id']
         ]);
+
+        return response($category, 201);
     }
 
     public function update(Request $request)

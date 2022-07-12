@@ -4,31 +4,12 @@
         <div>
             <div class="select-box-area">
                 <!-- 店舗セレクトセクション -->
-                <div class="form-group row" v-if="currentAuth == 1">
-                    <label class="label" for="shop">店舗選択</label>
-                    <select v-model="shopId" class="form-control">
-                        <option
-                            v-for="shop in shops"
-                            :key="shop.value"
-                            :value="shop.value"
-                        >
-                            {{ shop.label }}
-                        </option>
-                    </select>
-                </div>
+                <SelectShopBox
+                    v-model="shopId"
+                    v-if="currentAuth == 1"
+                ></SelectShopBox>
                 <!-- ポジションセレクトセクション -->
-                <div class="form-group row">
-                    <label class="label">ポジション選択</label>
-                    <select v-model="positionId" class="form-control">
-                        <option
-                            v-for="position in positions"
-                            :key="position.value"
-                            :value="position.value"
-                        >
-                            {{ position.label }}
-                        </option>
-                    </select>
-                </div>
+                <SelectPositionBox v-model="positionId"> </SelectPositionBox>
             </div>
             <div v-if="taskData" class="task-data-area">
                 <h3 class="task-data-area__title">TASK</h3>
@@ -101,7 +82,9 @@
                         </div>
                     </div>
                 </div>
-                <div v-else>カテゴリーが登録されていないと、タスクは登録できません。</div>
+                <div v-else>
+                    カテゴリーが登録されていないと、タスクは登録できません。
+                </div>
             </div>
         </div>
         <ModalEdit
@@ -116,6 +99,8 @@
 <script>
 import { mapState, mapGetters } from "vuex";
 import ModalEdit from "../components/ModalEdit.vue";
+import SelectShopBox from "../components/form/ShopSelectBox";
+import SelectPositionBox from "../components/form/PositionSelectBox";
 
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
@@ -137,11 +122,11 @@ export default {
         ModalEdit,
         ValidationObserver,
         ValidationProvider,
+        SelectShopBox,
+        SelectPositionBox,
     },
     computed: {
         ...mapGetters({
-            shops: "options/Shops",
-            positions: "options/Positions",
             category: "options/taskCategory",
         }),
         ...mapState("auth", {
@@ -170,7 +155,7 @@ export default {
                 this.currentTask = list[0].value;
                 return list;
             }
-            return []
+            return [];
         },
     },
     methods: {

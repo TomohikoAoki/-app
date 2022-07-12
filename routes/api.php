@@ -75,7 +75,7 @@ Route::get('/point/{id}', 'LeaderPointController@getPointsWithUsersBelongToShop'
 Route::get('/category/index', 'CategoryController@index');
 
 //カテゴリー　作成
-Route::put('/category/create', 'CategoryController@create');
+Route::post('/category/create', 'CategoryController@create');
 
 
 

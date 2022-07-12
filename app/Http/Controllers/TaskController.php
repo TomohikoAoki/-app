@@ -16,6 +16,7 @@ class TaskController extends Controller
 
     public function createTask(Request $request)
     {
+
         $task = Task::create([
             'content' => $request['content'],
             'category_id' => $request['category_id'],
