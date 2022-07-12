@@ -163,8 +163,8 @@ export default {
             });
         },
         filterCategory() {
-            if (this.category(this.shopId).length) {
-                let list = this.category(this.shopId).filter(
+            if (this.category.length) {
+                let list = this.category.filter(
                     (item) => item.position_id == this.positionId
                 );
                 this.currentTask = list[0].value;

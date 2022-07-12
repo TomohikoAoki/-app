@@ -163,8 +163,8 @@ export default {
         //共通は３
         //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
         filterCategory() {
-            if (this.category(this.shop).length) {
-                let list = this.category(this.shop).filter((item) => {
+            if (this.category.length) {
+                let list = this.category.filter((item) => {
                     return (
                         item.position_id == this.user.position_id ||
                         item.position_id == 3

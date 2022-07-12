@@ -23,21 +23,21 @@ const state = {
         { value: "3", label: "ユーザー" },
     ],
     taskCate: [
-        { value: "1", label: "NHK・身だしなみ", shop_id: "1", position_id: "3" },
-        { value: "2", label: "お茶番・バッシング", shop_id: "1", position_id: "1" },
-        { value: "3", label: "運び", shop_id: "1", position_id: "1" },
-        { value: "4", label: "オーダー", shop_id: "1", position_id: "1" },
-        { value: "5", label: "セッター", shop_id: "1", position_id: "1" },
-        { value: "6", label: "パートナー", shop_id: "1", position_id: "1" },
-        { value: "7", label: "花番", shop_id: "1", position_id: "1" },
-        { value: "8", label: "キャベツ切る", shop_id: "1", position_id: "2" },
-        { value: "9", label: "ガルニ", shop_id: "1", position_id: "2" },
-        { value: "10", label: "仕込み", shop_id: "1", position_id: "2" },
-        { value: "11", label: "揚げ技術", shop_id: "1", position_id: "2" },
-        { value: "12", label: "準備・片付け", shop_id: "1", position_id: "2" },
-        { value: "13", label: "皿洗い・炊飯", shop_id: "1", position_id: "2" },
-        { value: "14", label: "お茶番・バッシング", shop_id: "2", position_id: "1" },
-        { value: "15", label: "キャベツ切る", shop_id: "2", position_id: "2" },
+        { value: "1", label: "NHK・身だしなみ", position_id: "3" },
+        { value: "2", label: "お茶番・バッシング", position_id: "1" },
+        { value: "3", label: "運び", position_id: "1" },
+        { value: "4", label: "オーダー", position_id: "1" },
+        { value: "5", label: "セッター", position_id: "1" },
+        { value: "6", label: "パートナー", position_id: "1" },
+        { value: "7", label: "花番", position_id: "1" },
+        { value: "8", label: "キャベツ切る", position_id: "2" },
+        { value: "9", label: "ガルニ", position_id: "2" },
+        { value: "10", label: "仕込み", position_id: "2" },
+        { value: "11", label: "揚げ技術", position_id: "2" },
+        { value: "12", label: "準備・片付け", position_id: "2" },
+        { value: "13", label: "皿洗い・炊飯", position_id: "2" },
+        { value: "14", label: "お茶番・バッシング", position_id: "1" },
+        { value: "15", label: "キャベツ切る", position_id: "2" },
     ],
 };
 
@@ -46,10 +46,7 @@ const getters = {
     Positions: (state) => state.positions,
     Lunks: (state) => state.lunks,
     optionAuth: (state) => state.authority,
-    taskCategory: (state) =>
-        function(shopId) {
-            return state.taskCate.filter((item) => item.shop_id == shopId)
-        },
+    taskCategory: (state) => state.taskCate,
     shopLabels: (state) => $_makeLabels(state.shops),
     lunkLabels: (state) => $_makeLabels(state.lunks),
     positionLabels: (state) => $_makeLabels(state.positions),
@@ -65,6 +62,9 @@ const mutations = {
     setShops(state, data) {
         state.shops = data;
     },
+    setCategories(state, data) {
+        state.taskCate = data;
+    }
 };
 
 const actions = {
@@ -87,6 +87,23 @@ const actions = {
 
         commit("setShops", shops);
     },
+    async getCategories({ commit }) {
+        const response = await axios.get("/api/category/index");
+
+        let categories = [];
+
+        response.data.forEach((item) => {
+            item.value = item.id
+
+            delete item.id
+
+            categories.push(item);
+        })
+
+        console.log(categories);
+
+        commit('setCategories', categories);
+    }
 };
 
 export default {

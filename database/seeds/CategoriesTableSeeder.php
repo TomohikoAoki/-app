@@ -14,7 +14,6 @@ class CategoriesTableSeeder extends Seeder
     {
         $category = new Category([
             'label' => 'NHK・身だしなみ',
-            'shop_id' => 99,
             'position_id' => 3,
         ]);
         $category->save();

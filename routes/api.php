@@ -71,6 +71,12 @@ Route::get('/point', 'LeaderPointController@getPointByUserId');
 //店舗別ユーザーとポイント　取得
 Route::get('/point/{id}', 'LeaderPointController@getPointsWithUsersBelongToShop');
 
+//カテゴリー 取得
+Route::get('/category/index', 'CategoryController@index');
+
+//カテゴリー　作成
+Route::put('/category/create', 'CategoryController@create');
+
 
 
 

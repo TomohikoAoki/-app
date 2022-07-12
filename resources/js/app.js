@@ -79,6 +79,7 @@ Vue.use(plugin)
 const createApp = async() => {
     await store.dispatch("auth/currentUser");
     await store.dispatch("options/getShops");
+    //await store.dispatch("options/getCategories");
 
     const app = new Vue({
         el: "#app",

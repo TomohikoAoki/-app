@@ -12,7 +12,8 @@ import UserManage from "../pages/UserManager.vue";
 import EditUser from "../pages/EditUser.vue";
 import NotFound from "../pages/errors/NotFound.vue";
 import TaskManage from "../pages/TaskManager.vue";
-import PointManage from "../pages/PointManager.vue"
+import PointManage from "../pages/PointManager.vue";
+import CategoryManage from "../pages/ManageCategories.vue"
 
 Vue.use(VueRouter);
 
@@ -46,6 +47,10 @@ const routes = [{
     {
         path: "/user-manage/edit/:id",
         component: EditUser,
+    },
+    {
+        path: "/category-manage",
+        component: CategoryManage,
     },
     {
         path: "/task-manage",

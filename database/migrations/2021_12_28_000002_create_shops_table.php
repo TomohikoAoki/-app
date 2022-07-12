@@ -16,6 +16,7 @@ class CreateShopsTable extends Migration
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
             $table->string('shop_name')->unique();
+            $table->string('used_category')->nullable();
         });
     }
 

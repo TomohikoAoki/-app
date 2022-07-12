@@ -6,6 +6,7 @@
             <router-link to="/shop-manage"><h3>店舗管理</h3></router-link>
         </div>
         <router-link to="/task-manage"><h3>タスク管理</h3></router-link>
+        <router-link to="/category-manage"><h3>カテゴリー管理</h3></router-link>
         <router-link to="/point-manage"><h3>ポイント管理</h3></router-link>
     </div>
 </template>

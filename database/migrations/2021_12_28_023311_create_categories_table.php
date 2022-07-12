@@ -15,11 +15,8 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('label');
-            $table->unsignedBigInteger('shop_id');
+            $table->string('label')->unique();
             $table->unsignedInteger('position_id');
-
-            $table->foreign('shop_id')->references('id')->on('shops');
         });
     }
 
