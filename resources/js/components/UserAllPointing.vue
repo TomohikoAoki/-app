@@ -1,23 +1,7 @@
 <template>
     <div class="point-manage">
         <div>
-            <div class="select-position">
-                <p>ポジション</p>
-                <ul>
-                    <li
-                        @click="changePosition(1)"
-                        :class="{ active: currentPosition == 1 }"
-                    >
-                        ホール
-                    </li>
-                    <li
-                        @click="changePosition(2)"
-                        :class="{ active: currentPosition == 2 }"
-                    >
-                        キッチン
-                    </li>
-                </ul>
-            </div>
+            <CurrentPositionVue v-model="currentPosition" :selected="currentPosition"></CurrentPositionVue>
             <div v-if="viewData" class="task-data-area">
                 <!-- task category 選択 -->
                 <ul class="category-area">
@@ -88,6 +72,7 @@
 <script>
 import { mapGetters } from "vuex";
 import ModalPointEdit from "./ModalPointEdit.vue";
+import CurrentPositionVue from "./parts/CurrentPosition.vue";
 
 export default {
     data() {
@@ -102,6 +87,7 @@ export default {
     props: ["shop", "taskData", "users"],
     components: {
         ModalPointEdit,
+        CurrentPositionVue
     },
     methods: {
         createView() {

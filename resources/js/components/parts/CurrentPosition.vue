@@ -7,12 +7,11 @@
                 :value="position.value"
                 :key="index"
                 @click="updateValue"
-                :class="{ active: selected == position.value }"
+                :class="{ 'active': selected == position.value, 'hidden': index == positionsLast }"
             >
                 {{ position.label }}
             </li>
         </ul>
-        {{ selected }}
     </div>
 </template>
 
@@ -27,6 +26,9 @@ export default {
         ...mapGetters({
             positions: "options/Positions",
         }),
+        positionsLast() {
+            return this.positions.length - 1
+        }
     },
     methods: {
         updateValue: function (e) {
@@ -46,6 +48,7 @@ export default {
     margin: 0 auto;
     vertical-align: middle;
     justify-content: center;
+    flex-wrap: wrap;
     p {
         font-weight: bold;
         padding: 0.5em 1em 0.5em 0;
@@ -66,6 +69,9 @@ export default {
             &.active {
                 background-color: rgb(236, 236, 236);
                 color: #313644;
+            }
+            &.hidden {
+                display: none;
             }
         }
     }
