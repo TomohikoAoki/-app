@@ -4462,6 +4462,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
     categories: "options/taskCategory"
   })), {}, {
+    //カテゴリー一覧（ポジションごと）
     filterCategory: function filterCategory() {
       var _this = this;
 
@@ -4477,6 +4478,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return item.position_id == _this.currentPosition;
       });
     },
+    //使用カテゴリー
     filterUsedCategory: function filterUsedCategory() {
       var _this2 = this;
 
@@ -4497,7 +4499,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }),
   methods: {
-    getUsedCategory: function getUsedCategory() {
+    //新規カテゴリー作成
+    addCategory: function addCategory() {
       var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
@@ -4506,25 +4509,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return axios.get("/api/category/shop/".concat(_this3.shopId, "/index"));
+                _this3.categoryForm["position_id"] = _this3.positionId;
+                _context.next = 3;
+                return axios.post("/api/category/create", _this3.categoryForm);
 
-              case 2:
+              case 3:
                 response = _context.sent;
 
-                if (response.data) {
-                  _context.next = 7;
-                  break;
+                if (response.status === _util__WEBPACK_IMPORTED_MODULE_2__["CREATED"]) {
+                  _this3.categoryForm = {
+                    label: ""
+                  };
+
+                  _this3.$store.dispatch("options/getCategories");
+
+                  _this3.$refs.obs.reset();
                 }
 
-                _this3.usedList = [];
-                console.log('test');
-                return _context.abrupt("return");
-
-              case 7:
-                _this3.usedList = response.data;
-
-              case 8:
+              case 5:
               case "end":
                 return _context.stop();
             }
@@ -4532,8 +4534,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }, _callee);
       }))();
     },
-    //新規カテゴリー作成
-    addCategory: function addCategory() {
+    //使用するカテゴリー取得（店舗ごと）
+    getUsedCategory: function getUsedCategory() {
       var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
@@ -4542,29 +4544,56 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _this4.categoryForm["position_id"] = _this4.positionId;
-                _context2.next = 3;
-                return axios.post("/api/category/create", _this4.categoryForm);
+                _context2.next = 2;
+                return axios.get("/api/category/shop/".concat(_this4.shopId, "/index"));
 
-              case 3:
+              case 2:
                 response = _context2.sent;
 
-                if (response.status === _util__WEBPACK_IMPORTED_MODULE_2__["CREATED"]) {
-                  _this4.categoryForm = {
-                    label: ""
-                  };
-
-                  _this4.$store.dispatch("options/getCategories");
-
-                  _this4.$refs.obs.reset();
+                if (response.data) {
+                  _context2.next = 6;
+                  break;
                 }
 
-              case 5:
+                _this4.usedList = [];
+                return _context2.abrupt("return");
+
+              case 6:
+                _this4.usedList = response.data;
+
+              case 7:
               case "end":
                 return _context2.stop();
             }
           }
         }, _callee2);
+      }))();
+    },
+    //使用するカテゴリー登録（店舗ごと）
+    registerData: function registerData() {
+      var _this5 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        var formUsedList, response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                formUsedList = {};
+                formUsedList["used_category"] = _this5.usedList;
+                formUsedList["shop_id"] = _this5.shopId;
+                _context3.next = 5;
+                return axios.post("api/category/shop/create", formUsedList);
+
+              case 5:
+                response = _context3.sent;
+
+              case 6:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
       }))();
     },
     //使用カテゴリーに追加 or 削除
@@ -4584,15 +4613,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     //カテゴリー順番入れ替え
     moveCategory: function moveCategory(direct) {
-      var _this5 = this;
+      var _this6 = this;
 
       if (this.moveFlag) {
+        //全カテゴリーから現在のポジションでフィルタリングしてlistに（使用カテゴリーが全ポジションが混在しているため抽出用）ついでにidだけに
         var list = [];
         this.categories.forEach(function (item) {
-          if (Number(item.position_id) === Number(_this5.currentPosition)) {
+          if (Number(item.position_id) === Number(_this6.currentPosition)) {
             list.push(item.value);
           }
-        });
+        }); //抽出用配列を使って使用カテゴリーを、使用していて現在のポジションのカテゴリー(arr)と
+        //使ってるけど違うポジションのカテゴリー(residueUseList)に分ける
+
         var residueUsedList = [];
         var arr = this.usedList.filter(function (item) {
           if (list.includes(item)) {
@@ -4601,7 +4633,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
           residueUsedList.push(item);
           return false;
-        });
+        }); //順番入れ替え作業 配列のindexで
+
         var index = arr.indexOf(this.moveFlag);
         var lastIndex = arr.length - 1;
 
@@ -4611,7 +4644,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (index) {
               var v = arr[index - 1];
               arr.splice(index - 1, 1, this.moveFlag);
-              arr.splice(index, 1, v);
+              arr.splice(index, 1, v); //違うポジションの配列と結合
+
               this.usedList = arr.concat(residueUsedList);
             }
 
@@ -4622,39 +4656,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (arr[lastIndex] !== this.moveFlag) {
               var _v = arr[index + 1];
               arr.splice(index + 1, 1, this.moveFlag);
-              arr.splice(index, 1, _v);
+              arr.splice(index, 1, _v); //違うポジションの配列と結合
+
               this.usedList = arr.concat(residueUsedList);
             }
 
         }
       }
-    },
-    registerData: function registerData() {
-      var _this6 = this;
-
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
-        var formUsedList, response;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                formUsedList = {};
-                formUsedList["used_category"] = _this6.usedList;
-                formUsedList["shop_id"] = _this6.shopId;
-                _context3.next = 5;
-                return axios.post("api/category/shop/create", formUsedList);
-
-              case 5:
-                response = _context3.sent;
-                console.log(response);
-
-              case 7:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, _callee3);
-      }))();
     }
   },
   watch: {
@@ -50743,7 +50751,7 @@ var render = function () {
                       ),
                       _vm._v(" "),
                       _c(
-                        "div",
+                        "button",
                         {
                           staticClass: "btn btn-secondary add-cate",
                           attrs: {

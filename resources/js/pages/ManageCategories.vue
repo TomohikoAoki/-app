@@ -103,7 +103,7 @@
                             </div>
                         </ValidationProvider>
                     </div>
-                    <div
+                    <button
                         class="btn btn-secondary add-cate"
                         type="submit"
                         :disabled="
@@ -111,7 +111,7 @@
                         "
                     >
                         ADD CATE
-                    </div>
+                    </button>
                 </form>
             </ValidationObserver>
         </div>
@@ -152,6 +152,7 @@ export default {
         ...mapGetters({
             categories: "options/taskCategory",
         }),
+        //カテゴリー一覧（ポジションごと）
         filterCategory() {
             this.categories.forEach((item) => {
                 if (this.usedList.includes(item.value)) {
@@ -164,6 +165,7 @@ export default {
                 (item) => item.position_id == this.currentPosition
             );
         },
+        //使用カテゴリー
         filterUsedCategory() {
             //順番大事だからフィルター使わずforEachで
             let list = [];
@@ -184,17 +186,6 @@ export default {
         },
     },
     methods: {
-        async getUsedCategory() {
-            const response = await axios.get(
-                `/api/category/shop/${this.shopId}/index`
-            );
-
-            if (!response.data) {
-                this.usedList = [];
-                return;
-            }
-            this.usedList = response.data;
-        },
         //新規カテゴリー作成
         async addCategory() {
             this.categoryForm["position_id"] = this.positionId;
@@ -209,6 +200,30 @@ export default {
                 this.$store.dispatch("options/getCategories");
                 this.$refs.obs.reset();
             }
+        },
+        //使用するカテゴリー取得（店舗ごと）
+        async getUsedCategory() {
+            const response = await axios.get(
+                `/api/category/shop/${this.shopId}/index`
+            );
+
+            if (!response.data) {
+                this.usedList = [];
+                return;
+            }
+            this.usedList = response.data;
+        },
+        //使用するカテゴリー登録（店舗ごと）
+        async registerData() {
+            let formUsedList = {};
+
+            formUsedList["used_category"] = this.usedList;
+            formUsedList["shop_id"] = this.shopId;
+
+            const response = await axios.post(
+                "api/category/shop/create",
+                formUsedList
+            );
         },
         //使用カテゴリーに追加 or 削除
         changeFlag(obj) {
@@ -227,8 +242,8 @@ export default {
         //カテゴリー順番入れ替え
         moveCategory(direct) {
             if (this.moveFlag) {
+                //全カテゴリーから現在のポジションでフィルタリングしてlistに（使用カテゴリーが全ポジションが混在しているため抽出用）ついでにidだけに
                 let list = [];
-
                 this.categories.forEach((item) => {
                     if (
                         Number(item.position_id) ===
@@ -238,6 +253,8 @@ export default {
                     }
                 });
 
+                //抽出用配列を使って使用カテゴリーを、使用していて現在のポジションのカテゴリー(arr)と
+                //使ってるけど違うポジションのカテゴリー(residueUseList)に分ける
                 let residueUsedList = [];
 
                 let arr = this.usedList.filter((item) => {
@@ -248,6 +265,7 @@ export default {
                     return false;
                 });
 
+                //順番入れ替え作業 配列のindexで
                 const index = arr.indexOf(this.moveFlag);
                 const lastIndex = arr.length - 1;
 
@@ -259,6 +277,7 @@ export default {
                             arr.splice(index - 1, 1, this.moveFlag);
                             arr.splice(index, 1, v);
 
+                            //違うポジションの配列と結合
                             this.usedList = arr.concat(residueUsedList);
                         }
                         break;
@@ -269,23 +288,11 @@ export default {
                             arr.splice(index + 1, 1, this.moveFlag);
                             arr.splice(index, 1, v);
 
+                            //違うポジションの配列と結合
                             this.usedList = arr.concat(residueUsedList);
                         }
                 }
             }
-        },
-        async registerData() {
-            let formUsedList = {};
-
-            formUsedList["used_category"] = this.usedList;
-            formUsedList["shop_id"] = this.shopId;
-
-            const response = await axios.post(
-                "api/category/shop/create",
-                formUsedList
-            );
-
-            console.log(response);
         },
     },
     watch: {
