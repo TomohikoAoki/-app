@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Shop extends BaseEloquent
 {
     protected $fillable = [
-        'shop_name',
+        'shop_name', 'used_category'
     ];
 
     public $timestamps = false;

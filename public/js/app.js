@@ -4387,6 +4387,52 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -4398,7 +4444,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     return {
       shopId: "",
       positionId: "",
-      usedList: [1, 3, 5, 7, 9, 11, 13],
+      usedList: [],
       categoryForm: {
         label: ""
       },
@@ -4440,7 +4486,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         _this2.categories.forEach(function (obj) {
           if (Number(obj.value) === Number(item)) {
             //移動用フラグ あれば true なければ　false
-            obj['moveFlag'] = _this2.moveFlag === obj.value ? true : false;
+            obj["moveFlag"] = _this2.moveFlag === obj.value ? true : false;
             list.push(obj);
           }
         });
@@ -4451,8 +4497,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }),
   methods: {
-    //新規カテゴリー作成
-    addCategory: function addCategory() {
+    getUsedCategory: function getUsedCategory() {
       var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
@@ -4461,24 +4506,25 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this3.categoryForm["position_id"] = _this3.positionId;
-                _context.next = 3;
-                return axios.post("/api/category/create", _this3.categoryForm);
+                _context.next = 2;
+                return axios.get("/api/category/shop/".concat(_this3.shopId, "/index"));
 
-              case 3:
+              case 2:
                 response = _context.sent;
 
-                if (response.status === _util__WEBPACK_IMPORTED_MODULE_2__["CREATED"]) {
-                  _this3.categoryForm = {
-                    label: ""
-                  };
-
-                  _this3.$store.dispatch("options/getCategories");
-
-                  _this3.$refs.obs.reset();
+                if (response.data) {
+                  _context.next = 7;
+                  break;
                 }
 
-              case 5:
+                _this3.usedList = [];
+                console.log('test');
+                return _context.abrupt("return");
+
+              case 7:
+                _this3.usedList = response.data;
+
+              case 8:
               case "end":
                 return _context.stop();
             }
@@ -4486,6 +4532,42 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }, _callee);
       }))();
     },
+    //新規カテゴリー作成
+    addCategory: function addCategory() {
+      var _this4 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _this4.categoryForm["position_id"] = _this4.positionId;
+                _context2.next = 3;
+                return axios.post("/api/category/create", _this4.categoryForm);
+
+              case 3:
+                response = _context2.sent;
+
+                if (response.status === _util__WEBPACK_IMPORTED_MODULE_2__["CREATED"]) {
+                  _this4.categoryForm = {
+                    label: ""
+                  };
+
+                  _this4.$store.dispatch("options/getCategories");
+
+                  _this4.$refs.obs.reset();
+                }
+
+              case 5:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }))();
+    },
+    //使用カテゴリーに追加 or 削除
     changeFlag: function changeFlag(obj) {
       if (!obj.flag) {
         this.usedList.push(Number(obj.value));
@@ -4496,8 +4578,91 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.moveFlag = this.moveFlag === obj.value ? null : this.moveFlag;
       this.usedList.splice(this.usedList.indexOf(Number(obj.value)), 1);
     },
+    //カテゴリー順番入れ替えアクティブに
     changeMoveFlag: function changeMoveFlag(value) {
       this.moveFlag = this.moveFlag == value ? null : value;
+    },
+    //カテゴリー順番入れ替え
+    moveCategory: function moveCategory(direct) {
+      var _this5 = this;
+
+      if (this.moveFlag) {
+        var list = [];
+        this.categories.forEach(function (item) {
+          if (Number(item.position_id) === Number(_this5.currentPosition)) {
+            list.push(item.value);
+          }
+        });
+        var residueUsedList = [];
+        var arr = this.usedList.filter(function (item) {
+          if (list.includes(item)) {
+            return true;
+          }
+
+          residueUsedList.push(item);
+          return false;
+        });
+        var index = arr.indexOf(this.moveFlag);
+        var lastIndex = arr.length - 1;
+
+        switch (direct) {
+          case 0:
+            // move up
+            if (index) {
+              var v = arr[index - 1];
+              arr.splice(index - 1, 1, this.moveFlag);
+              arr.splice(index, 1, v);
+              this.usedList = arr.concat(residueUsedList);
+            }
+
+            break;
+
+          case 1:
+            // move down
+            if (arr[lastIndex] !== this.moveFlag) {
+              var _v = arr[index + 1];
+              arr.splice(index + 1, 1, this.moveFlag);
+              arr.splice(index, 1, _v);
+              this.usedList = arr.concat(residueUsedList);
+            }
+
+        }
+      }
+    },
+    registerData: function registerData() {
+      var _this6 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        var formUsedList, response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                formUsedList = {};
+                formUsedList["used_category"] = _this6.usedList;
+                formUsedList["shop_id"] = _this6.shopId;
+                _context3.next = 5;
+                return axios.post("api/category/shop/create", formUsedList);
+
+              case 5:
+                response = _context3.sent;
+                console.log(response);
+
+              case 7:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
+      }))();
+    }
+  },
+  watch: {
+    currentPosition: function currentPosition() {
+      this.moveFlag = null;
+    },
+    shopId: function shopId() {
+      this.getUsedCategory();
     }
   }
 });
@@ -10462,7 +10627,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".select-box-area[data-v-392bf66a] {\n  max-width: 400px;\n  width: 90%;\n  margin: 10px auto;\n}\n.used[data-v-392bf66a] {\n  color: #f88874;\n}\n.active[data-v-392bf66a] {\n  background-color: aqua;\n}", ""]);
+exports.push([module.i, ".shop.select-box-area[data-v-392bf66a] {\n  max-width: 400px;\n  margin: 10px auto;\n  width: 90%;\n}\n#used-list[data-v-392bf66a] {\n  margin: 30px auto 30px auto;\n  display: flex;\n  justify-content: center;\n  padding: 0;\n  max-width: 450px;\n}\n#used-list .used-list-area[data-v-392bf66a] {\n  max-width: 400px;\n  width: 90%;\n  height: 350px;\n  overflow-y: scroll;\n  margin: 0 auto;\n  background-color: rgba(255, 255, 255, 0.9);\n  list-style: none;\n  padding: 0;\n}\n#used-list .used-list-area li[data-v-392bf66a] {\n  width: 100%;\n  font-size: 1.2em;\n  color: #474747;\n  padding: 0.8em 1em;\n  margin: 0;\n  border-bottom: 1px dotted;\n  cursor: pointer;\n}\n#used-list .used-list-area li.active[data-v-392bf66a] {\n  background-color: #adadad;\n}\n#used-list .button-area[data-v-392bf66a] {\n  display: block;\n  width: 50px;\n  margin: 0;\n  padding: 0;\n  position: relative;\n}\n#used-list .button-area div[data-v-392bf66a] {\n  width: 50px;\n  height: 50px;\n  background-color: #999999;\n  border-radius: 50%;\n  cursor: pointer;\n  text-align: center;\n  margin-left: 10px;\n}\n#used-list .button-area div.nonactive[data-v-392bf66a] {\n  background-color: #515151;\n}\n#used-list .button-area div span[data-v-392bf66a] {\n  vertical-align: middle;\n  height: 100%;\n  width: 100%;\n}\n#used-list .button-area .button-up[data-v-392bf66a] {\n  position: absolute;\n  top: 0;\n}\n#used-list .button-area .button-down[data-v-392bf66a] {\n  position: absolute;\n  bottom: 0;\n}\n.category-list[data-v-392bf66a] {\n  list-style: none;\n  display: flex;\n  flex-wrap: wrap;\n}\n.category-list li[data-v-392bf66a] {\n  border: 1px solid;\n  padding: 1em 0.3em;\n  margin: 0.5em;\n  cursor: pointer;\n}\n.category-list li.used[data-v-392bf66a] {\n  color: #0eb99d;\n}\n.category-list li.used span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li.used span svg[data-v-392bf66a] {\n  visibility: visible;\n  fill: #0eb99d;\n}\n.category-list li span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li span svg[data-v-392bf66a] {\n  visibility: hidden;\n}\n.create-category-title[data-v-392bf66a] {\n  text-align: center;\n}\n.form-category[data-v-392bf66a] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  max-width: 500px;\n  margin: 0 auto;\n}\n.form-category .select-box-area[data-v-392bf66a] {\n  width: 120px;\n  margin: 0 10px 0 0;\n}\n.form-category .input-category-area[data-v-392bf66a] {\n  flex: 1;\n  margin: 20px 0 0 0;\n  min-width: 200px;\n}\n.form-category .add-cate[data-v-392bf66a] {\n  margin: 0 0 0 10px;\n  width: 100px;\n}\n.register[data-v-392bf66a] {\n  border: 1px solid;\n  font-size: 2em;\n  margin: 50px auto 10px auto;\n  padding: 1em;\n  max-width: 200px;\n  text-align: center;\n}", ""]);
 
 // exports
 
@@ -50288,218 +50453,326 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c("h2", [_vm._v("CATEGORY MANAGE")]),
-      _vm._v(" "),
-      _c("h3", [_vm._v("カテゴリー作成")]),
-      _vm._v(" "),
-      _c("ValidationObserver", {
-        ref: "obs",
-        scopedSlots: _vm._u([
-          {
-            key: "default",
-            fn: function (ObserverProps) {
-              return [
-                _c(
-                  "form",
-                  {
-                    on: {
-                      submit: function ($event) {
-                        $event.preventDefault()
-                        return _vm.addCategory.apply(null, arguments)
-                      },
+  return _c("div", [
+    _c("h2", [_vm._v("CATEGORY MANAGE")]),
+    _vm._v(" "),
+    _c(
+      "div",
+      [
+        _c("h3", [_vm._v("使用カテゴリー選択")]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "select-box-area shop" },
+          [
+            _c("SelectShopBox", {
+              model: {
+                value: _vm.shopId,
+                callback: function ($$v) {
+                  _vm.shopId = $$v
+                },
+                expression: "shopId",
+              },
+            }),
+          ],
+          1
+        ),
+        _vm._v(" "),
+        _c("PositionSelect", {
+          attrs: { selected: _vm.currentPosition },
+          model: {
+            value: _vm.currentPosition,
+            callback: function ($$v) {
+              _vm.currentPosition = $$v
+            },
+            expression: "currentPosition",
+          },
+        }),
+        _vm._v(" "),
+        _c("div", { attrs: { id: "used-list" } }, [
+          _c(
+            "ul",
+            { staticClass: "used-list-area" },
+            _vm._l(_vm.filterUsedCategory, function (category) {
+              return _c(
+                "li",
+                {
+                  key: category.value,
+                  class: { active: category.moveFlag },
+                  attrs: { value: category.value },
+                  on: {
+                    click: function ($event) {
+                      return _vm.changeMoveFlag(category.value)
                     },
                   },
-                  [
-                    _c(
-                      "div",
-                      { staticClass: "select-box-area" },
-                      [
-                        _c("SelectPositionBox", {
-                          model: {
-                            value: _vm.positionId,
-                            callback: function ($$v) {
-                              _vm.positionId = $$v
-                            },
-                            expression: "positionId",
-                          },
-                        }),
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      [
-                        _c("ValidationProvider", {
-                          attrs: {
-                            rules: "required|max:10",
-                            name: "タスク内容",
-                          },
-                          scopedSlots: _vm._u(
-                            [
-                              {
-                                key: "default",
-                                fn: function (ProviderProps) {
-                                  return _c("div", {}, [
-                                    _c("textarea", {
-                                      directives: [
-                                        {
-                                          name: "model",
-                                          rawName: "v-model",
-                                          value: _vm.categoryForm.label,
-                                          expression: "categoryForm.label",
-                                        },
-                                      ],
-                                      staticClass: "form-control add-textarea",
-                                      domProps: {
-                                        value: _vm.categoryForm.label,
-                                      },
-                                      on: {
-                                        input: function ($event) {
-                                          if ($event.target.composing) {
-                                            return
-                                          }
-                                          _vm.$set(
-                                            _vm.categoryForm,
-                                            "label",
-                                            $event.target.value
-                                          )
-                                        },
-                                      },
-                                    }),
-                                    _vm._v(" "),
-                                    _c(
-                                      "p",
-                                      { staticClass: "text-danger small" },
-                                      [
-                                        _vm._v(
-                                          "\n                            " +
-                                            _vm._s(ProviderProps.errors[0]) +
-                                            "\n                        "
-                                        ),
-                                      ]
-                                    ),
-                                  ])
-                                },
-                              },
-                            ],
-                            null,
-                            true
-                          ),
-                        }),
-                        _vm._v(" "),
-                        _c(
-                          "button",
-                          {
-                            staticClass: "btn btn-secondary",
-                            attrs: {
-                              type: "submit",
-                              disabled:
-                                ObserverProps.invalid ||
-                                !ObserverProps.validated,
-                            },
-                          },
-                          [
-                            _vm._v(
-                              "\n                    ADD CATE\n                "
-                            ),
-                          ]
-                        ),
-                      ],
-                      1
-                    ),
-                  ]
-                ),
+                },
+                [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(category.label) +
+                      "\n                "
+                  ),
+                ]
+              )
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "button-area" }, [
+            _c(
+              "div",
+              {
+                staticClass: "button-up",
+                class: { nonactive: !_vm.moveFlag },
+                on: {
+                  click: function ($event) {
+                    return _vm.moveCategory(0)
+                  },
+                },
+              },
+              [
+                _c("span", [
+                  _c(
+                    "svg",
+                    {
+                      attrs: {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        viewBox: "0,0,48,48",
+                      },
+                    },
+                    [
+                      _c("path", {
+                        attrs: {
+                          d: "M14.15 30.15 12 28l12-12 12 12-2.15 2.15L24 20.3Z",
+                        },
+                      }),
+                    ]
+                  ),
+                ]),
               ]
-            },
-          },
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "button-down",
+                class: { nonactive: !_vm.moveFlag },
+                on: {
+                  click: function ($event) {
+                    return _vm.moveCategory(1)
+                  },
+                },
+              },
+              [
+                _c("span", [
+                  _c(
+                    "svg",
+                    {
+                      attrs: {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        viewBox: "0,0,48,48",
+                      },
+                    },
+                    [
+                      _c("path", {
+                        attrs: {
+                          d: "m24 30.8-12-12 2.15-2.15L24 26.5l9.85-9.85L36 18.8Z",
+                        },
+                      }),
+                    ]
+                  ),
+                ]),
+              ]
+            ),
+          ]),
         ]),
-      }),
-      _vm._v(" "),
-      _c("h3", [_vm._v("使用カテゴリー")]),
-      _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "select-box-area" },
-        [
-          _c("SelectShopBox", {
-            model: {
-              value: _vm.shopId,
-              callback: function ($$v) {
-                _vm.shopId = $$v
+        _vm._v(" "),
+        _c(
+          "ul",
+          { staticClass: "category-list" },
+          _vm._l(_vm.filterCategory, function (category) {
+            return _c(
+              "li",
+              {
+                key: category.value,
+                class: { used: category.flag },
+                attrs: { value: category.value },
+                on: {
+                  click: function ($event) {
+                    return _vm.changeFlag(category)
+                  },
+                },
               },
-              expression: "shopId",
-            },
+              [
+                _c("span", [
+                  _c(
+                    "svg",
+                    {
+                      attrs: {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        viewBox: "0,0,48,48",
+                      },
+                    },
+                    [
+                      _c("path", {
+                        attrs: {
+                          d: "M18.9 35.7 7.7 24.5l2.15-2.15 9.05 9.05 19.2-19.2 2.15 2.15Z",
+                        },
+                      }),
+                    ]
+                  ),
+                ]),
+                _vm._v("\n                " + _vm._s(category.label)),
+                _c("span"),
+              ]
+            )
           }),
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("PositionSelect", {
-        attrs: { selected: _vm.currentPosition },
-        model: {
-          value: _vm.currentPosition,
-          callback: function ($$v) {
-            _vm.currentPosition = $$v
-          },
-          expression: "currentPosition",
-        },
-      }),
-      _vm._v(" "),
-      _c(
-        "ul",
-        { staticClass: "category-list" },
-        _vm._l(_vm.filterCategory, function (category) {
-          return _c(
-            "li",
+          0
+        ),
+      ],
+      1
+    ),
+    _vm._v(" "),
+    _c("h3", { staticClass: "create-category-title" }, [
+      _vm._v("新規カテゴリー作成"),
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      [
+        _c("ValidationObserver", {
+          ref: "obs",
+          scopedSlots: _vm._u([
             {
-              key: category.value,
-              class: { used: category.flag },
-              attrs: { value: category.value },
-              on: {
-                click: function ($event) {
-                  return _vm.changeFlag(category)
-                },
+              key: "default",
+              fn: function (ObserverProps) {
+                return [
+                  _c(
+                    "form",
+                    {
+                      staticClass: "form-category",
+                      on: {
+                        submit: function ($event) {
+                          $event.preventDefault()
+                          return _vm.addCategory.apply(null, arguments)
+                        },
+                      },
+                    },
+                    [
+                      _c(
+                        "div",
+                        { staticClass: "select-box-area" },
+                        [
+                          _c("SelectPositionBox", {
+                            model: {
+                              value: _vm.positionId,
+                              callback: function ($$v) {
+                                _vm.positionId = $$v
+                              },
+                              expression: "positionId",
+                            },
+                          }),
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        { staticClass: "input-category-area" },
+                        [
+                          _c("ValidationProvider", {
+                            attrs: {
+                              rules: "required|max:10",
+                              name: "タスク内容",
+                            },
+                            scopedSlots: _vm._u(
+                              [
+                                {
+                                  key: "default",
+                                  fn: function (ProviderProps) {
+                                    return _c("div", {}, [
+                                      _c("textarea", {
+                                        directives: [
+                                          {
+                                            name: "model",
+                                            rawName: "v-model",
+                                            value: _vm.categoryForm.label,
+                                            expression: "categoryForm.label",
+                                          },
+                                        ],
+                                        staticClass:
+                                          "form-control add-textarea",
+                                        domProps: {
+                                          value: _vm.categoryForm.label,
+                                        },
+                                        on: {
+                                          input: function ($event) {
+                                            if ($event.target.composing) {
+                                              return
+                                            }
+                                            _vm.$set(
+                                              _vm.categoryForm,
+                                              "label",
+                                              $event.target.value
+                                            )
+                                          },
+                                        },
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "p",
+                                        { staticClass: "text-danger small" },
+                                        [
+                                          _vm._v(
+                                            "\n                                " +
+                                              _vm._s(ProviderProps.errors[0]) +
+                                              "\n                            "
+                                          ),
+                                        ]
+                                      ),
+                                    ])
+                                  },
+                                },
+                              ],
+                              null,
+                              true
+                            ),
+                          }),
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticClass: "btn btn-secondary add-cate",
+                          attrs: {
+                            type: "submit",
+                            disabled:
+                              ObserverProps.invalid || !ObserverProps.validated,
+                          },
+                        },
+                        [
+                          _vm._v(
+                            "\n                    ADD CATE\n                "
+                          ),
+                        ]
+                      ),
+                    ]
+                  ),
+                ]
               },
             },
-            [_vm._v("\n            " + _vm._s(category.label) + "\n        ")]
-          )
+          ]),
         }),
-        0
-      ),
-      _vm._v(" "),
-      _c(
-        "ul",
-        { staticClass: "used-list" },
-        _vm._l(_vm.filterUsedCategory, function (category) {
-          return _c(
-            "li",
-            {
-              key: category.value,
-              class: { active: category.moveFlag },
-              attrs: { value: category.value },
-              on: {
-                click: function ($event) {
-                  return _vm.changeMoveFlag(category.value)
-                },
-              },
-            },
-            [_vm._v("\n            " + _vm._s(category.label) + "\n        ")]
-          )
-        }),
-        0
-      ),
-      _vm._v(" "),
-      _c("button", [_vm._v("上")]),
-      _vm._v(" "),
-      _c("button", [_vm._v("下")]),
-      _vm._v("\n    " + _vm._s(_vm.usedList) + "\n"),
-    ],
-    1
-  )
+      ],
+      1
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "register", on: { click: _vm.registerData } }, [
+      _vm._v("登録"),
+    ]),
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true

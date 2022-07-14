@@ -77,6 +77,12 @@ Route::get('/category/index', 'CategoryController@index');
 //カテゴリー　作成
 Route::post('/category/create', 'CategoryController@create');
 
+//使用カテゴリー登録
+Route::post('/category/shop/create', 'CategoryController@createUsedShop');
+
+//使用カテゴリー取得
+Route::get('/category/shop/{id}/index', 'CategoryController@indexUsedShop');
+
 
 
 
