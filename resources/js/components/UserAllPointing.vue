@@ -10,7 +10,7 @@
                         :key="cate.value"
                         @click="changeTask(cate.value)"
                         class="select-category"
-                        :class="{ active: currentTask == cate.value }"
+                        :class="{ active: CurrentCategory == cate.value }"
                     >
                         {{ cate.label }}
                     </li>
@@ -77,7 +77,7 @@ import CurrentPositionVue from "./parts/CurrentPosition.vue";
 export default {
     data() {
         return {
-            currentTask: 1,
+            CurrentCategory: 1,
             currentPosition: 1,
             showModal: false,
             viewData: null,
@@ -93,7 +93,6 @@ export default {
         createView() {
             //初期化
             this.viewData = [];
-
             //親コンポーネントから来たusersとtaskDataをpositionでフィルタリング
             let currentUsers = this.users.filter(
                 (user) => user.position_id == this.currentPosition
@@ -103,7 +102,6 @@ export default {
                     task.position_id == this.currentPosition ||
                     task.position_id == 3
             );
-
             currentUsers.forEach((user) => {
                 //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
                 //画面表示用のデータの配列を作成する関数
@@ -112,13 +110,12 @@ export default {
                     user,
                     this._sendData
                 );
-
                 this.viewData = this.viewData.concat(data);
             });
         },
         //カテゴリー切り替え
         changeTask(key) {
-            this.currentTask = key;
+            this.CurrentCategory = key;
         },
         //ポイント編集モーダルオープン
         openPointEdit(event, data) {
@@ -137,7 +134,7 @@ export default {
         },
         //初期化
         iniData() {
-            this.currentTask = 1;
+            this.CurrentCategory = 1;
             this.currentPosition = 1;
             this.viewData = null;
         },
@@ -169,43 +166,46 @@ export default {
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
         },
-    },
-    computed: {
-        ...mapGetters({
-            category: "options/taskCategory",
-            _sendData: "point/getSendData",
-            _sendFlag: "point/getSendDataFlag",
-        }),
+        async getCategories() {
+            await this.$store.dispatch(
+                "options/getCategoriesFiltered", this.shop
+            );
+        },
         //viewDataをcategoryとユーザーでフィルタリング
         //index用に配列の要素数も
-        filterTask() {
-            return function (id) {
+        filterTask(id) {
                 let tasks = this.viewData.filter(
-                    (task) => task.category_id == this.currentTask
+                    (task) => Number(task.category_id) === Number(this.CurrentCategory)
                 );
                 let list = tasks.filter((item) => item.user_id == id);
                 this.taskIndex = list.length;
 
                 return list;
-            };
         },
+    },
+    computed: {
+        ...mapGetters({
+            categories: "options/storeCategoriesFiltered",
+            _sendData: "point/getSendData",
+            _sendFlag: "point/getSendDataFlag",
+        }),
         usersFilteredPosition() {
             return this.users.filter((user) => {
-                return user.position_id === this.currentPosition;
+                return Number(user.position_id) === Number(this.currentPosition);
             });
         },
-        //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
+        //categoryをユーザーのポジションでフィルタリング
         //共通は３
-        //カテゴリー初期値(currentTask)にカテゴリー配列の最初の配列のvalueを入れる
+        //カテゴリー初期値(CurrentCategory)にカテゴリー配列の最初の配列のvalueを入れる
         filterCategory() {
-            if (this.category.length) {
-                let list = this.category.filter((item) => {
+            if (this.categories) {
+                let list = this.categories.filter((item) => {
                     return (
                         item.position_id == this.currentPosition ||
                         item.position_id == 3
                     );
                 });
-                this.currentTask = list[0].value;
+                if(list.length) this.CurrentCategory = list[0].value;
                 return list;
             }
             return [];
@@ -213,16 +213,20 @@ export default {
     },
     watch: {
         taskData: function () {
+            this.getCategories();
             if (this.users && this.taskData) this.createView();
         },
         users: function () {
+            this.getCategories();
             if (this.users && this.taskData) this.createView();
         },
         shop: function () {
+            this.getCategories();
             this.iniData();
         },
     },
     mounted() {
+        this.getCategories();
         if (this.users && this.taskData) this.createView();
     },
 };

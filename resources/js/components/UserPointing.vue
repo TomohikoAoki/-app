@@ -18,7 +18,7 @@
                     :key="cate.value"
                     @click="changeTask(cate.value)"
                     class="select-category"
-                    :class="{ active: currentTask == cate.value }"
+                    :class="{ active: CurrentCategory == cate.value }"
                 >
                     {{ cate.label }}
                 </li>
@@ -68,7 +68,7 @@ export default {
     data() {
         return {
             user: null,
-            currentTask: null,
+            CurrentCategory: null,
             viewData: null,
             showModal: false,
         };
@@ -93,7 +93,7 @@ export default {
 
         //カテゴリー切り替え
         changeTask(key) {
-            this.currentTask = key;
+            this.CurrentCategory = key;
         },
         //ポイント編集モーダルオープン
         openPointEdit(event, data) {
@@ -108,7 +108,7 @@ export default {
         //初期化
         iniData() {
             this.user = null;
-            this.currentTask = null;
+            this.CurrentCategory = null;
             this.viewData = null;
         },
         //送信用データを配列で格納　＆　再描画の為にviewDataを更新
@@ -139,17 +139,22 @@ export default {
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
         },
+        async getCategories() {
+            await this.$store.dispatch(
+                "options/getCategoriesFiltered", this.shop
+            );
+        },
     },
     computed: {
         ...mapGetters({
-            category: "options/taskCategory",
+            categories: "options/storeCategoriesFiltered",
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
         //viewDataをカテゴリーでフィルタリング
         filterMainData() {
             return this.viewData.filter((task) => {
-                return task.category_id == this.currentTask;
+                return task.category_id == this.CurrentCategory;
             });
         },
         //タスクのcontent表示のため、viewDataと紐付ける
@@ -159,18 +164,18 @@ export default {
                 return task.content;
             };
         },
-        //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
+        //categoriesをユーザーのポジションでフィルタリング
         //共通は３
         //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
         filterCategory() {
-            if (this.category.length) {
-                let list = this.category.filter((item) => {
+            if (this.categories) {
+                let list = this.categories.filter((item) => {
                     return (
                         item.position_id == this.user.position_id ||
                         item.position_id == 3
                     );
                 });
-                this.currentTask = list[0].value;
+                if(list.length) this.CurrentCategory = list[0].value;
                 return list;
             }
             return []
@@ -178,11 +183,13 @@ export default {
     },
     watch: {
         shop: function () {
+            this.getCategories();
             this.iniData();
         },
         user() {
             if (this.user) {
                 this.createView();
+                this.getCategories();
             }
         },
     },

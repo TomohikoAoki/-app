@@ -20,7 +20,7 @@
                         :key="cate.value"
                         @click="changeTask(cate.value)"
                         class="select-category"
-                        :class="{ active: currentTask == cate.value }"
+                        :class="{ active: CurrentCategory == cate.value }"
                     >
                         {{ cate.label }}
                     </li>
@@ -110,7 +110,7 @@ export default {
             shopId: null,
             positionId: null,
             taskData: null,
-            currentTask: null,
+            CurrentCategory: null,
             showModal: false,
             showForm: false,
             taskForm: {
@@ -127,7 +127,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            category: "options/taskCategory",
+            categories: "options/storeCategoriesFiltered",
         }),
         ...mapState("auth", {
             currentAuth: function (state) {
@@ -141,18 +141,18 @@ export default {
             return this.taskData.filter((item) => {
                 if (
                     item.position_id == this.positionId &&
-                    item.category_id == this.currentTask
+                    item.category_id == this.CurrentCategory
                 ) {
                     return true;
                 }
             });
         },
         filterCategory() {
-            if (this.category.length) {
-                let list = this.category.filter(
+            if (this.categories) {
+                let list = this.categories.filter(
                     (item) => item.position_id == this.positionId
                 );
-                this.currentTask = list[0].value;
+                if(list.length) this.CurrentCategory = list[0].value;
                 return list;
             }
             return [];
@@ -170,7 +170,7 @@ export default {
         async addTask() {
             this.taskForm["shop_id"] = this.shopId;
             this.taskForm["position_id"] = this.positionId;
-            this.taskForm["category_id"] = this.currentTask;
+            this.taskForm["category_id"] = this.CurrentCategory;
 
             const response = await axios.post("/api/task", this.taskForm);
 
@@ -184,7 +184,7 @@ export default {
         changeTask(key) {
             this.showForm = false;
             this.taskForm = { content: "" };
-            this.currentTask = key;
+            this.CurrentCategory = key;
         },
         //modal オープン
         openEdit(event, task) {
@@ -195,6 +195,12 @@ export default {
         closeEdit() {
             this.showModal = false;
         },
+        //使用カテゴリー取得　（店舗ごと）
+        async getCategories() {
+            await this.$store.dispatch(
+                "options/getCategoriesFiltered", this.shopId
+            );
+        },
     },
     watch: {
         shopId() {
@@ -202,6 +208,7 @@ export default {
                 this.showForm = false;
                 this.taskForm = { content: "" };
                 this.getTask();
+                this.getCategories();
             }
         },
         positionId() {

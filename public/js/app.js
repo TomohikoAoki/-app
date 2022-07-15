@@ -2330,14 +2330,22 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
-/* harmony import */ var _parts_CurrentPosition_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./parts/CurrentPosition.vue */ "./resources/js/components/parts/CurrentPosition.vue");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
+/* harmony import */ var _parts_CurrentPosition_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./parts/CurrentPosition.vue */ "./resources/js/components/parts/CurrentPosition.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 //
 //
@@ -2416,7 +2424,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      currentTask: 1,
+      CurrentCategory: 1,
       currentPosition: 1,
       showModal: false,
       viewData: null,
@@ -2425,8 +2433,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   props: ["shop", "taskData", "users"],
   components: {
-    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
-    CurrentPositionVue: _parts_CurrentPosition_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    CurrentPositionVue: _parts_CurrentPosition_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
   methods: {
     createView: function createView() {
@@ -2451,7 +2459,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     //カテゴリー切り替え
     changeTask: function changeTask(key) {
-      this.currentTask = key;
+      this.CurrentCategory = key;
     },
     //ポイント編集モーダルオープン
     openPointEdit: function openPointEdit(event, data) {
@@ -2470,7 +2478,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     //初期化
     iniData: function iniData() {
-      this.currentTask = 1;
+      this.CurrentCategory = 1;
       this.currentPosition = 1;
       this.viewData = null;
     },
@@ -2494,47 +2502,64 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
       this.$set(targetTask, "point", data.point);
       this.$set(targetTask, "updated", true);
+    },
+    getCategories: function getCategories() {
+      var _this2 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _this2.$store.dispatch("options/getCategoriesFiltered", _this2.shop);
+
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }))();
+    },
+    //viewDataをcategoryとユーザーでフィルタリング
+    //index用に配列の要素数も
+    filterTask: function filterTask(id) {
+      var _this3 = this;
+
+      var tasks = this.viewData.filter(function (task) {
+        return Number(task.category_id) === Number(_this3.CurrentCategory);
+      });
+      var list = tasks.filter(function (item) {
+        return item.user_id == id;
+      });
+      this.taskIndex = list.length;
+      return list;
     }
   },
-  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
-    category: "options/taskCategory",
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
+    categories: "options/storeCategoriesFiltered",
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
-    //viewDataをcategoryとユーザーでフィルタリング
-    //index用に配列の要素数も
-    filterTask: function filterTask() {
-      return function (id) {
-        var _this2 = this;
-
-        var tasks = this.viewData.filter(function (task) {
-          return task.category_id == _this2.currentTask;
-        });
-        var list = tasks.filter(function (item) {
-          return item.user_id == id;
-        });
-        this.taskIndex = list.length;
-        return list;
-      };
-    },
     usersFilteredPosition: function usersFilteredPosition() {
-      var _this3 = this;
-
-      return this.users.filter(function (user) {
-        return user.position_id === _this3.currentPosition;
-      });
-    },
-    //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
-    //共通は３
-    //カテゴリー初期値(currentTask)にカテゴリー配列の最初の配列のvalueを入れる
-    filterCategory: function filterCategory() {
       var _this4 = this;
 
-      if (this.category.length) {
-        var list = this.category.filter(function (item) {
-          return item.position_id == _this4.currentPosition || item.position_id == 3;
+      return this.users.filter(function (user) {
+        return Number(user.position_id) === Number(_this4.currentPosition);
+      });
+    },
+    //categoryをユーザーのポジションでフィルタリング
+    //共通は３
+    //カテゴリー初期値(CurrentCategory)にカテゴリー配列の最初の配列のvalueを入れる
+    filterCategory: function filterCategory() {
+      var _this5 = this;
+
+      if (this.categories) {
+        var list = this.categories.filter(function (item) {
+          return item.position_id == _this5.currentPosition || item.position_id == 3;
         });
-        this.currentTask = list[0].value;
+        if (list.length) this.CurrentCategory = list[0].value;
         return list;
       }
 
@@ -2543,16 +2568,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }),
   watch: {
     taskData: function taskData() {
+      this.getCategories();
       if (this.users && this.taskData) this.createView();
     },
     users: function users() {
+      this.getCategories();
       if (this.users && this.taskData) this.createView();
     },
     shop: function shop() {
+      this.getCategories();
       this.iniData();
     }
   },
   mounted: function mounted() {
+    this.getCategories();
     if (this.users && this.taskData) this.createView();
   }
 });
@@ -2568,13 +2597,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalPointEdit.vue */ "./resources/js/components/ModalPointEdit.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 //
 //
@@ -2644,7 +2681,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       user: null,
-      currentTask: null,
+      CurrentCategory: null,
       viewData: null,
       showModal: false
     };
@@ -2652,7 +2689,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   //shopId,店舗のタスクデータ全部,店舗のユーザー全員
   props: ["shop", "taskData", "users"],
   components: {
-    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+    ModalPointEdit: _ModalPointEdit_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   methods: {
     createView: function createView() {
@@ -2663,7 +2700,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     //カテゴリー切り替え
     changeTask: function changeTask(key) {
-      this.currentTask = key;
+      this.CurrentCategory = key;
     },
     //ポイント編集モーダルオープン
     openPointEdit: function openPointEdit(event, data) {
@@ -2678,7 +2715,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     //初期化
     iniData: function iniData() {
       this.user = null;
-      this.currentTask = null;
+      this.CurrentCategory = null;
       this.viewData = null;
     },
     //送信用データを配列で格納　＆　再描画の為にviewDataを更新
@@ -2701,19 +2738,38 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
       this.$set(targetTask, "point", data.point);
       this.$set(targetTask, "updated", true);
+    },
+    getCategories: function getCategories() {
+      var _this = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _this.$store.dispatch("options/getCategoriesFiltered", _this.shop);
+
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }))();
     }
   },
-  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
-    category: "options/taskCategory",
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
+    categories: "options/storeCategoriesFiltered",
     _sendData: "point/getSendData",
     _sendFlag: "point/getSendDataFlag"
   })), {}, {
     //viewDataをカテゴリーでフィルタリング
     filterMainData: function filterMainData() {
-      var _this = this;
+      var _this2 = this;
 
       return this.viewData.filter(function (task) {
-        return task.category_id == _this.currentTask;
+        return task.category_id == _this2.CurrentCategory;
       });
     },
     //タスクのcontent表示のため、viewDataと紐付ける
@@ -2725,17 +2781,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return task.content;
       };
     },
-    //categoryを店舗でフィルタリングしたあと、ユーザーのポジションでフィルタリング
+    //categoriesをユーザーのポジションでフィルタリング
     //共通は３
     //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
     filterCategory: function filterCategory() {
-      var _this2 = this;
+      var _this3 = this;
 
-      if (this.category.length) {
-        var list = this.category.filter(function (item) {
-          return item.position_id == _this2.user.position_id || item.position_id == 3;
+      if (this.categories) {
+        var list = this.categories.filter(function (item) {
+          return item.position_id == _this3.user.position_id || item.position_id == 3;
         });
-        this.currentTask = list[0].value;
+        if (list.length) this.CurrentCategory = list[0].value;
         return list;
       }
 
@@ -2744,11 +2800,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }),
   watch: {
     shop: function shop() {
+      this.getCategories();
       this.iniData();
     },
     user: function user() {
       if (this.user) {
         this.createView();
+        this.getCategories();
       }
     }
   },
@@ -4433,6 +4491,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 
 
@@ -4442,9 +4502,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      shopId: "",
+      shopId: 1,
       positionId: "",
-      usedList: [],
+      usedList: null,
       categoryForm: {
         label: ""
       },
@@ -4459,43 +4519,56 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     ValidationObserver: vee_validate__WEBPACK_IMPORTED_MODULE_3__["ValidationObserver"],
     ValidationProvider: vee_validate__WEBPACK_IMPORTED_MODULE_3__["ValidationProvider"]
   },
-  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
-    categories: "options/taskCategory"
+  computed: _objectSpread(_objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
+    categories: "options/taskCategory",
+    shopUsedCategory: "options/stateShopUsedCategory"
+  })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])("auth", {
+    currentAuth: function currentAuth(state) {
+      if (state.user.authority === 2) {
+        this.shopId = state.user.shop_id;
+      }
+
+      return state.user.authority;
+    }
   })), {}, {
     //カテゴリー一覧（ポジションごと）
     filterCategory: function filterCategory() {
       var _this = this;
 
-      this.categories.forEach(function (item) {
-        if (_this.usedList.includes(item.value)) {
-          item["flag"] = true;
-          return;
-        }
+      if (this.usedList) {
+        this.categories.forEach(function (item) {
+          if (_this.usedList.includes(item.value)) {
+            item["flag"] = true;
+            return;
+          }
 
-        item["flag"] = false;
-      });
-      return this.categories.filter(function (item) {
-        return item.position_id == _this.currentPosition;
-      });
+          item["flag"] = false;
+        });
+        return this.categories.filter(function (item) {
+          return item.position_id == _this.currentPosition;
+        });
+      }
     },
     //使用カテゴリー
     filterUsedCategory: function filterUsedCategory() {
       var _this2 = this;
 
-      //順番大事だからフィルター使わずforEachで
-      var list = [];
-      this.usedList.forEach(function (item) {
-        _this2.categories.forEach(function (obj) {
-          if (Number(obj.value) === Number(item)) {
-            //移動用フラグ あれば true なければ　false
-            obj["moveFlag"] = _this2.moveFlag === obj.value ? true : false;
-            list.push(obj);
-          }
+      if (this.usedList) {
+        //順番大事だからフィルター使わずforEachで
+        var list = [];
+        this.usedList.forEach(function (item) {
+          _this2.categories.forEach(function (obj) {
+            if (Number(obj.value) === Number(item)) {
+              //移動用フラグ あれば true なければ　false
+              obj["moveFlag"] = _this2.moveFlag === obj.value ? true : false;
+              list.push(obj);
+            }
+          });
         });
-      });
-      return list.filter(function (item) {
-        return item.position_id == _this2.currentPosition;
-      });
+        return list.filter(function (item) {
+          return item.position_id == _this2.currentPosition;
+        });
+      }
     }
   }),
   methods: {
@@ -4534,34 +4607,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }, _callee);
       }))();
     },
-    //使用するカテゴリー取得（店舗ごと）
+    //使用カテゴリー取得　（店舗ごと）
     getUsedCategory: function getUsedCategory() {
       var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return axios.get("/api/category/shop/".concat(_this4.shopId, "/index"));
+                return _this4.$store.dispatch("options/getShopUsedCategory", _this4.shopId);
 
               case 2:
-                response = _context2.sent;
+                _this4.usedList = _this4.shopUsedCategory;
 
-                if (response.data) {
-                  _context2.next = 6;
-                  break;
-                }
-
-                _this4.usedList = [];
-                return _context2.abrupt("return");
-
-              case 6:
-                _this4.usedList = response.data;
-
-              case 7:
+              case 3:
               case "end":
                 return _context2.stop();
             }
@@ -4587,8 +4648,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
               case 5:
                 response = _context3.sent;
+                console.log(response.status);
 
-              case 6:
+                if (response.status === _util__WEBPACK_IMPORTED_MODULE_2__["OK"]) {
+                  _this5.getUsedCategory();
+                }
+
+              case 8:
               case "end":
                 return _context3.stop();
             }
@@ -4669,8 +4735,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     currentPosition: function currentPosition() {
       this.moveFlag = null;
     },
-    shopId: function shopId() {
-      this.getUsedCategory();
+    shopId: {
+      immediate: true,
+      handler: function handler() {
+        this.getUsedCategory();
+      }
     }
   }
 });
@@ -5158,7 +5227,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       shopId: null,
       positionId: null,
       taskData: null,
-      currentTask: null,
+      CurrentCategory: null,
       showModal: false,
       showForm: false,
       taskForm: {
@@ -5174,7 +5243,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     SelectPositionBox: _components_form_PositionSelectBox__WEBPACK_IMPORTED_MODULE_4__["default"]
   },
   computed: _objectSpread(_objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
-    category: "options/taskCategory"
+    categories: "options/storeCategoriesFiltered"
   })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])("auth", {
     currentAuth: function currentAuth(state) {
       if (state.user.authority === 2) {
@@ -5188,7 +5257,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this = this;
 
       return this.taskData.filter(function (item) {
-        if (item.position_id == _this.positionId && item.category_id == _this.currentTask) {
+        if (item.position_id == _this.positionId && item.category_id == _this.CurrentCategory) {
           return true;
         }
       });
@@ -5196,11 +5265,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     filterCategory: function filterCategory() {
       var _this2 = this;
 
-      if (this.category.length) {
-        var list = this.category.filter(function (item) {
+      if (this.categories) {
+        var list = this.categories.filter(function (item) {
           return item.position_id == _this2.positionId;
         });
-        this.currentTask = list[0].value;
+        if (list.length) this.CurrentCategory = list[0].value;
         return list;
       }
 
@@ -5245,7 +5314,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               case 0:
                 _this4.taskForm["shop_id"] = _this4.shopId;
                 _this4.taskForm["position_id"] = _this4.positionId;
-                _this4.taskForm["category_id"] = _this4.currentTask;
+                _this4.taskForm["category_id"] = _this4.CurrentCategory;
                 _context2.next = 5;
                 return axios.post("/api/task", _this4.taskForm);
 
@@ -5274,7 +5343,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.taskForm = {
         content: ""
       };
-      this.currentTask = key;
+      this.CurrentCategory = key;
     },
     //modal オープン
     openEdit: function openEdit(event, task) {
@@ -5284,6 +5353,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     //modal クローズ
     closeEdit: function closeEdit() {
       this.showModal = false;
+    },
+    //使用カテゴリー取得　（店舗ごと）
+    getCategories: function getCategories() {
+      var _this5 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return _this5.$store.dispatch("options/getCategoriesFiltered", _this5.shopId);
+
+              case 2:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
+      }))();
     }
   },
   watch: {
@@ -5294,6 +5383,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           content: ""
         };
         this.getTask();
+        this.getCategories();
       }
     },
     positionId: function positionId() {
@@ -10635,7 +10725,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".shop.select-box-area[data-v-392bf66a] {\n  max-width: 400px;\n  margin: 10px auto;\n  width: 90%;\n}\n#used-list[data-v-392bf66a] {\n  margin: 30px auto 30px auto;\n  display: flex;\n  justify-content: center;\n  padding: 0;\n  max-width: 450px;\n}\n#used-list .used-list-area[data-v-392bf66a] {\n  max-width: 400px;\n  width: 90%;\n  height: 350px;\n  overflow-y: scroll;\n  margin: 0 auto;\n  background-color: rgba(255, 255, 255, 0.9);\n  list-style: none;\n  padding: 0;\n}\n#used-list .used-list-area li[data-v-392bf66a] {\n  width: 100%;\n  font-size: 1.2em;\n  color: #474747;\n  padding: 0.8em 1em;\n  margin: 0;\n  border-bottom: 1px dotted;\n  cursor: pointer;\n}\n#used-list .used-list-area li.active[data-v-392bf66a] {\n  background-color: #adadad;\n}\n#used-list .button-area[data-v-392bf66a] {\n  display: block;\n  width: 50px;\n  margin: 0;\n  padding: 0;\n  position: relative;\n}\n#used-list .button-area div[data-v-392bf66a] {\n  width: 50px;\n  height: 50px;\n  background-color: #999999;\n  border-radius: 50%;\n  cursor: pointer;\n  text-align: center;\n  margin-left: 10px;\n}\n#used-list .button-area div.nonactive[data-v-392bf66a] {\n  background-color: #515151;\n}\n#used-list .button-area div span[data-v-392bf66a] {\n  vertical-align: middle;\n  height: 100%;\n  width: 100%;\n}\n#used-list .button-area .button-up[data-v-392bf66a] {\n  position: absolute;\n  top: 0;\n}\n#used-list .button-area .button-down[data-v-392bf66a] {\n  position: absolute;\n  bottom: 0;\n}\n.category-list[data-v-392bf66a] {\n  list-style: none;\n  display: flex;\n  flex-wrap: wrap;\n}\n.category-list li[data-v-392bf66a] {\n  border: 1px solid;\n  padding: 1em 0.3em;\n  margin: 0.5em;\n  cursor: pointer;\n}\n.category-list li.used[data-v-392bf66a] {\n  color: #0eb99d;\n}\n.category-list li.used span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li.used span svg[data-v-392bf66a] {\n  visibility: visible;\n  fill: #0eb99d;\n}\n.category-list li span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li span svg[data-v-392bf66a] {\n  visibility: hidden;\n}\n.create-category-title[data-v-392bf66a] {\n  text-align: center;\n}\n.form-category[data-v-392bf66a] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  max-width: 500px;\n  margin: 0 auto;\n}\n.form-category .select-box-area[data-v-392bf66a] {\n  width: 120px;\n  margin: 0 10px 0 0;\n}\n.form-category .input-category-area[data-v-392bf66a] {\n  flex: 1;\n  margin: 20px 0 0 0;\n  min-width: 200px;\n}\n.form-category .add-cate[data-v-392bf66a] {\n  margin: 0 0 0 10px;\n  width: 100px;\n}\n.register[data-v-392bf66a] {\n  border: 1px solid;\n  font-size: 2em;\n  margin: 50px auto 10px auto;\n  padding: 1em;\n  max-width: 200px;\n  text-align: center;\n}", ""]);
+exports.push([module.i, ".shop.select-box-area[data-v-392bf66a] {\n  max-width: 400px;\n  margin: 10px auto;\n  width: 90%;\n}\n#used-list[data-v-392bf66a] {\n  margin: 30px auto 30px auto;\n  display: flex;\n  justify-content: center;\n  padding: 0;\n  max-width: 450px;\n}\n#used-list .used-list-area[data-v-392bf66a] {\n  max-width: 400px;\n  width: 90%;\n  height: 350px;\n  overflow-y: scroll;\n  margin: 0 auto;\n  background-color: rgba(255, 255, 255, 0.9);\n  list-style: none;\n  padding: 0;\n}\n#used-list .used-list-area li[data-v-392bf66a] {\n  width: 100%;\n  font-size: 1.2em;\n  color: #474747;\n  padding: 0.8em 1em;\n  margin: 0;\n  border-bottom: 1px dotted;\n  cursor: pointer;\n}\n#used-list .used-list-area li.active[data-v-392bf66a] {\n  background-color: #adadad;\n}\n#used-list .button-area[data-v-392bf66a] {\n  display: block;\n  width: 50px;\n  margin: 0;\n  padding: 0;\n  position: relative;\n}\n#used-list .button-area div[data-v-392bf66a] {\n  width: 50px;\n  height: 50px;\n  background-color: #999999;\n  border-radius: 50%;\n  cursor: pointer;\n  text-align: center;\n  margin-left: 10px;\n}\n#used-list .button-area div.nonactive[data-v-392bf66a] {\n  background-color: #515151;\n}\n#used-list .button-area div span[data-v-392bf66a] {\n  vertical-align: middle;\n  height: 100%;\n  width: 100%;\n}\n#used-list .button-area .button-up[data-v-392bf66a] {\n  position: absolute;\n  top: 0;\n}\n#used-list .button-area .button-down[data-v-392bf66a] {\n  position: absolute;\n  bottom: 0;\n}\n.category-list[data-v-392bf66a] {\n  list-style: none;\n  display: flex;\n  flex-wrap: wrap;\n}\n.category-list li[data-v-392bf66a] {\n  border: 1px solid;\n  padding: 1em 0.3em;\n  margin: 0.5em;\n  cursor: pointer;\n}\n.category-list li.used[data-v-392bf66a] {\n  color: #0eb99d;\n}\n.category-list li.used span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li.used span svg[data-v-392bf66a] {\n  visibility: visible;\n  fill: #0eb99d;\n}\n.category-list li span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li span svg[data-v-392bf66a] {\n  visibility: hidden;\n}\n.create-category-title[data-v-392bf66a] {\n  text-align: center;\n}\n.form-category[data-v-392bf66a] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  max-width: 500px;\n  margin: 0 auto;\n}\n.form-category .select-box-area[data-v-392bf66a] {\n  width: 120px;\n  margin: 0 10px 0 0;\n}\n.form-category .input-category-area[data-v-392bf66a] {\n  flex: 1;\n  margin: 20px 0 0 0;\n  min-width: 200px;\n}\n.form-category .add-cate[data-v-392bf66a] {\n  margin: 0 0 0 10px;\n  width: 100px;\n}\n.register[data-v-392bf66a] {\n  border: 1px solid;\n  font-size: 2em;\n  margin: 50px auto 10px auto;\n  padding: 1em;\n  max-width: 200px;\n  text-align: center;\n  cursor: pointer;\n}", ""]);
 
 // exports
 
@@ -47482,7 +47572,7 @@ var render = function () {
                       {
                         key: cate.value,
                         staticClass: "select-category",
-                        class: { active: _vm.currentTask == cate.value },
+                        class: { active: _vm.CurrentCategory == cate.value },
                         on: {
                           click: function ($event) {
                             return _vm.changeTask(cate.value)
@@ -47681,7 +47771,7 @@ var render = function () {
                   {
                     key: cate.value,
                     staticClass: "select-category",
-                    class: { active: _vm.currentTask == cate.value },
+                    class: { active: _vm.CurrentCategory == cate.value },
                     on: {
                       click: function ($event) {
                         return _vm.changeTask(cate.value)
@@ -50473,15 +50563,17 @@ var render = function () {
           "div",
           { staticClass: "select-box-area shop" },
           [
-            _c("SelectShopBox", {
-              model: {
-                value: _vm.shopId,
-                callback: function ($$v) {
-                  _vm.shopId = $$v
-                },
-                expression: "shopId",
-              },
-            }),
+            _vm.currentAuth == 1
+              ? _c("SelectShopBox", {
+                  model: {
+                    value: _vm.shopId,
+                    callback: function ($$v) {
+                      _vm.shopId = $$v
+                    },
+                    expression: "shopId",
+                  },
+                })
+              : _vm._e(),
           ],
           1
         ),
@@ -51100,7 +51192,7 @@ var render = function () {
                         {
                           key: cate.value,
                           staticClass: "select-category",
-                          class: { active: _vm.currentTask == cate.value },
+                          class: { active: _vm.CurrentCategory == cate.value },
                           on: {
                             click: function ($event) {
                               return _vm.changeTask(cate.value)
@@ -71212,67 +71304,9 @@ var state = {
     value: "3",
     label: "ユーザー"
   }],
-  taskCate: [{
-    value: "1",
-    label: "NHK・身だしなみ",
-    position_id: "3"
-  }, {
-    value: "2",
-    label: "お茶番・バッシング",
-    position_id: "1"
-  }, {
-    value: "3",
-    label: "運び",
-    position_id: "1"
-  }, {
-    value: "4",
-    label: "オーダー",
-    position_id: "1"
-  }, {
-    value: "5",
-    label: "セッター",
-    position_id: "1"
-  }, {
-    value: "6",
-    label: "パートナー",
-    position_id: "1"
-  }, {
-    value: "7",
-    label: "花番",
-    position_id: "1"
-  }, {
-    value: "8",
-    label: "キャベツ切る",
-    position_id: "2"
-  }, {
-    value: "9",
-    label: "ガルニ",
-    position_id: "2"
-  }, {
-    value: "10",
-    label: "仕込み",
-    position_id: "2"
-  }, {
-    value: "11",
-    label: "揚げ技術",
-    position_id: "2"
-  }, {
-    value: "12",
-    label: "準備・片付け",
-    position_id: "2"
-  }, {
-    value: "13",
-    label: "皿洗い・炊飯",
-    position_id: "2"
-  }, {
-    value: "14",
-    label: "お茶番・バッシング",
-    position_id: "1"
-  }, {
-    value: "15",
-    label: "キャベツ切る",
-    position_id: "2"
-  }]
+  categories: null,
+  shopUsedCategory: null,
+  categoriesFiltered: null
 };
 var getters = {
   Shops: function Shops(state) {
@@ -71288,7 +71322,7 @@ var getters = {
     return state.authority;
   },
   taskCategory: function taskCategory(state) {
-    return state.taskCate;
+    return state.categories;
   },
   shopLabels: function shopLabels(state) {
     return $_makeLabels(state.shops);
@@ -71304,11 +71338,17 @@ var getters = {
   },
   categoryLabels: function categoryLabels(state) {
     return function (shopId) {
-      var list = state.taskCate.filter(function (item) {
+      var list = state.categories.filter(function (item) {
         return item.shop_id == shopId;
       });
       return $_makeLabels(list);
     };
+  },
+  stateShopUsedCategory: function stateShopUsedCategory(state) {
+    return state.shopUsedCategory;
+  },
+  storeCategoriesFiltered: function storeCategoriesFiltered(state) {
+    return state.categoriesFiltered;
   }
 };
 var mutations = {
@@ -71316,7 +71356,13 @@ var mutations = {
     state.shops = data;
   },
   setCategories: function setCategories(state, data) {
-    state.taskCate = data;
+    state.categories = data;
+  },
+  setShopUsedCategory: function setShopUsedCategory(state, data) {
+    state.shopUsedCategory = data;
+  },
+  setCategoriesFiltered: function setCategoriesFiltered(state, data) {
+    state.categoriesFiltered = data;
   }
 };
 var actions = {
@@ -71373,7 +71419,7 @@ var actions = {
                 delete item.id;
                 categories.push(item);
               });
-              commit('setCategories', categories);
+              commit("setCategories", categories);
 
             case 7:
             case "end":
@@ -71381,6 +71427,84 @@ var actions = {
           }
         }
       }, _callee2);
+    }))();
+  },
+  getCategoriesFiltered: function getCategoriesFiltered(_ref3, shopId) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+      var commit, dispatch, _ref4, categories, shopUsed, list;
+
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              commit = _ref3.commit, dispatch = _ref3.dispatch;
+
+              if (state.categories) {
+                _context3.next = 4;
+                break;
+              }
+
+              _context3.next = 4;
+              return dispatch("getCategories");
+
+            case 4:
+              _context3.next = 6;
+              return dispatch("getShopUsedCategory", shopId);
+
+            case 6:
+              _ref4 = [state.categories, state.shopUsedCategory], categories = _ref4[0], shopUsed = _ref4[1];
+
+              if (categories && shopUsed) {
+                list = [];
+                shopUsed.forEach(function (item) {
+                  categories.forEach(function (obj) {
+                    if (Number(obj.value) === Number(item)) {
+                      list.push(obj);
+                    }
+                  });
+                });
+                commit("setCategoriesFiltered", list);
+              }
+
+            case 8:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
+    }))();
+  },
+  getShopUsedCategory: function getShopUsedCategory(_ref5, shopId) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
+      var commit, response;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              commit = _ref5.commit;
+              _context4.next = 3;
+              return axios.get("/api/category/shop/".concat(shopId, "/index"));
+
+            case 3:
+              response = _context4.sent;
+
+              if (response.data) {
+                _context4.next = 7;
+                break;
+              }
+
+              commit("setShopUsedCategory", []);
+              return _context4.abrupt("return");
+
+            case 7:
+              commit("setShopUsedCategory", response.data);
+
+            case 8:
+            case "end":
+              return _context4.stop();
+          }
+        }
+      }, _callee4);
     }))();
   }
 };

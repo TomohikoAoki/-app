@@ -4,7 +4,7 @@
         <div>
             <h3>使用カテゴリー選択</h3>
             <div class="select-box-area shop">
-                <SelectShopBox v-model="shopId"></SelectShopBox>
+                <SelectShopBox v-model="shopId"  v-if="currentAuth == 1"></SelectShopBox>
             </div>
             <PositionSelect
                 v-model="currentPosition"
@@ -36,7 +36,8 @@
                             >
                                 <path
                                     d="M14.15 30.15 12 28l12-12 12 12-2.15 2.15L24 20.3Z"
-                                /></svg>
+                                />
+                            </svg>
                         </span>
                     </div>
                     <div
@@ -51,7 +52,8 @@
                             >
                                 <path
                                     d="m24 30.8-12-12 2.15-2.15L24 26.5l9.85-9.85L36 18.8Z"
-                                /></svg>
+                                />
+                            </svg>
                         </span>
                     </div>
                 </div>
@@ -120,7 +122,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { OK, CREATED } from "../util";
 
 import { ValidationObserver, ValidationProvider } from "vee-validate";
@@ -131,9 +133,9 @@ import PositionSelect from "../components/parts/CurrentPosition.vue";
 export default {
     data() {
         return {
-            shopId: "",
+            shopId: 1,
             positionId: "",
-            usedList: [],
+            usedList: null,
             categoryForm: {
                 label: "",
             },
@@ -151,38 +153,51 @@ export default {
     computed: {
         ...mapGetters({
             categories: "options/taskCategory",
+            shopUsedCategory: "options/stateShopUsedCategory",
+        }),
+        ...mapState("auth", {
+            currentAuth: function (state) {
+                if (state.user.authority === 2) {
+                    this.shopId = state.user.shop_id;
+                }
+                return state.user.authority;
+            },
         }),
         //カテゴリー一覧（ポジションごと）
         filterCategory() {
-            this.categories.forEach((item) => {
-                if (this.usedList.includes(item.value)) {
-                    item["flag"] = true;
-                    return;
-                }
-                item["flag"] = false;
-            });
-            return this.categories.filter(
-                (item) => item.position_id == this.currentPosition
-            );
+            if (this.usedList) {
+                this.categories.forEach((item) => {
+                    if (this.usedList.includes(item.value)) {
+                        item["flag"] = true;
+                        return;
+                    }
+                    item["flag"] = false;
+                });
+                return this.categories.filter(
+                    (item) => item.position_id == this.currentPosition
+                );
+            }
         },
         //使用カテゴリー
         filterUsedCategory() {
-            //順番大事だからフィルター使わずforEachで
-            let list = [];
-            this.usedList.forEach((item) => {
-                this.categories.forEach((obj) => {
-                    if (Number(obj.value) === Number(item)) {
-                        //移動用フラグ あれば true なければ　false
-                        obj["moveFlag"] =
-                            this.moveFlag === obj.value ? true : false;
-                        list.push(obj);
-                    }
+            if (this.usedList) {
+                //順番大事だからフィルター使わずforEachで
+                let list = [];
+                this.usedList.forEach((item) => {
+                    this.categories.forEach((obj) => {
+                        if (Number(obj.value) === Number(item)) {
+                            //移動用フラグ あれば true なければ　false
+                            obj["moveFlag"] =
+                                this.moveFlag === obj.value ? true : false;
+                            list.push(obj);
+                        }
+                    });
                 });
-            });
 
-            return list.filter(
-                (item) => item.position_id == this.currentPosition
-            );
+                return list.filter(
+                    (item) => item.position_id == this.currentPosition
+                );
+            }
         },
     },
     methods: {
@@ -201,17 +216,14 @@ export default {
                 this.$refs.obs.reset();
             }
         },
-        //使用するカテゴリー取得（店舗ごと）
+        //使用カテゴリー取得　（店舗ごと）
         async getUsedCategory() {
-            const response = await axios.get(
-                `/api/category/shop/${this.shopId}/index`
+            await this.$store.dispatch(
+                "options/getShopUsedCategory",
+                this.shopId
             );
 
-            if (!response.data) {
-                this.usedList = [];
-                return;
-            }
-            this.usedList = response.data;
+            this.usedList = this.shopUsedCategory;
         },
         //使用するカテゴリー登録（店舗ごと）
         async registerData() {
@@ -224,6 +236,12 @@ export default {
                 "api/category/shop/create",
                 formUsedList
             );
+
+            console.log(response.status)
+
+            if(response.status === OK) {
+                this.getUsedCategory();
+            }
         },
         //使用カテゴリーに追加 or 削除
         changeFlag(obj) {
@@ -299,8 +317,11 @@ export default {
         currentPosition: function () {
             this.moveFlag = null;
         },
-        shopId: function () {
-            this.getUsedCategory();
+        shopId: {
+            immediate: true,
+            handler: function () {
+                this.getUsedCategory();
+            },
         },
     },
 };
@@ -435,5 +456,6 @@ export default {
     padding: 1em;
     max-width: 200px;
     text-align: center;
+    cursor:pointer;
 }
 </style>

@@ -22,23 +22,9 @@ const state = {
         { value: "2", label: "店舗管理者" },
         { value: "3", label: "ユーザー" },
     ],
-    taskCate: [
-        { value: "1", label: "NHK・身だしなみ", position_id: "3" },
-        { value: "2", label: "お茶番・バッシング", position_id: "1" },
-        { value: "3", label: "運び", position_id: "1" },
-        { value: "4", label: "オーダー", position_id: "1" },
-        { value: "5", label: "セッター", position_id: "1" },
-        { value: "6", label: "パートナー", position_id: "1" },
-        { value: "7", label: "花番", position_id: "1" },
-        { value: "8", label: "キャベツ切る", position_id: "2" },
-        { value: "9", label: "ガルニ", position_id: "2" },
-        { value: "10", label: "仕込み", position_id: "2" },
-        { value: "11", label: "揚げ技術", position_id: "2" },
-        { value: "12", label: "準備・片付け", position_id: "2" },
-        { value: "13", label: "皿洗い・炊飯", position_id: "2" },
-        { value: "14", label: "お茶番・バッシング", position_id: "1" },
-        { value: "15", label: "キャベツ切る", position_id: "2" },
-    ],
+    categories: null,
+    shopUsedCategory: null,
+    categoriesFiltered: null,
 };
 
 const getters = {
@@ -46,16 +32,21 @@ const getters = {
     Positions: (state) => state.positions,
     Lunks: (state) => state.lunks,
     optionAuth: (state) => state.authority,
-    taskCategory: (state) => state.taskCate,
+    taskCategory: (state) => state.categories,
     shopLabels: (state) => $_makeLabels(state.shops),
     lunkLabels: (state) => $_makeLabels(state.lunks),
     positionLabels: (state) => $_makeLabels(state.positions),
     authLabels: (state) => $_makeLabels(state.authority),
-    categoryLabels: (state) =>
-        function(shopId) {
-            let list = state.taskCate.filter((item) => item.shop_id == shopId);
+    categoryLabels: function(state) {
+        return function(shopId) {
+            let list = state.categories.filter(
+                (item) => item.shop_id == shopId
+            );
             return $_makeLabels(list);
-        },
+        };
+    },
+    stateShopUsedCategory: (state) => state.shopUsedCategory,
+    storeCategoriesFiltered: (state) => state.categoriesFiltered,
 };
 
 const mutations = {
@@ -63,8 +54,14 @@ const mutations = {
         state.shops = data;
     },
     setCategories(state, data) {
-        state.taskCate = data;
-    }
+        state.categories = data;
+    },
+    setShopUsedCategory(state, data) {
+        state.shopUsedCategory = data;
+    },
+    setCategoriesFiltered(state, data) {
+        state.categoriesFiltered = data;
+    },
 };
 
 const actions = {
@@ -93,15 +90,43 @@ const actions = {
         let categories = [];
 
         response.data.forEach((item) => {
-            item.value = item.id
+            item.value = item.id;
 
-            delete item.id
+            delete item.id;
 
             categories.push(item);
-        })
+        });
 
-        commit('setCategories', categories);
-    }
+        commit("setCategories", categories);
+    },
+    async getCategoriesFiltered({ commit, dispatch }, shopId) {
+        if (!state.categories) await dispatch("getCategories");
+        await dispatch("getShopUsedCategory", shopId);
+
+        let [categories, shopUsed] = [state.categories, state.shopUsedCategory];
+
+        if (categories && shopUsed) {
+            let list = []
+            shopUsed.forEach((item) => {
+                categories.forEach((obj) => {
+                    if (Number(obj.value) === Number(item)) {
+                        list.push(obj);
+                    }
+                });
+            });
+            commit("setCategoriesFiltered", list);
+        }
+    },
+    async getShopUsedCategory({ commit }, shopId) {
+        const response = await axios.get(`/api/category/shop/${shopId}/index`);
+
+        if (!response.data) {
+            commit("setShopUsedCategory", []);
+            return;
+        }
+
+        commit("setShopUsedCategory", response.data);
+    },
 };
 
 export default {
