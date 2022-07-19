@@ -166,6 +166,7 @@ export default {
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
         },
+        //カテゴリー取得 (店舗ごとにはstoreでフィルタ済みのはず…)
         async getCategories() {
             await this.$store.dispatch(
                 "options/getCategoriesFiltered", this.shop
@@ -189,6 +190,7 @@ export default {
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
+        //店舗ユーザーをポジションでフィルタリング
         usersFilteredPosition() {
             return this.users.filter((user) => {
                 return Number(user.position_id) === Number(this.currentPosition);
@@ -197,6 +199,7 @@ export default {
         //categoryをユーザーのポジションでフィルタリング
         //共通は３
         //カテゴリー初期値(CurrentCategory)にカテゴリー配列の最初の配列のvalueを入れる
+        //登録されてなかったら空の配列
         filterCategory() {
             if (this.categories) {
                 let list = this.categories.filter((item) => {
@@ -212,12 +215,11 @@ export default {
         },
     },
     watch: {
+        //親コンポーネントからのデータに変更があればviewDataを更新で再描画
         taskData: function () {
-            this.getCategories();
             if (this.users && this.taskData) this.createView();
         },
         users: function () {
-            this.getCategories();
             if (this.users && this.taskData) this.createView();
         },
         shop: function () {

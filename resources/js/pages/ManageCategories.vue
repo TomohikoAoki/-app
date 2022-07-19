@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="category-manage">
         <h2>CATEGORY MANAGE</h2>
         <div>
             <h3>使用カテゴリー選択</h3>
@@ -118,17 +118,18 @@
             </ValidationObserver>
         </div>
         <div class="register" @click="registerData">登録</div>
+        <ModalConfirmVue :okFlag="okFlag" v-model="okFlag"></ModalConfirmVue>
     </div>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { OK, CREATED } from "../util";
 
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 import SelectShopBox from "../components/form/ShopSelectBox";
 import SelectPositionBox from "../components/form/PositionSelectBox";
 import PositionSelect from "../components/parts/CurrentPosition.vue";
+import ModalConfirmVue from "../components/ModalConfirm.vue";
 
 export default {
     data() {
@@ -141,12 +142,14 @@ export default {
             },
             currentPosition: 1,
             moveFlag: null,
+            okFlag: false,
         };
     },
     components: {
         SelectShopBox,
         SelectPositionBox,
         PositionSelect,
+        ModalConfirmVue,
         ValidationObserver,
         ValidationProvider,
     },
@@ -154,8 +157,10 @@ export default {
         ...mapGetters({
             categories: "options/taskCategory",
             shopUsedCategory: "options/stateShopUsedCategory",
+            optionsApiStatus: "options/getOptionsApiStatus"
         }),
         ...mapState("auth", {
+            //店舗管理者判定
             currentAuth: function (state) {
                 if (state.user.authority === 2) {
                     this.shopId = state.user.shop_id;
@@ -164,6 +169,7 @@ export default {
             },
         }),
         //カテゴリー一覧（ポジションごと）
+        //使用されてる判定のflag property 追加
         filterCategory() {
             if (this.usedList) {
                 this.categories.forEach((item) => {
@@ -205,14 +211,10 @@ export default {
         async addCategory() {
             this.categoryForm["position_id"] = this.positionId;
 
-            const response = await axios.post(
-                "/api/category/create",
-                this.categoryForm
-            );
+            await this.$store.dispatch('options/registerCategory', this.categoryForm)
 
-            if (response.status === CREATED) {
+            if (this.optionsApiStatus) {
                 this.categoryForm = { label: "" };
-                this.$store.dispatch("options/getCategories");
                 this.$refs.obs.reset();
             }
         },
@@ -232,15 +234,11 @@ export default {
             formUsedList["used_category"] = this.usedList;
             formUsedList["shop_id"] = this.shopId;
 
-            const response = await axios.post(
-                "api/category/shop/create",
-                formUsedList
-            );
+            await this.$store.dispatch('options/registerShopUsedCategory', formUsedList)
 
-            console.log(response.status)
-
-            if(response.status === OK) {
+            if(this.optionsApiStatus) {
                 this.getUsedCategory();
+                this.okFlag = true
             }
         },
         //使用カテゴリーに追加 or 削除
@@ -328,6 +326,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.category-manage {
+    position: relative;
+}
 .shop.select-box-area {
     max-width: 400px;
     margin: 10px auto;

@@ -1,5 +1,13 @@
+import {
+    OK,
+    CREATED,
+    INTERNAL_SERVER_ERROR,
+    UNPROCESSABLE_ENTITY,
+} from "../util";
+
 const state = {
     shops: null,
+    optionsApiStatus: null,
     positions: [
         { value: "1", label: "ホール" },
         { value: "2", label: "キッチン" },
@@ -47,6 +55,7 @@ const getters = {
     },
     stateShopUsedCategory: (state) => state.shopUsedCategory,
     storeCategoriesFiltered: (state) => state.categoriesFiltered,
+    getOptionsApiStatus: (state) => state.optionsApiStatus,
 };
 
 const mutations = {
@@ -62,6 +71,9 @@ const mutations = {
     setCategoriesFiltered(state, data) {
         state.categoriesFiltered = data;
     },
+    setOptionsApiStatus(state, status) {
+        state.optionsApiStatus = status;
+    },
 };
 
 const actions = {
@@ -70,35 +82,101 @@ const actions = {
 
         let shops = [];
 
-        response.data.forEach((item) => {
-            item.value = item.id;
-            item.label = item.shop_name;
+        if (response.status === OK) {
+            commit("setOptionsApiStatus", true);
 
-            delete item.id;
-            delete item.shop_name;
+            response.data.forEach((item) => {
+                item.value = item.id;
+                item.label = item.shop_name;
 
-            shops.push(item);
-        });
+                delete item.id;
+                delete item.shop_name;
 
-        shops.sort((a, b) => a.value - b.value);
+                shops.push(item);
+            });
 
-        commit("setShops", shops);
+            shops.sort((a, b) => a.value - b.value);
+
+            commit("setShops", shops);
+
+            return false;
+        }
+
+        //エラー時
+        commit("setOptionsApiStatus", false);
+        commit("error/setCode", response.status, { root: true });
     },
+    //カテゴリー関係
+    //新規カテゴリー登録
+    async registerCategory({ commit, dispatch }, data) {
+        const response = await axios.post("/api/category/create", data);
+
+        if (response.status === CREATED) {
+            commit("setOptionsApiStatus", true);
+
+            commit("setCategories", response.data);
+
+            return false;
+        }
+
+        //エラー時
+        commit("setOptionsApiStatus", false);
+        commit("error/setCode", response.status, { root: true });
+    },
+    //店舗が使うカテゴリー登録
+    async registerShopUsedCategory({ commit }, data) {
+        const response = await axios.post("api/category/shop/create", data)
+
+        if (response.status === OK) {
+            commit('setOptionsApiStatus', true)
+
+            commit('setShopUsedCategory', response.data)
+
+            return false
+        }
+
+        //エラー時
+        commit("setOptionsApiStatus", false);
+        commit("error/setCode", response.status, { root: true });
+    },
+    //カテゴリー取得
     async getCategories({ commit }) {
         const response = await axios.get("/api/category/index");
 
-        let categories = [];
+        if (response.status === OK) {
+            commit("setOptionsApiStatus", true);
 
-        response.data.forEach((item) => {
-            item.value = item.id;
+            commit("setCategories", response.data);
 
-            delete item.id;
+            return false;
+        }
 
-            categories.push(item);
-        });
-
-        commit("setCategories", categories);
+        //エラー時
+        commit("setOptionsApiStatus", false);
+        commit("error/setCode", response.status, { root: true });
     },
+    //店舗が使うカテゴリーのidの配列を取得
+    async getShopUsedCategory({ commit }, shopId) {
+        const response = await axios.get(`/api/category/shop/${shopId}/index`);
+
+        if (response.status === OK) {
+            commit("setOptionsApiStatus", true);
+
+            if (!response.data) {
+                commit("setShopUsedCategory", []);
+                return;
+            }
+
+            commit("setShopUsedCategory", response.data);
+
+            return false;
+        }
+
+        //エラー時
+        commit("setOptionsApiStatus", false);
+        commit("error/setCode", response.status, { root: true });
+    },
+    //全カテゴリーから店舗が使うカテゴリーにフィルタリング
     async getCategoriesFiltered({ commit, dispatch }, shopId) {
         if (!state.categories) await dispatch("getCategories");
         await dispatch("getShopUsedCategory", shopId);
@@ -106,7 +184,7 @@ const actions = {
         let [categories, shopUsed] = [state.categories, state.shopUsedCategory];
 
         if (categories && shopUsed) {
-            let list = []
+            let list = [];
             shopUsed.forEach((item) => {
                 categories.forEach((obj) => {
                     if (Number(obj.value) === Number(item)) {
@@ -116,16 +194,6 @@ const actions = {
             });
             commit("setCategoriesFiltered", list);
         }
-    },
-    async getShopUsedCategory({ commit }, shopId) {
-        const response = await axios.get(`/api/category/shop/${shopId}/index`);
-
-        if (!response.data) {
-            commit("setShopUsedCategory", []);
-            return;
-        }
-
-        commit("setShopUsedCategory", response.data);
     },
 };
 

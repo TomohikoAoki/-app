@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\models\Shop;
 
@@ -14,20 +15,17 @@ class CategoryController extends Controller
     }
 
     public function index() {
-        return Category::get();
+        return response(CategoryResource::collection(Category::get()), 200);
     }
 
     public function create(Request $request)
     {
-        logger($request);
-
-
         $category = Category::create([
             'label' => $request['label'],
             'position_id' => $request['position_id']
         ]);
 
-        return response($category, 201);
+        return response(CategoryResource::collection(Category::get()), 201);
     }
 
     public function update(Request $request)
@@ -51,7 +49,7 @@ class CategoryController extends Controller
 
         $shop->save();
 
-        return response($shop, 200);
+        return response(unserialize($shop['used_category']), 200);
     }
 
     public function indexUsedShop (String $id)
