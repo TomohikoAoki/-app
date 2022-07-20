@@ -3,11 +3,11 @@
         <p>ポジション選択</p>
         <ul>
             <li
-                v-for="(position, index) in positions"
+                v-for="(position, index) in filteredPositions"
                 :value="position.value"
                 :key="index"
                 @click="updateValue"
-                :class="{ 'active': selected == position.value, 'hidden': index == positionsLast }"
+                :class="{ 'active': selected == position.value }"
             >
                 {{ position.label }}
             </li>
@@ -20,14 +20,17 @@ import { mapGetters } from "vuex";
 
 export default {
     props: [
-        'selected'
+        'selected', 'hiddenPositions'
     ],
     computed: {
         ...mapGetters({
             positions: "options/Positions",
         }),
-        positionsLast() {
-            return this.positions.length - 1
+        filteredPositions() {
+            if(this.hiddenPositions && this.hiddenPositions.length) {
+                return this.positions.filter((item) => !this.hiddenPositions.includes(Number(item.value)))
+            }
+            return this.positions
         }
     },
     methods: {
@@ -69,9 +72,6 @@ export default {
             &.active {
                 background-color: rgb(236, 236, 236);
                 color: #313644;
-            }
-            &.hidden {
-                display: none;
             }
         }
     }

@@ -2,9 +2,12 @@
     <div class="category-manage">
         <h2>CATEGORY MANAGE</h2>
         <div>
-            <h3>使用カテゴリー選択</h3>
+            <h3 class="used-categories-title">使用カテゴリー</h3>
             <div class="select-box-area shop">
-                <SelectShopBox v-model="shopId"  v-if="currentAuth == 1"></SelectShopBox>
+                <SelectShopBox
+                    v-model="shopId"
+                    v-if="currentAuth == 1"
+                ></SelectShopBox>
             </div>
             <PositionSelect
                 v-model="currentPosition"
@@ -86,7 +89,10 @@
             <ValidationObserver v-slot="ObserverProps" ref="obs">
                 <form @submit.prevent="addCategory" class="form-category">
                     <div class="select-box-area">
-                        <SelectPositionBox v-model="positionId">
+                        <SelectPositionBox
+                            v-model="currentPosition"
+                            :selected="currentPosition"
+                        >
                         </SelectPositionBox>
                     </div>
                     <div class="input-category-area">
@@ -130,12 +136,12 @@ import SelectShopBox from "../components/form/ShopSelectBox";
 import SelectPositionBox from "../components/form/PositionSelectBox";
 import PositionSelect from "../components/parts/CurrentPosition.vue";
 import ModalConfirmVue from "../components/ModalConfirm.vue";
+import { listenerCount } from "process";
 
 export default {
     data() {
         return {
             shopId: 1,
-            positionId: "",
             usedList: null,
             categoryForm: {
                 label: "",
@@ -157,7 +163,7 @@ export default {
         ...mapGetters({
             categories: "options/taskCategory",
             shopUsedCategory: "options/stateShopUsedCategory",
-            optionsApiStatus: "options/getOptionsApiStatus"
+            optionsApiStatus: "options/getOptionsApiStatus",
         }),
         ...mapState("auth", {
             //店舗管理者判定
@@ -209,9 +215,12 @@ export default {
     methods: {
         //新規カテゴリー作成
         async addCategory() {
-            this.categoryForm["position_id"] = this.positionId;
+            this.categoryForm["position_id"] = this.currentPosition;
 
-            await this.$store.dispatch('options/registerCategory', this.categoryForm)
+            await this.$store.dispatch(
+                "options/registerCategory",
+                this.categoryForm
+            );
 
             if (this.optionsApiStatus) {
                 this.categoryForm = { label: "" };
@@ -231,14 +240,35 @@ export default {
         async registerData() {
             let formUsedList = {};
 
-            formUsedList["used_category"] = this.usedList;
+            //共通を一番前に変更
+            let list = [];
+            this.categories.forEach((item) => {
+                if (Number(item.position_id) === 3) {
+                    list.push(item.value);
+                }
+            });
+
+            let residueUsedList = [];
+
+            let arr = this.usedList.filter((item) => {
+                if (list.includes(item)) {
+                    return true;
+                }
+                residueUsedList.push(item);
+                return false;
+            });
+
+            formUsedList["used_category"] = arr.concat(residueUsedList);
             formUsedList["shop_id"] = this.shopId;
 
-            await this.$store.dispatch('options/registerShopUsedCategory', formUsedList)
+            await this.$store.dispatch(
+                "options/registerShopUsedCategory",
+                formUsedList
+            );
 
-            if(this.optionsApiStatus) {
+            if (this.optionsApiStatus) {
                 this.getUsedCategory();
-                this.okFlag = true
+                this.okFlag = true;
             }
         },
         //使用カテゴリーに追加 or 削除
@@ -328,6 +358,10 @@ export default {
 <style lang="scss" scoped>
 .category-manage {
     position: relative;
+}
+
+.used-categories-title {
+    text-align: center;
 }
 .shop.select-box-area {
     max-width: 400px;
@@ -457,6 +491,6 @@ export default {
     padding: 1em;
     max-width: 200px;
     text-align: center;
-    cursor:pointer;
+    cursor: pointer;
 }
 </style>

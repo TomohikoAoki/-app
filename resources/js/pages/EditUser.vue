@@ -163,7 +163,7 @@
                                             class="form-control"
                                         >
                                             <option
-                                                v-for="shop in shops"
+                                                v-for="shop in filterShops"
                                                 :key="shop.value"
                                                 :value="shop.value"
                                                 class="shop_options"
@@ -254,7 +254,7 @@
                                         class="radio-wrap"
                                     >
                                         <div
-                                            v-for="position in Positions"
+                                            v-for="position in filterPositions"
                                             :key="position.value"
                                             class="form-check"
                                         >
@@ -453,6 +453,14 @@ export default {
             shopOneOf: (state) => $_getKeyForValid("oneOf:", state.shops),
             authOneOf: (state) => $_getKeyForValid("oneOf:", state.authority),
         }),
+        //ポジション-共通は隠す
+        filterPositions() {
+            return this.Positions.filter((item) => Number(item.value) !== 3)
+        },
+        //店舗-共通は隠す
+        filterShops() {
+            return this.shops.filter((item) => Number(item.value) !== 99 )
+        }
     },
     watch: {
         $route: {

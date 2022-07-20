@@ -1,7 +1,7 @@
 <template>
     <div class="point-manage">
         <div>
-            <CurrentPositionVue v-model="currentPosition" :selected="currentPosition"></CurrentPositionVue>
+            <CurrentPositionVue v-model="currentPosition" :selected="currentPosition" :hiddenPositions="hiddenPositions"></CurrentPositionVue>
             <div v-if="viewData" class="task-data-area">
                 <!-- task category 選択 -->
                 <ul class="category-area">
@@ -82,6 +82,7 @@ export default {
             showModal: false,
             viewData: null,
             taskIndex: null,
+            hiddenPositions: [3],
         };
     },
     props: ["shop", "taskData", "users"],
@@ -93,20 +94,12 @@ export default {
         createView() {
             //初期化
             this.viewData = [];
-            //親コンポーネントから来たusersとtaskDataをpositionでフィルタリング
-            let currentUsers = this.users.filter(
-                (user) => user.position_id == this.currentPosition
-            );
-            let currentTasks = this.taskData.filter(
-                (task) =>
-                    task.position_id == this.currentPosition ||
-                    task.position_id == 3
-            );
-            currentUsers.forEach((user) => {
+
+            this.users.forEach((user) => {
                 //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
                 //画面表示用のデータの配列を作成する関数
                 let data = this.$helpers.createViewData(
-                    currentTasks,
+                    this.taskData,
                     user,
                     this._sendData
                 );

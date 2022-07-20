@@ -1,7 +1,7 @@
 <template>
     <fieldset>
         <label class="label">店舗選択</label>
-        <select @change="updateValue" class="form-control">
+        <select @change="updateValue" class="form-control" :disabled="disabledFlag">
             <option
                 v-for="(shop, index) in shops"
                 :value="shop.value"
@@ -17,6 +17,13 @@
 import { mapGetters } from "vuex";
 
 export default {
+    props: {
+        disabledFlag:{
+            type: Boolean,
+            default: false,
+            required: false,
+        }
+    },
     computed: {
         ...mapGetters({
             shops: "options/Shops",
@@ -32,3 +39,9 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.form-control:disabled {
+    color: rgb(197, 197, 197);
+}
+</style>

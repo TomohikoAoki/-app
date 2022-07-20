@@ -9,7 +9,7 @@
                     v-if="currentAuth == 1"
                 ></SelectShopBox>
                 <!-- ポジションセレクトセクション -->
-                <SelectPositionBox v-model="positionId"> </SelectPositionBox>
+                <SelectPositionBox v-model="positionId" :selected="positionId"> </SelectPositionBox>
             </div>
             <div v-if="taskData" class="task-data-area">
                 <h3 class="task-data-area__title">TASK</h3>

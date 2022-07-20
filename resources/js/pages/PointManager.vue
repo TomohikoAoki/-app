@@ -2,25 +2,14 @@
     <div>
         <h2>POINT MANAGE</h2>
         <div class="select-box-area">
-            <div class="form-group row" v-if="currentAuth == 1">
-                <label class="label" for="shop">店舗選択</label>
-                <select
-                    v-model="shopId"
-                    class="form-control"
-                    :disabled="_sendFlag"
-                >
-                    <option
-                        v-for="shop in shops"
-                        :key="shop.value"
-                        :value="shop.value"
-                    >
-                        {{ shop.label }}
-                    </option>
-                </select>
-                <p v-if="_sendFlag" class="danger small">
-                    更新を完了しないと店舗の変更はできません。
-                </p>
-            </div>
+            <ShopSelectBoxVue
+                v-if="currentAuth == 1"
+                v-model="shopId"
+                :disabledFlag="_sendFlag"
+            ></ShopSelectBoxVue>
+            <p v-if="_sendFlag" class="danger small">
+                更新を完了しないと店舗の変更はできません。
+            </p>
         </div>
         <ul class="change-view">
             <li
@@ -62,6 +51,7 @@
 <script>
 import UserPointing from "../components/UserPointing.vue";
 import UserAllPointing from "../components/UserAllPointing.vue";
+import ShopSelectBoxVue from "../components/form/ShopSelectBox.vue";
 import { mapGetters } from "vuex";
 
 export default {
@@ -69,37 +59,33 @@ export default {
         return {
             currentComponent: 1,
             shopId: null,
-            taskData: null,
-            users: null,
         };
     },
     components: {
         UserPointing,
         UserAllPointing,
+        ShopSelectBoxVue,
     },
     computed: {
         ...mapGetters({
             _sendFlag: "point/getSendDataFlag",
             _sendData: "point/getSendData",
-            shops: "options/Shops",
             currentAuth: "auth/getAuthority",
             getShopId: "auth/getShopId",
+            users:"point/pointsAndUsers",
+            taskData:"tasks/taskData",
         }),
     },
     methods: {
         async getTask() {
-            const responseTask = await axios.get(`api/task/${this.shopId}`);
-            const responseUser = await axios.get(`api/point/${this.shopId}`);
+             await this.$store.dispatch('tasks/getTasks', this.shopId);
+             await this.$store.dispatch('point/getPointsAndUsers', this.shopId)
 
-            this.taskData = responseTask.data.data;
-            this.users = responseUser.data.data;
         },
         //pointデータを送信
         async sendData() {
-            this.$store.dispatch('point/sendPoints')
+            this.$store.dispatch("point/sendPoints");
 
-            this.taskData = null;
-            this.users = null;
             this.currentComponent = 1;
 
             this.$refs.point.iniData();
@@ -142,8 +128,6 @@ export default {
         shopId: function () {
             if (this.shopId) {
                 this.currentComponent = 1;
-                this.taskData = null;
-                this.user = null;
                 this.getTask();
             }
         },
@@ -155,9 +139,6 @@ export default {
 .select-box-area {
     max-width: 400px;
     margin: 10px auto;
-}
-.form-control:disabled {
-    color: rgb(197, 197, 197);
 }
 .change-view {
     display: flex;

@@ -2478,7 +2478,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       currentPosition: 1,
       showModal: false,
       viewData: null,
-      taskIndex: null
+      taskIndex: null,
+      hiddenPositions: [3]
     };
   },
   props: ["shop", "taskData", "users"],
@@ -2491,18 +2492,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this = this;
 
       //初期化
-      this.viewData = []; //親コンポーネントから来たusersとtaskDataをpositionでフィルタリング
-
-      var currentUsers = this.users.filter(function (user) {
-        return user.position_id == _this.currentPosition;
-      });
-      var currentTasks = this.taskData.filter(function (task) {
-        return task.position_id == _this.currentPosition || task.position_id == 3;
-      });
-      currentUsers.forEach(function (user) {
+      this.viewData = [];
+      this.users.forEach(function (user) {
         //taskの配列データ、userデータ（pointデータ含む）,send前のローカルにあるデータから
         //画面表示用のデータの配列を作成する関数
-        var data = _this.$helpers.createViewData(currentTasks, user, _this._sendData);
+        var data = _this.$helpers.createViewData(_this.taskData, user, _this._sendData);
 
         _this.viewData = _this.viewData.concat(data);
       });
@@ -2956,16 +2950,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      selectedValue: null
+    };
+  },
+  props: ["selected"],
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     positions: "options/Positions"
   })),
-  methods: {
-    updateValue: function updateValue(e) {
-      this.$emit("input", e.target.value);
-    }
-  },
   mounted: function mounted() {
+    if (this.selected) {
+      this.selectedValue = this.selected;
+      this.$emit("input", this.selectedValue);
+      return false;
+    }
+
+    this.selectedValue = this.positions[0].value;
     this.$emit("input", this.positions[0].value);
+  },
+  watch: {
+    selectedValue: function selectedValue() {
+      this.$emit("input", this.selectedValue);
+    }
   }
 });
 
@@ -3004,6 +3011,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: {
+    disabledFlag: {
+      type: Boolean,
+      "default": false,
+      required: false
+    }
+  },
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     shops: "options/Shops"
   })),
@@ -3115,12 +3129,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['selected'],
+  props: ['selected', 'hiddenPositions'],
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     positions: "options/Positions"
   })), {}, {
-    positionsLast: function positionsLast() {
-      return this.positions.length - 1;
+    filteredPositions: function filteredPositions() {
+      var _this = this;
+
+      if (this.hiddenPositions && this.hiddenPositions.length) {
+        return this.positions.filter(function (item) {
+          return !_this.hiddenPositions.includes(Number(item.value));
+        });
+      }
+
+      return this.positions;
     }
   }),
   methods: {
@@ -3535,7 +3557,7 @@ function $_getKeyForValid(str, arr) {
       this.$store.commit("auth/setRegisterErrorMessages", null);
     }
   },
-  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])({
+  computed: _objectSpread(_objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])({
     registerErrors: function registerErrors(state) {
       return state.auth.registerErrorMessages;
     },
@@ -3558,7 +3580,20 @@ function $_getKeyForValid(str, arr) {
     Lunks: "options/Lunks",
     Positions: "options/Positions",
     shops: "options/Shops"
-  })),
+  })), {}, {
+    //ポジション-共通は隠す
+    filterPositions: function filterPositions() {
+      return this.Positions.filter(function (item) {
+        return Number(item.value) !== 3;
+      });
+    },
+    //店舗-共通は隠す
+    filterShops: function filterShops() {
+      return this.shops.filter(function (item) {
+        return Number(item.value) !== 99;
+      });
+    }
+  }),
   created: function created() {
     this.clearError();
   },
@@ -4101,7 +4136,7 @@ function $_getKeyForValid(str, arr) {
       }))();
     }
   },
-  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
+  computed: _objectSpread(_objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
     currentUserId: "auth/getCurrentUserId",
     currentUserAuth: "auth/getAuthority",
     Lunks: "options/Lunks",
@@ -4126,7 +4161,20 @@ function $_getKeyForValid(str, arr) {
     authOneOf: function authOneOf(state) {
       return $_getKeyForValid("oneOf:", state.authority);
     }
-  })),
+  })), {}, {
+    //ポジション-共通は隠す
+    filterPositions: function filterPositions() {
+      return this.Positions.filter(function (item) {
+        return Number(item.value) !== 3;
+      });
+    },
+    //店舗-共通は隠す
+    filterShops: function filterShops() {
+      return this.shops.filter(function (item) {
+        return Number(item.value) !== 99;
+      });
+    }
+  }),
   watch: {
     $route: {
       handler: function handler() {
@@ -4410,6 +4458,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_form_PositionSelectBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/form/PositionSelectBox */ "./resources/js/components/form/PositionSelectBox.vue");
 /* harmony import */ var _components_parts_CurrentPosition_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/parts/CurrentPosition.vue */ "./resources/js/components/parts/CurrentPosition.vue");
 /* harmony import */ var _components_ModalConfirm_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../components/ModalConfirm.vue */ "./resources/js/components/ModalConfirm.vue");
+/* harmony import */ var process__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! process */ "./node_modules/process/browser.js");
+/* harmony import */ var process__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(process__WEBPACK_IMPORTED_MODULE_7__);
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -4546,6 +4596,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -4556,7 +4613,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       shopId: 1,
-      positionId: "",
       usedList: null,
       categoryForm: {
         label: ""
@@ -4639,9 +4695,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this3.categoryForm["position_id"] = _this3.positionId;
+                _this3.categoryForm["position_id"] = _this3.currentPosition;
                 _context.next = 3;
-                return _this3.$store.dispatch('options/registerCategory', _this3.categoryForm);
+                return _this3.$store.dispatch("options/registerCategory", _this3.categoryForm);
 
               case 3:
                 if (_this3.optionsApiStatus) {
@@ -4688,25 +4744,43 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this5 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
-        var formUsedList;
+        var formUsedList, list, residueUsedList, arr;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                formUsedList = {};
-                formUsedList["used_category"] = _this5.usedList;
-                formUsedList["shop_id"] = _this5.shopId;
-                _context3.next = 5;
-                return _this5.$store.dispatch('options/registerShopUsedCategory', formUsedList);
+                formUsedList = {}; //共通を一番前に変更
 
-              case 5:
+                list = [];
+
+                _this5.categories.forEach(function (item) {
+                  if (Number(item.position_id) === 3) {
+                    list.push(item.value);
+                  }
+                });
+
+                residueUsedList = [];
+                arr = _this5.usedList.filter(function (item) {
+                  if (list.includes(item)) {
+                    return true;
+                  }
+
+                  residueUsedList.push(item);
+                  return false;
+                });
+                formUsedList["used_category"] = arr.concat(residueUsedList);
+                formUsedList["shop_id"] = _this5.shopId;
+                _context3.next = 9;
+                return _this5.$store.dispatch("options/registerShopUsedCategory", formUsedList);
+
+              case 9:
                 if (_this5.optionsApiStatus) {
                   _this5.getUsedCategory();
 
                   _this5.okFlag = true;
                 }
 
-              case 6:
+              case 10:
               case "end":
                 return _context3.stop();
             }
@@ -4811,7 +4885,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/UserPointing.vue */ "./resources/js/components/UserPointing.vue");
 /* harmony import */ var _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/UserAllPointing.vue */ "./resources/js/components/UserAllPointing.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _components_form_ShopSelectBox_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/form/ShopSelectBox.vue */ "./resources/js/components/form/ShopSelectBox.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -4874,17 +4949,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
 
 
 
@@ -4892,46 +4957,39 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       currentComponent: 1,
-      shopId: null,
-      taskData: null,
-      users: null
+      shopId: null
     };
   },
   components: {
     UserPointing: _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
-    UserAllPointing: _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    UserAllPointing: _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    ShopSelectBoxVue: _components_form_ShopSelectBox_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_3__["mapGetters"])({
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_4__["mapGetters"])({
     _sendFlag: "point/getSendDataFlag",
     _sendData: "point/getSendData",
-    shops: "options/Shops",
     currentAuth: "auth/getAuthority",
-    getShopId: "auth/getShopId"
+    getShopId: "auth/getShopId",
+    users: "point/pointsAndUsers",
+    taskData: "tasks/taskData"
   })),
   methods: {
     getTask: function getTask() {
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var responseTask, responseUser;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.get("api/task/".concat(_this.shopId));
+                return _this.$store.dispatch('tasks/getTasks', _this.shopId);
 
               case 2:
-                responseTask = _context.sent;
-                _context.next = 5;
-                return axios.get("api/point/".concat(_this.shopId));
+                _context.next = 4;
+                return _this.$store.dispatch('point/getPointsAndUsers', _this.shopId);
 
-              case 5:
-                responseUser = _context.sent;
-                _this.taskData = responseTask.data.data;
-                _this.users = responseUser.data.data;
-
-              case 8:
+              case 4:
               case "end":
                 return _context.stop();
             }
@@ -4948,17 +5006,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _this2.$store.dispatch('point/sendPoints');
+                _this2.$store.dispatch("point/sendPoints");
 
-                _this2.taskData = null;
-                _this2.users = null;
                 _this2.currentComponent = 1;
 
                 _this2.$refs.point.iniData();
 
                 _this2.getTask();
 
-              case 6:
+              case 4:
               case "end":
                 return _context2.stop();
             }
@@ -5002,8 +5058,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     shopId: function shopId() {
       if (this.shopId) {
         this.currentComponent = 1;
-        this.taskData = null;
-        this.user = null;
         this.getTask();
       }
     }
@@ -10651,6 +10705,25 @@ exports.push([module.i, "@charset \"UTF-8\";\n.point-manage[data-v-d1d90ab0] {\n
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true&":
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true& ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, ".form-control[data-v-2e61e939]:disabled {\n  color: #c5c5c5;\n}", ""]);
+
+// exports
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/header.vue?vue&type=style&index=0&id=798ca618&lang=scss&scoped=true&":
 /*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/header.vue?vue&type=style&index=0&id=798ca618&lang=scss&scoped=true& ***!
@@ -10701,7 +10774,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".select-position[data-v-4d75edb8] {\n  display: flex;\n  width: 350px;\n  margin: 0 auto;\n  vertical-align: middle;\n  justify-content: center;\n  flex-wrap: wrap;\n}\n.select-position p[data-v-4d75edb8] {\n  font-weight: bold;\n  padding: 0.5em 1em 0.5em 0;\n  margin: 0;\n}\n.select-position ul[data-v-4d75edb8] {\n  display: flex;\n  margin: 0;\n  padding: 0;\n  border: 1px solid;\n  border-radius: 5px;\n  list-style: none;\n  width: 250px;\n}\n.select-position ul li[data-v-4d75edb8] {\n  flex: 1;\n  text-align: center;\n  padding: 0.5em 0;\n}\n.select-position ul li.active[data-v-4d75edb8] {\n  background-color: #ececec;\n  color: #313644;\n}\n.select-position ul li.hidden[data-v-4d75edb8] {\n  display: none;\n}", ""]);
+exports.push([module.i, ".select-position[data-v-4d75edb8] {\n  display: flex;\n  width: 350px;\n  margin: 0 auto;\n  vertical-align: middle;\n  justify-content: center;\n  flex-wrap: wrap;\n}\n.select-position p[data-v-4d75edb8] {\n  font-weight: bold;\n  padding: 0.5em 1em 0.5em 0;\n  margin: 0;\n}\n.select-position ul[data-v-4d75edb8] {\n  display: flex;\n  margin: 0;\n  padding: 0;\n  border: 1px solid;\n  border-radius: 5px;\n  list-style: none;\n  width: 250px;\n}\n.select-position ul li[data-v-4d75edb8] {\n  flex: 1;\n  text-align: center;\n  padding: 0.5em 0;\n}\n.select-position ul li.active[data-v-4d75edb8] {\n  background-color: #ececec;\n  color: #313644;\n}", ""]);
 
 // exports
 
@@ -10796,7 +10869,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".category-manage[data-v-392bf66a] {\n  position: relative;\n}\n.shop.select-box-area[data-v-392bf66a] {\n  max-width: 400px;\n  margin: 10px auto;\n  width: 90%;\n}\n#used-list[data-v-392bf66a] {\n  margin: 30px auto 30px auto;\n  display: flex;\n  justify-content: center;\n  padding: 0;\n  max-width: 450px;\n}\n#used-list .used-list-area[data-v-392bf66a] {\n  max-width: 400px;\n  width: 90%;\n  height: 350px;\n  overflow-y: scroll;\n  margin: 0 auto;\n  background-color: rgba(255, 255, 255, 0.9);\n  list-style: none;\n  padding: 0;\n}\n#used-list .used-list-area li[data-v-392bf66a] {\n  width: 100%;\n  font-size: 1.2em;\n  color: #474747;\n  padding: 0.8em 1em;\n  margin: 0;\n  border-bottom: 1px dotted;\n  cursor: pointer;\n}\n#used-list .used-list-area li.active[data-v-392bf66a] {\n  background-color: #adadad;\n}\n#used-list .button-area[data-v-392bf66a] {\n  display: block;\n  width: 50px;\n  margin: 0;\n  padding: 0;\n  position: relative;\n}\n#used-list .button-area div[data-v-392bf66a] {\n  width: 50px;\n  height: 50px;\n  background-color: #999999;\n  border-radius: 50%;\n  cursor: pointer;\n  text-align: center;\n  margin-left: 10px;\n}\n#used-list .button-area div.nonactive[data-v-392bf66a] {\n  background-color: #515151;\n}\n#used-list .button-area div span[data-v-392bf66a] {\n  vertical-align: middle;\n  height: 100%;\n  width: 100%;\n}\n#used-list .button-area .button-up[data-v-392bf66a] {\n  position: absolute;\n  top: 0;\n}\n#used-list .button-area .button-down[data-v-392bf66a] {\n  position: absolute;\n  bottom: 0;\n}\n.category-list[data-v-392bf66a] {\n  list-style: none;\n  display: flex;\n  flex-wrap: wrap;\n}\n.category-list li[data-v-392bf66a] {\n  border: 1px solid;\n  padding: 1em 0.3em;\n  margin: 0.5em;\n  cursor: pointer;\n}\n.category-list li.used[data-v-392bf66a] {\n  color: #0eb99d;\n}\n.category-list li.used span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li.used span svg[data-v-392bf66a] {\n  visibility: visible;\n  fill: #0eb99d;\n}\n.category-list li span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li span svg[data-v-392bf66a] {\n  visibility: hidden;\n}\n.create-category-title[data-v-392bf66a] {\n  text-align: center;\n}\n.form-category[data-v-392bf66a] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  max-width: 500px;\n  margin: 0 auto;\n}\n.form-category .select-box-area[data-v-392bf66a] {\n  width: 120px;\n  margin: 0 10px 0 0;\n}\n.form-category .input-category-area[data-v-392bf66a] {\n  flex: 1;\n  margin: 20px 0 0 0;\n  min-width: 200px;\n}\n.form-category .add-cate[data-v-392bf66a] {\n  margin: 0 0 0 10px;\n  width: 100px;\n}\n.register[data-v-392bf66a] {\n  border: 1px solid;\n  font-size: 2em;\n  margin: 50px auto 10px auto;\n  padding: 1em;\n  max-width: 200px;\n  text-align: center;\n  cursor: pointer;\n}", ""]);
+exports.push([module.i, ".category-manage[data-v-392bf66a] {\n  position: relative;\n}\n.used-categories-title[data-v-392bf66a] {\n  text-align: center;\n}\n.shop.select-box-area[data-v-392bf66a] {\n  max-width: 400px;\n  margin: 10px auto;\n  width: 90%;\n}\n#used-list[data-v-392bf66a] {\n  margin: 30px auto 30px auto;\n  display: flex;\n  justify-content: center;\n  padding: 0;\n  max-width: 450px;\n}\n#used-list .used-list-area[data-v-392bf66a] {\n  max-width: 400px;\n  width: 90%;\n  height: 350px;\n  overflow-y: scroll;\n  margin: 0 auto;\n  background-color: rgba(255, 255, 255, 0.9);\n  list-style: none;\n  padding: 0;\n}\n#used-list .used-list-area li[data-v-392bf66a] {\n  width: 100%;\n  font-size: 1.2em;\n  color: #474747;\n  padding: 0.8em 1em;\n  margin: 0;\n  border-bottom: 1px dotted;\n  cursor: pointer;\n}\n#used-list .used-list-area li.active[data-v-392bf66a] {\n  background-color: #adadad;\n}\n#used-list .button-area[data-v-392bf66a] {\n  display: block;\n  width: 50px;\n  margin: 0;\n  padding: 0;\n  position: relative;\n}\n#used-list .button-area div[data-v-392bf66a] {\n  width: 50px;\n  height: 50px;\n  background-color: #999999;\n  border-radius: 50%;\n  cursor: pointer;\n  text-align: center;\n  margin-left: 10px;\n}\n#used-list .button-area div.nonactive[data-v-392bf66a] {\n  background-color: #515151;\n}\n#used-list .button-area div span[data-v-392bf66a] {\n  vertical-align: middle;\n  height: 100%;\n  width: 100%;\n}\n#used-list .button-area .button-up[data-v-392bf66a] {\n  position: absolute;\n  top: 0;\n}\n#used-list .button-area .button-down[data-v-392bf66a] {\n  position: absolute;\n  bottom: 0;\n}\n.category-list[data-v-392bf66a] {\n  list-style: none;\n  display: flex;\n  flex-wrap: wrap;\n}\n.category-list li[data-v-392bf66a] {\n  border: 1px solid;\n  padding: 1em 0.3em;\n  margin: 0.5em;\n  cursor: pointer;\n}\n.category-list li.used[data-v-392bf66a] {\n  color: #0eb99d;\n}\n.category-list li.used span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li.used span svg[data-v-392bf66a] {\n  visibility: visible;\n  fill: #0eb99d;\n}\n.category-list li span[data-v-392bf66a] {\n  display: inline-block;\n  width: 2em;\n}\n.category-list li span svg[data-v-392bf66a] {\n  visibility: hidden;\n}\n.create-category-title[data-v-392bf66a] {\n  text-align: center;\n}\n.form-category[data-v-392bf66a] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  max-width: 500px;\n  margin: 0 auto;\n}\n.form-category .select-box-area[data-v-392bf66a] {\n  width: 120px;\n  margin: 0 10px 0 0;\n}\n.form-category .input-category-area[data-v-392bf66a] {\n  flex: 1;\n  margin: 20px 0 0 0;\n  min-width: 200px;\n}\n.form-category .add-cate[data-v-392bf66a] {\n  margin: 0 0 0 10px;\n  width: 100px;\n}\n.register[data-v-392bf66a] {\n  border: 1px solid;\n  font-size: 2em;\n  margin: 50px auto 10px auto;\n  padding: 1em;\n  max-width: 200px;\n  text-align: center;\n  cursor: pointer;\n}", ""]);
 
 // exports
 
@@ -10815,7 +10888,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.form-control[data-v-fd6558f4]:disabled {\n  color: #c5c5c5;\n}\n.change-view[data-v-fd6558f4] {\n  display: flex;\n  margin: 40px auto 0 auto;\n  list-style: none;\n  border: 1px solid;\n  border-radius: 7px;\n  width: 340px;\n  padding: 0;\n}\n.change-view li[data-v-fd6558f4] {\n  flex: 1;\n  padding: 1em 0;\n  text-align: center;\n}\n.change-view li span[data-v-fd6558f4] {\n  vertical-align: middle;\n}\n.change-view li.active[data-v-fd6558f4] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
+exports.push([module.i, ".select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.change-view[data-v-fd6558f4] {\n  display: flex;\n  margin: 40px auto 0 auto;\n  list-style: none;\n  border: 1px solid;\n  border-radius: 7px;\n  width: 340px;\n  padding: 0;\n}\n.change-view li[data-v-fd6558f4] {\n  flex: 1;\n  padding: 1em 0;\n  text-align: center;\n}\n.change-view li span[data-v-fd6558f4] {\n  vertical-align: middle;\n}\n.change-view li.active[data-v-fd6558f4] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
 
 // exports
 
@@ -43116,6 +43189,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true&":
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true& ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/header.vue?vue&type=style&index=0&id=798ca618&lang=scss&scoped=true&":
 /*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/header.vue?vue&type=style&index=0&id=798ca618&lang=scss&scoped=true& ***!
@@ -47665,7 +47768,10 @@ var render = function () {
         "div",
         [
           _c("CurrentPositionVue", {
-            attrs: { selected: _vm.currentPosition },
+            attrs: {
+              selected: _vm.currentPosition,
+              hiddenPositions: _vm.hiddenPositions,
+            },
             model: {
               value: _vm.currentPosition,
               callback: function ($$v) {
@@ -48035,7 +48141,32 @@ var render = function () {
     _vm._v(" "),
     _c(
       "select",
-      { staticClass: "form-control", on: { change: _vm.updateValue } },
+      {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.selectedValue,
+            expression: "selectedValue",
+          },
+        ],
+        staticClass: "form-control",
+        on: {
+          change: function ($event) {
+            var $$selectedVal = Array.prototype.filter
+              .call($event.target.options, function (o) {
+                return o.selected
+              })
+              .map(function (o) {
+                var val = "_value" in o ? o._value : o.value
+                return val
+              })
+            _vm.selectedValue = $event.target.multiple
+              ? $$selectedVal
+              : $$selectedVal[0]
+          },
+        },
+      },
       _vm._l(_vm.positions, function (position, index) {
         return _c(
           "option",
@@ -48054,10 +48185,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&":
-/*!*********************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939& ***!
-  \*********************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -48074,7 +48205,11 @@ var render = function () {
     _vm._v(" "),
     _c(
       "select",
-      { staticClass: "form-control", on: { change: _vm.updateValue } },
+      {
+        staticClass: "form-control",
+        attrs: { disabled: _vm.disabledFlag },
+        on: { change: _vm.updateValue },
+      },
       _vm._l(_vm.shops, function (shop, index) {
         return _c("option", { key: index, domProps: { value: shop.value } }, [
           _vm._v("\n            " + _vm._s(shop.label) + "\n        "),
@@ -48202,15 +48337,12 @@ var render = function () {
     _vm._v(" "),
     _c(
       "ul",
-      _vm._l(_vm.positions, function (position, index) {
+      _vm._l(_vm.filteredPositions, function (position, index) {
         return _c(
           "li",
           {
             key: index,
-            class: {
-              active: _vm.selected == position.value,
-              hidden: index == _vm.positionsLast,
-            },
+            class: { active: _vm.selected == position.value },
             attrs: { value: position.value },
             on: { click: _vm.updateValue },
           },
@@ -48924,7 +49056,7 @@ var render = function () {
                                               ),
                                               _vm._v(" "),
                                               _vm._l(
-                                                _vm.shops,
+                                                _vm.filterShops,
                                                 function (shop) {
                                                   return _c(
                                                     "option",
@@ -49004,7 +49136,7 @@ var render = function () {
                                       { staticClass: "radio-wrap" },
                                       [
                                         _vm._l(
-                                          _vm.Positions,
+                                          _vm.filterPositions,
                                           function (position) {
                                             return _c(
                                               "div",
@@ -49905,7 +50037,7 @@ var render = function () {
                                                       },
                                                     },
                                                     _vm._l(
-                                                      _vm.shops,
+                                                      _vm.filterShops,
                                                       function (shop) {
                                                         return _c(
                                                           "option",
@@ -50205,7 +50337,7 @@ var render = function () {
                                           { staticClass: "radio-wrap" },
                                           [
                                             _vm._l(
-                                              _vm.Positions,
+                                              _vm.filterPositions,
                                               function (position) {
                                                 return _c(
                                                   "div",
@@ -50674,7 +50806,9 @@ var render = function () {
       _c(
         "div",
         [
-          _c("h3", [_vm._v("使用カテゴリー選択")]),
+          _c("h3", { staticClass: "used-categories-title" }, [
+            _vm._v("使用カテゴリー"),
+          ]),
           _vm._v(" "),
           _c(
             "div",
@@ -50881,12 +51015,13 @@ var render = function () {
                           { staticClass: "select-box-area" },
                           [
                             _c("SelectPositionBox", {
+                              attrs: { selected: _vm.currentPosition },
                               model: {
-                                value: _vm.positionId,
+                                value: _vm.currentPosition,
                                 callback: function ($$v) {
-                                  _vm.positionId = $$v
+                                  _vm.currentPosition = $$v
                                 },
-                                expression: "positionId",
+                                expression: "currentPosition",
                               },
                             }),
                           ],
@@ -51034,68 +51169,33 @@ var render = function () {
     [
       _c("h2", [_vm._v("POINT MANAGE")]),
       _vm._v(" "),
-      _c("div", { staticClass: "select-box-area" }, [
-        _vm.currentAuth == 1
-          ? _c("div", { staticClass: "form-group row" }, [
-              _c("label", { staticClass: "label", attrs: { for: "shop" } }, [
-                _vm._v("店舗選択"),
-              ]),
-              _vm._v(" "),
-              _c(
-                "select",
-                {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.shopId,
-                      expression: "shopId",
-                    },
-                  ],
-                  staticClass: "form-control",
-                  attrs: { disabled: _vm._sendFlag },
-                  on: {
-                    change: function ($event) {
-                      var $$selectedVal = Array.prototype.filter
-                        .call($event.target.options, function (o) {
-                          return o.selected
-                        })
-                        .map(function (o) {
-                          var val = "_value" in o ? o._value : o.value
-                          return val
-                        })
-                      _vm.shopId = $event.target.multiple
-                        ? $$selectedVal
-                        : $$selectedVal[0]
-                    },
+      _c(
+        "div",
+        { staticClass: "select-box-area" },
+        [
+          _vm.currentAuth == 1
+            ? _c("ShopSelectBoxVue", {
+                attrs: { disabledFlag: _vm._sendFlag },
+                model: {
+                  value: _vm.shopId,
+                  callback: function ($$v) {
+                    _vm.shopId = $$v
                   },
+                  expression: "shopId",
                 },
-                _vm._l(_vm.shops, function (shop) {
-                  return _c(
-                    "option",
-                    { key: shop.value, domProps: { value: shop.value } },
-                    [
-                      _vm._v(
-                        "\n                    " +
-                          _vm._s(shop.label) +
-                          "\n                "
-                      ),
-                    ]
-                  )
-                }),
-                0
-              ),
-              _vm._v(" "),
-              _vm._sendFlag
-                ? _c("p", { staticClass: "danger small" }, [
-                    _vm._v(
-                      "\n                更新を完了しないと店舗の変更はできません。\n            "
-                    ),
-                  ])
-                : _vm._e(),
-            ])
-          : _vm._e(),
-      ]),
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm._sendFlag
+            ? _c("p", { staticClass: "danger small" }, [
+                _vm._v(
+                  "\n            更新を完了しないと店舗の変更はできません。\n        "
+                ),
+              ])
+            : _vm._e(),
+        ],
+        1
+      ),
       _vm._v(" "),
       _c("ul", { staticClass: "change-view" }, [
         _c(
@@ -51297,6 +51397,7 @@ var render = function () {
               : _vm._e(),
             _vm._v(" "),
             _c("SelectPositionBox", {
+              attrs: { selected: _vm.positionId },
               model: {
                 value: _vm.positionId,
                 callback: function ($$v) {
@@ -69595,9 +69696,11 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ShopSelectBox_vue_vue_type_template_id_2e61e939___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ShopSelectBox.vue?vue&type=template&id=2e61e939& */ "./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&");
+/* harmony import */ var _ShopSelectBox_vue_vue_type_template_id_2e61e939_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true& */ "./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true&");
 /* harmony import */ var _ShopSelectBox_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ShopSelectBox.vue?vue&type=script&lang=js& */ "./resources/js/components/form/ShopSelectBox.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _ShopSelectBox_vue_vue_type_style_index_0_id_2e61e939_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true& */ "./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
 
 
 
@@ -69605,13 +69708,13 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _ShopSelectBox_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _ShopSelectBox_vue_vue_type_template_id_2e61e939___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _ShopSelectBox_vue_vue_type_template_id_2e61e939___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _ShopSelectBox_vue_vue_type_template_id_2e61e939_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ShopSelectBox_vue_vue_type_template_id_2e61e939_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  null,
+  "2e61e939",
   null
   
 )
@@ -69637,19 +69740,35 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&":
-/*!***************************************************************************************!*\
-  !*** ./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939& ***!
-  \***************************************************************************************/
+/***/ "./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true&":
+/*!******************************************************************************************************************!*\
+  !*** ./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true& ***!
+  \******************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_style_index_0_id_2e61e939_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=style&index=0&id=2e61e939&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_style_index_0_id_2e61e939_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_style_index_0_id_2e61e939_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_style_index_0_id_2e61e939_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_style_index_0_id_2e61e939_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+
+
+/***/ }),
+
+/***/ "./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true&":
+/*!***************************************************************************************************!*\
+  !*** ./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true& ***!
+  \***************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_template_id_2e61e939___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ShopSelectBox.vue?vue&type=template&id=2e61e939& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_template_id_2e61e939___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_template_id_2e61e939_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/form/ShopSelectBox.vue?vue&type=template&id=2e61e939&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_template_id_2e61e939_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_template_id_2e61e939___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ShopSelectBox_vue_vue_type_template_id_2e61e939_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -71712,7 +71831,7 @@ var actions = {
   //店舗が使うカテゴリーのidの配列を取得
   getShopUsedCategory: function getShopUsedCategory(_ref5, shopId) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
-      var commit, response, toString;
+      var commit, response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
         while (1) {
           switch (_context5.prev = _context5.next) {
@@ -71725,34 +71844,32 @@ var actions = {
               response = _context5.sent;
 
               if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"])) {
-                _context5.next = 13;
+                _context5.next = 11;
                 break;
               }
 
               commit("setOptionsApiStatus", true);
-              toString = Object.prototype.toString;
-              console.log(toString(response.data));
 
               if (response.data) {
-                _context5.next = 11;
+                _context5.next = 9;
                 break;
               }
 
               commit("setShopUsedCategory", []);
               return _context5.abrupt("return");
 
-            case 11:
+            case 9:
               commit("setShopUsedCategory", response.data);
               return _context5.abrupt("return", false);
 
-            case 13:
+            case 11:
               //エラー時
               commit("setOptionsApiStatus", false);
               commit("error/setCode", response.status, {
                 root: true
               });
 
-            case 15:
+            case 13:
             case "end":
               return _context5.stop();
           }
@@ -71844,7 +71961,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 var state = {
   sendData: [],
-  pointsWithUser: null
+  pointsAndUsers: null,
+  pointsWithUser: null,
+  pointApiStatus: null
 };
 var getters = {
   getSendData: function getSendData(state) {
@@ -71853,8 +71972,14 @@ var getters = {
   getSendDataFlag: function getSendDataFlag(state) {
     return state.sendData.length !== 0;
   },
+  pointsAndUsers: function pointsAndUsers(state) {
+    return state.pointsAndUsers;
+  },
   pointsWithUser: function pointsWithUser(state) {
     return state.pointsWithUser ? state.pointsWithUser : "";
+  },
+  pointApiStatus: function pointApiStatus(state) {
+    return state.pointApiStatus;
   }
 };
 var mutations = {
@@ -71864,38 +71989,56 @@ var mutations = {
   clearSendData: function clearSendData(state) {
     state.sendData = [];
   },
+  setPointsAndUsers: function setPointsAndUsers(state, data) {
+    state.pointsAndUsers = data;
+  },
   setPointsWithUser: function setPointsWithUser(state, data) {
     state.pointsWithUser = data;
+  },
+  setPointApiStatus: function setPointApiStatus(state, data) {
+    state.pointApiStatus = data;
   }
 };
 var actions = {
   putPoints: function putPoints(_ref, data) {
     var commit = _ref.commit;
-    commit('setSendData', data);
+    commit("setSendData", data);
   },
   clearPoints: function clearPoints(_ref2) {
     var commit = _ref2.commit;
-    commit('clearSendData');
+    commit("clearSendData");
   },
-  sendPoints: function sendPoints(_ref3, shopId) {
+  getPointsAndUsers: function getPointsAndUsers(_ref3, shopId) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-      var state, commit, response;
+      var commit, response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              state = _ref3.state, commit = _ref3.commit;
+              commit = _ref3.commit;
               _context.next = 3;
-              return axios.post("/api/point", state.sendData);
+              return axios.get("api/point/".concat(shopId));
 
             case 3:
               response = _context.sent;
 
-              if (response.status === _util__WEBPACK_IMPORTED_MODULE_1__["CREATED"]) {
-                commit('clearSendData');
+              if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"])) {
+                _context.next = 8;
+                break;
               }
 
-            case 5:
+              commit("setPointApiStatus", true);
+              commit('setPointsAndUsers', response.data.data);
+              return _context.abrupt("return", false);
+
+            case 8:
+              //エラー時
+              commit("setPointApiStatus", false);
+              commit("error/setCode", response.status, {
+                root: true
+              });
+
+            case 10:
             case "end":
               return _context.stop();
           }
@@ -71903,30 +72046,80 @@ var actions = {
       }, _callee);
     }))();
   },
-  getPointWithUser: function getPointWithUser(_ref4, userId) {
+  sendPoints: function sendPoints(_ref4) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-      var commit, response;
+      var state, commit, response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              commit = _ref4.commit;
+              state = _ref4.state, commit = _ref4.commit;
               _context2.next = 3;
-              return axios.get("/api/point?user_id=".concat(userId));
+              return axios.post("/api/point", state.sendData);
 
             case 3:
               response = _context2.sent;
 
-              if (response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"]) {
-                commit('setPointsWithUser', response.data.data);
+              if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["CREATED"])) {
+                _context2.next = 8;
+                break;
               }
 
-            case 5:
+              commit("setPointApiStatus", true);
+              commit("clearSendData");
+              return _context2.abrupt("return", false);
+
+            case 8:
+              //エラー時
+              commit("setPointApiStatus", false);
+              commit("error/setCode", response.status, {
+                root: true
+              });
+
+            case 10:
             case "end":
               return _context2.stop();
           }
         }
       }, _callee2);
+    }))();
+  },
+  getPointWithUser: function getPointWithUser(_ref5, userId) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+      var commit, response;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              commit = _ref5.commit;
+              _context3.next = 3;
+              return axios.get("/api/point?user_id=".concat(userId));
+
+            case 3:
+              response = _context3.sent;
+
+              if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"])) {
+                _context3.next = 8;
+                break;
+              }
+
+              commit("setPointApiStatus", true);
+              commit("setPointsWithUser", response.data.data);
+              return _context3.abrupt("return", false);
+
+            case 8:
+              //エラー時
+              commit("setPointApiStatus", false);
+              commit("error/setCode", response.status, {
+                root: true
+              });
+
+            case 10:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
     }))();
   }
 };
@@ -71960,16 +72153,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 var state = {
-  tasks: null
+  tasks: null,
+  tasksApiStatus: null
 };
 var getters = {
   taskData: function taskData(state) {
     return state.tasks ? state.tasks : [];
+  },
+  tasksApiStatus: function tasksApiStatus(state) {
+    return state.tasksApiStatus;
   }
 };
 var mutations = {
   setTasks: function setTasks(state, tasks) {
     state.tasks = tasks;
+  },
+  setTasksApiStatus: function setTasksApiStatus(state, data) {
+    state.tasksApiStatus = data;
   }
 };
 var actions = {
@@ -71988,16 +72188,74 @@ var actions = {
             case 4:
               response = _context.sent;
 
-              if (response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"]) {
-                commit('setTasks', response.data.data);
+              if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"])) {
+                _context.next = 9;
+                break;
               }
 
-            case 6:
+              commit('setTasksApiStatus', true);
+              commit('setTasks', response.data.data);
+              return _context.abrupt("return", false);
+
+            case 9:
+              //エラー時
+              commit('setTasksApiStatus', false);
+              commit('error/setCode', response.status, {
+                root: true
+              });
+
+            case 11:
             case "end":
               return _context.stop();
           }
         }
       }, _callee);
+    }))();
+  },
+  registerTask: function registerTask(_ref2, data) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
+      var commit, response, tasks;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              commit = _ref2.commit;
+              _context2.next = 3;
+              return axios.post("/api/task", data);
+
+            case 3:
+              response = _context2.sent;
+
+              if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["CREATED"])) {
+                _context2.next = 10;
+                break;
+              }
+
+              commit('setTasksApiStatus', true);
+              tasks = state.tasks;
+
+              if (tasks) {
+                tasks.push(response.data);
+              } else {
+                tasks = [response.data];
+              }
+
+              commit('setTasks', tasks);
+              return _context2.abrupt("return", false);
+
+            case 10:
+              //エラー時
+              commit('setTasksApiStatus', false);
+              commit('error/setCode', response.status, {
+                root: true
+              });
+
+            case 12:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
     }))();
   }
 };

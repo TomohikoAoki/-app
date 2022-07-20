@@ -1,7 +1,7 @@
 <template>
     <fieldset>
         <label class="label">ポジション選択</label>
-        <select @change="updateValue" class="form-control">
+        <select v-model="selectedValue" class="form-control">
             <option
                 v-for="(position, index) in positions"
                 :value="position.value"
@@ -17,18 +17,30 @@
 import { mapGetters } from "vuex";
 
 export default {
+    data() {
+        return {
+            selectedValue: null,
+        };
+    },
+    props: ["selected"],
     computed: {
         ...mapGetters({
             positions: "options/Positions",
         }),
     },
-    methods: {
-        updateValue: function (e) {
-            this.$emit("input", e.target.value);
-        },
-    },
     mounted() {
-    this.$emit("input", this.positions[0].value);
-  }
+        if(this.selected){
+            this.selectedValue = this.selected
+            this.$emit("input", this.selectedValue);
+            return false
+        }
+        this.selectedValue = this.positions[0].value
+        this.$emit("input", this.positions[0].value);
+    },
+    watch : {
+        selectedValue: function() {
+            this.$emit("input", this.selectedValue)
+        }
+    }
 };
 </script>
