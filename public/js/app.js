@@ -4458,8 +4458,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_form_PositionSelectBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/form/PositionSelectBox */ "./resources/js/components/form/PositionSelectBox.vue");
 /* harmony import */ var _components_parts_CurrentPosition_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/parts/CurrentPosition.vue */ "./resources/js/components/parts/CurrentPosition.vue");
 /* harmony import */ var _components_ModalConfirm_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../components/ModalConfirm.vue */ "./resources/js/components/ModalConfirm.vue");
-/* harmony import */ var process__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! process */ "./node_modules/process/browser.js");
-/* harmony import */ var process__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(process__WEBPACK_IMPORTED_MODULE_7__);
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -4602,7 +4600,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-
 
 
 
@@ -4886,7 +4883,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/UserPointing.vue */ "./resources/js/components/UserPointing.vue");
 /* harmony import */ var _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/UserAllPointing.vue */ "./resources/js/components/UserAllPointing.vue");
 /* harmony import */ var _components_form_ShopSelectBox_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/form/ShopSelectBox.vue */ "./resources/js/components/form/ShopSelectBox.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _components_ModalConfirm_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/ModalConfirm.vue */ "./resources/js/components/ModalConfirm.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -4949,6 +4947,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+
 
 
 
@@ -4957,21 +4958,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       currentComponent: 1,
-      shopId: null
+      shopId: null,
+      okFlag: false
     };
   },
   components: {
+    ModalConfirmVue: _components_ModalConfirm_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
     UserPointing: _components_UserPointing_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     UserAllPointing: _components_UserAllPointing_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
     ShopSelectBoxVue: _components_form_ShopSelectBox_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_4__["mapGetters"])({
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_5__["mapGetters"])({
     _sendFlag: "point/getSendDataFlag",
     _sendData: "point/getSendData",
     currentAuth: "auth/getAuthority",
     getShopId: "auth/getShopId",
     users: "point/pointsAndUsers",
-    taskData: "tasks/taskData"
+    taskData: "tasks/taskData",
+    //apiのステータス
+    pointApiStatus: "point/getPointApiStatus",
+    tasksApiStatus: "tasks/tasksApiStatus"
   })),
   methods: {
     getTask: function getTask() {
@@ -4983,11 +4989,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _this.$store.dispatch('tasks/getTasks', _this.shopId);
+                return _this.$store.dispatch("tasks/getTasks", _this.shopId);
 
               case 2:
                 _context.next = 4;
-                return _this.$store.dispatch('point/getPointsAndUsers', _this.shopId);
+                return _this.$store.dispatch("point/getPointsAndUsers", _this.shopId);
 
               case 4:
               case "end":
@@ -5006,15 +5012,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _this2.$store.dispatch("point/sendPoints");
+                _context2.next = 2;
+                return _this2.$store.dispatch("point/sendPoints");
 
-                _this2.currentComponent = 1;
+              case 2:
+                if (_this2.pointApiStatus) {
+                  _this2.okFlag = true;
+                  _this2.currentComponent = 1;
 
-                _this2.$refs.point.iniData();
+                  _this2.$refs.point.iniData();
 
-                _this2.getTask();
+                  _this2.getTask();
+                }
 
-              case 4:
+              case 3:
               case "end":
                 return _context2.stop();
             }
@@ -5211,7 +5222,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_ModalEdit_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/ModalEdit.vue */ "./resources/js/components/ModalEdit.vue");
 /* harmony import */ var _components_form_ShopSelectBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/form/ShopSelectBox */ "./resources/js/components/form/ShopSelectBox.vue");
 /* harmony import */ var _components_form_PositionSelectBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/form/PositionSelectBox */ "./resources/js/components/form/PositionSelectBox.vue");
-/* harmony import */ var vee_validate__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vee-validate */ "./node_modules/vee-validate/dist/vee-validate.esm.js");
+/* harmony import */ var _components_ModalConfirm_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/ModalConfirm.vue */ "./resources/js/components/ModalConfirm.vue");
+/* harmony import */ var vee_validate__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vee-validate */ "./node_modules/vee-validate/dist/vee-validate.esm.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -5322,6 +5334,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+
 
 
 
@@ -5332,24 +5346,27 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     return {
       shopId: null,
       positionId: null,
-      taskData: null,
       CurrentCategory: null,
       showModal: false,
       showForm: false,
       taskForm: {
         content: ""
-      }
+      },
+      okFlag: false
     };
   },
   components: {
     ModalEdit: _components_ModalEdit_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
-    ValidationObserver: vee_validate__WEBPACK_IMPORTED_MODULE_5__["ValidationObserver"],
-    ValidationProvider: vee_validate__WEBPACK_IMPORTED_MODULE_5__["ValidationProvider"],
+    ValidationObserver: vee_validate__WEBPACK_IMPORTED_MODULE_6__["ValidationObserver"],
+    ValidationProvider: vee_validate__WEBPACK_IMPORTED_MODULE_6__["ValidationProvider"],
     SelectShopBox: _components_form_ShopSelectBox__WEBPACK_IMPORTED_MODULE_3__["default"],
-    SelectPositionBox: _components_form_PositionSelectBox__WEBPACK_IMPORTED_MODULE_4__["default"]
+    SelectPositionBox: _components_form_PositionSelectBox__WEBPACK_IMPORTED_MODULE_4__["default"],
+    ModalConfirmVue: _components_ModalConfirm_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
   },
   computed: _objectSpread(_objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
-    categories: "options/storeCategoriesFiltered"
+    categories: "options/storeCategoriesFiltered",
+    taskData: "tasks/taskData",
+    tasksApiStatus: "tasks/tasksApiStatus"
   })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])("auth", {
     currentAuth: function currentAuth(state) {
       if (state.user.authority === 2) {
@@ -5363,7 +5380,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this = this;
 
       return this.taskData.filter(function (item) {
-        if (item.position_id == _this.positionId && item.category_id == _this.CurrentCategory) {
+        if (Number(item.position_id) === Number(_this.positionId) && Number(item.category_id) === Number(_this.CurrentCategory)) {
           return true;
         }
       });
@@ -5387,20 +5404,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.get("/api/task/".concat(_this3.shopId));
+                return _this3.$store.dispatch("tasks/getTasks", _this3.shopId);
 
               case 2:
-                response = _context.sent;
-                _this3.taskData = [];
-                _this3.taskData = response.data.data;
+                if (_this3.tasksApiStatus) {}
 
-              case 5:
+              case 3:
               case "end":
                 return _context.stop();
             }
@@ -5413,7 +5427,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this4 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -5422,43 +5435,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 _this4.taskForm["position_id"] = _this4.positionId;
                 _this4.taskForm["category_id"] = _this4.CurrentCategory;
                 _context2.next = 5;
-                return axios.post("/api/task", _this4.taskForm);
+                return _this4.$store.dispatch("tasks/registerTask", _this4.taskForm);
 
               case 5:
-                response = _context2.sent;
-
-                if (response.status === 201) {
+                if (_this4.tasksApiStatus) {
                   _this4.showForm = false;
                   _this4.taskForm = {
                     content: ""
                   };
-
-                  _this4.taskData.push(response.data);
+                  _this4.okFlag = true;
                 }
 
-              case 7:
+              case 6:
               case "end":
                 return _context2.stop();
             }
           }
         }, _callee2);
       }))();
-    },
-    changeTask: function changeTask(key) {
-      this.showForm = false;
-      this.taskForm = {
-        content: ""
-      };
-      this.CurrentCategory = key;
-    },
-    //modal オープン
-    openEdit: function openEdit(event, task) {
-      this.showModal = true;
-      this.propsTask = task;
-    },
-    //modal クローズ
-    closeEdit: function closeEdit() {
-      this.showModal = false;
     },
     //使用カテゴリー取得　（店舗ごと）
     getCategories: function getCategories() {
@@ -5479,6 +5473,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           }
         }, _callee3);
       }))();
+    },
+    changeTask: function changeTask(key) {
+      this.showForm = false;
+      this.taskForm = {
+        content: ""
+      };
+      this.CurrentCategory = key;
+    },
+    //modal オープン
+    openEdit: function openEdit(event, task) {
+      this.showModal = true;
+      this.propsTask = task;
+    },
+    //modal クローズ
+    closeEdit: function closeEdit() {
+      this.showModal = false;
     }
   },
   watch: {
@@ -10888,7 +10898,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.change-view[data-v-fd6558f4] {\n  display: flex;\n  margin: 40px auto 0 auto;\n  list-style: none;\n  border: 1px solid;\n  border-radius: 7px;\n  width: 340px;\n  padding: 0;\n}\n.change-view li[data-v-fd6558f4] {\n  flex: 1;\n  padding: 1em 0;\n  text-align: center;\n}\n.change-view li span[data-v-fd6558f4] {\n  vertical-align: middle;\n}\n.change-view li.active[data-v-fd6558f4] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
+exports.push([module.i, ".point-manage[data-v-fd6558f4] {\n  position: relative;\n}\n.select-box-area[data-v-fd6558f4] {\n  max-width: 400px;\n  margin: 10px auto;\n}\n.change-view[data-v-fd6558f4] {\n  display: flex;\n  margin: 40px auto 0 auto;\n  list-style: none;\n  border: 1px solid;\n  border-radius: 7px;\n  width: 340px;\n  padding: 0;\n}\n.change-view li[data-v-fd6558f4] {\n  flex: 1;\n  padding: 1em 0;\n  text-align: center;\n}\n.change-view li span[data-v-fd6558f4] {\n  vertical-align: middle;\n}\n.change-view li.active[data-v-fd6558f4] {\n  background-color: #ececec;\n  color: #313644;\n}\n.send-data[data-v-fd6558f4] {\n  position: fixed;\n  bottom: 10px;\n  right: 10px;\n  background-color: #f7f2e0;\n  width: 70px;\n  height: 70px;\n  text-align: center;\n  border-radius: 50%;\n  color: #38466d;\n  cursor: pointer;\n}\n.send-data span[data-v-fd6558f4] {\n  display: block;\n  margin: 0 auto;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translateY(-50%) translateX(-50%);\n}", ""]);
 
 // exports
 
@@ -51166,6 +51176,7 @@ var render = function () {
   var _c = _vm._self._c || _h
   return _c(
     "div",
+    { staticClass: "point-manage" },
     [
       _c("h2", [_vm._v("POINT MANAGE")]),
       _vm._v(" "),
@@ -51262,6 +51273,18 @@ var render = function () {
             _c("span", [_vm._v("更新")]),
           ])
         : _vm._e(),
+      _vm._v(" "),
+      _c("ModalConfirmVue", {
+        attrs: { okFlag: _vm.okFlag },
+        model: {
+          value: _vm.okFlag,
+          callback: function ($$v) {
+            _vm.okFlag = $$v
+          },
+          expression: "okFlag",
+        },
+      }),
+      _vm._v("\n    " + _vm._s(_vm.okFlag) + "\n"),
     ],
     1
   )
@@ -51657,6 +51680,17 @@ var render = function () {
             on: { emitClose: _vm.closeEdit, update: _vm.getTask },
           })
         : _vm._e(),
+      _vm._v(" "),
+      _c("ModalConfirmVue", {
+        attrs: { okFlag: _vm.okFlag },
+        model: {
+          value: _vm.okFlag,
+          callback: function ($$v) {
+            _vm.okFlag = $$v
+          },
+          expression: "okFlag",
+        },
+      }),
     ],
     1
   )
@@ -71978,7 +72012,7 @@ var getters = {
   pointsWithUser: function pointsWithUser(state) {
     return state.pointsWithUser ? state.pointsWithUser : "";
   },
-  pointApiStatus: function pointApiStatus(state) {
+  getPointApiStatus: function getPointApiStatus(state) {
     return state.pointApiStatus;
   }
 };
@@ -72173,6 +72207,7 @@ var mutations = {
   }
 };
 var actions = {
+  //タスク取得
   getTasks: function getTasks(_ref, shopId) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
       var commit, response;
@@ -72212,6 +72247,7 @@ var actions = {
       }, _callee);
     }))();
   },
+  //タスク登録
   registerTask: function registerTask(_ref2, data) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
       var commit, response, tasks;

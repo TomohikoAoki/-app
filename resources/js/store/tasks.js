@@ -20,6 +20,7 @@ const mutations = {
 }
 
 const actions = {
+    //タスク取得
     async getTasks({ commit }, shopId) {
         commit('setTasks', null)
 
@@ -37,6 +38,7 @@ const actions = {
         commit('setTasksApiStatus', false)
         commit('error/setCode', response.status, { root: true })
     },
+    //タスク登録
     async registerTask({ commit }, data) {
         const response = await axios.post("/api/task", data)
 

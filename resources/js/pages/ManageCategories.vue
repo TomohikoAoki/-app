@@ -136,7 +136,6 @@ import SelectShopBox from "../components/form/ShopSelectBox";
 import SelectPositionBox from "../components/form/PositionSelectBox";
 import PositionSelect from "../components/parts/CurrentPosition.vue";
 import ModalConfirmVue from "../components/ModalConfirm.vue";
-import { listenerCount } from "process";
 
 export default {
     data() {
@@ -247,9 +246,7 @@ export default {
                     list.push(item.value);
                 }
             });
-
             let residueUsedList = [];
-
             let arr = this.usedList.filter((item) => {
                 if (list.includes(item)) {
                     return true;

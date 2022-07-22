@@ -13,7 +13,7 @@ const getters = {
     pointsAndUsers: (state) => state.pointsAndUsers,
     pointsWithUser: (state) =>
         state.pointsWithUser ? state.pointsWithUser : "",
-    pointApiStatus: (state) => state.pointApiStatus,
+    getPointApiStatus: (state) => state.pointApiStatus,
 };
 
 const mutations = {

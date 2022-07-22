@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="point-manage">
         <h2>POINT MANAGE</h2>
         <div class="select-box-area">
             <ShopSelectBoxVue
@@ -45,6 +45,8 @@
         <div v-if="_sendFlag" @click="sendData" class="send-data">
             <span>更新</span>
         </div>
+        <ModalConfirmVue :okFlag="okFlag" v-model="okFlag"></ModalConfirmVue>
+        {{ okFlag }}
     </div>
 </template>
 
@@ -52,6 +54,8 @@
 import UserPointing from "../components/UserPointing.vue";
 import UserAllPointing from "../components/UserAllPointing.vue";
 import ShopSelectBoxVue from "../components/form/ShopSelectBox.vue";
+import ModalConfirmVue from "../components/ModalConfirm.vue";
+
 import { mapGetters } from "vuex";
 
 export default {
@@ -59,9 +63,11 @@ export default {
         return {
             currentComponent: 1,
             shopId: null,
+            okFlag: false,
         };
     },
     components: {
+        ModalConfirmVue,
         UserPointing,
         UserAllPointing,
         ShopSelectBoxVue,
@@ -72,25 +78,30 @@ export default {
             _sendData: "point/getSendData",
             currentAuth: "auth/getAuthority",
             getShopId: "auth/getShopId",
-            users:"point/pointsAndUsers",
-            taskData:"tasks/taskData",
+            users: "point/pointsAndUsers",
+            taskData: "tasks/taskData",
+            //apiのステータス
+            pointApiStatus: "point/getPointApiStatus",
+            tasksApiStatus: "tasks/tasksApiStatus",
         }),
     },
     methods: {
         async getTask() {
-             await this.$store.dispatch('tasks/getTasks', this.shopId);
-             await this.$store.dispatch('point/getPointsAndUsers', this.shopId)
-
+            await this.$store.dispatch("tasks/getTasks", this.shopId);
+            await this.$store.dispatch("point/getPointsAndUsers", this.shopId);
         },
         //pointデータを送信
         async sendData() {
-            this.$store.dispatch("point/sendPoints");
+            await this.$store.dispatch("point/sendPoints");
 
-            this.currentComponent = 1;
+            if (this.pointApiStatus) {
+                this.okFlag = true;
+                this.currentComponent = 1;
 
-            this.$refs.point.iniData();
+                this.$refs.point.iniData();
 
-            this.getTask();
+                this.getTask();
+            }
         },
         confirm() {
             return window.confirm(
@@ -136,6 +147,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.point-manage {
+    position:relative;
+}
 .select-box-area {
     max-width: 400px;
     margin: 10px auto;

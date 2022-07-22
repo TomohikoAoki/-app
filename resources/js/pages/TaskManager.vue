@@ -93,6 +93,7 @@
             @update="getTask"
             :task="propsTask"
         ></ModalEdit>
+        <ModalConfirmVue :okFlag="okFlag" v-model="okFlag"></ModalConfirmVue>
     </div>
 </template>
 
@@ -101,6 +102,7 @@ import { mapState, mapGetters } from "vuex";
 import ModalEdit from "../components/ModalEdit.vue";
 import SelectShopBox from "../components/form/ShopSelectBox";
 import SelectPositionBox from "../components/form/PositionSelectBox";
+import ModalConfirmVue from "../components/ModalConfirm.vue";
 
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
@@ -109,13 +111,13 @@ export default {
         return {
             shopId: null,
             positionId: null,
-            taskData: null,
             CurrentCategory: null,
             showModal: false,
             showForm: false,
             taskForm: {
                 content: "",
             },
+            okFlag: false,
         };
     },
     components: {
@@ -124,10 +126,13 @@ export default {
         ValidationProvider,
         SelectShopBox,
         SelectPositionBox,
+        ModalConfirmVue,
     },
     computed: {
         ...mapGetters({
             categories: "options/storeCategoriesFiltered",
+            taskData: "tasks/taskData",
+            tasksApiStatus: "tasks/tasksApiStatus",
         }),
         ...mapState("auth", {
             currentAuth: function (state) {
@@ -140,8 +145,8 @@ export default {
         filterTask() {
             return this.taskData.filter((item) => {
                 if (
-                    item.position_id == this.positionId &&
-                    item.category_id == this.CurrentCategory
+                    Number(item.position_id) === Number(this.positionId) &&
+                    Number(item.category_id) === Number(this.CurrentCategory)
                 ) {
                     return true;
                 }
@@ -160,11 +165,10 @@ export default {
     },
     methods: {
         async getTask() {
-            const response = await axios.get(`/api/task/${this.shopId}`);
+            await this.$store.dispatch("tasks/getTasks", this.shopId)
 
-            this.taskData = [];
-
-            this.taskData = response.data.data;
+            if(this.tasksApiStatus) {
+            }
         },
         //新規タスク登録
         async addTask() {
@@ -172,14 +176,19 @@ export default {
             this.taskForm["position_id"] = this.positionId;
             this.taskForm["category_id"] = this.CurrentCategory;
 
-            const response = await axios.post("/api/task", this.taskForm);
+            await this.$store.dispatch("tasks/registerTask", this.taskForm)
 
-            if (response.status === 201) {
+            if (this.tasksApiStatus) {
                 this.showForm = false;
                 this.taskForm = { content: "" };
-
-                this.taskData.push(response.data);
+                this.okFlag = true;
             }
+        },
+        //使用カテゴリー取得　（店舗ごと）
+        async getCategories() {
+            await this.$store.dispatch(
+                "options/getCategoriesFiltered", this.shopId
+            );
         },
         changeTask(key) {
             this.showForm = false;
@@ -194,12 +203,6 @@ export default {
         //modal クローズ
         closeEdit() {
             this.showModal = false;
-        },
-        //使用カテゴリー取得　（店舗ごと）
-        async getCategories() {
-            await this.$store.dispatch(
-                "options/getCategoriesFiltered", this.shopId
-            );
         },
     },
     watch: {
