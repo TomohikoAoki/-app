@@ -6,84 +6,94 @@
                 <!-- 店舗セレクトセクション -->
                 <SelectShopBox
                     v-model="shopId"
+                    :shopId="shopId"
                     v-if="currentAuth == 1"
                 ></SelectShopBox>
                 <!-- ポジションセレクトセクション -->
-                <SelectPositionBox v-model="positionId" :selected="positionId"> </SelectPositionBox>
+                <SelectPositionBox v-model="positionId" :selected="positionId">
+                </SelectPositionBox>
             </div>
             <div v-if="taskData" class="task-data-area">
                 <h3 class="task-data-area__title">TASK</h3>
                 <!-- カテゴリーセレクトセクション -->
-                <ul class="category-area" v-if="filterCategory.length">
-                    <li
-                        v-for="cate in filterCategory"
-                        :key="cate.value"
-                        @click="changeTask(cate.value)"
-                        class="select-category"
-                        :class="{ active: CurrentCategory == cate.value }"
-                    >
-                        {{ cate.label }}
-                    </li>
-                </ul>
-                <div v-else>カテゴリーが登録されていません。</div>
-                <!-- タスク表示セクション -->
-                <div class="task-group" v-if="filterCategory.length">
-                    <h4 class="task-group__title"></h4>
-                    <div
-                        v-for="(task, index) in filterTask"
-                        :key="task.id"
-                        class="task"
-                        @click="openEdit($event, task)"
-                    >
-                        <p class="task__index">{{ index + 1 }}</p>
-                        <p class="task__body">{{ task.content }}</p>
-                    </div>
-                    <div class="task-bottom">
-                        <div v-if="!showForm">
-                            <span
-                                class="material-icons add-icon"
-                                @click.prevent="showForm = !showForm"
-                            >
-                                add_circle_outline
-                            </span>
+                <div v-if="filterCategory.length">
+                    <ul class="category-area">
+                        <li
+                            v-for="cate in filterCategory"
+                            :key="cate.value"
+                            @click="changeTask(cate.value)"
+                            class="select-category"
+                            :class="{ active: CurrentCategory == cate.value }"
+                        >
+                            {{ cate.label }}
+                        </li>
+                    </ul>
+                    <!-- タスク表示セクション -->
+                    <div class="task-group">
+                        <h4 class="task-group__title"></h4>
+                        <div
+                            v-for="(task, index) in filterTask"
+                            :key="task.id"
+                            class="task"
+                            @click="openEdit($event, task)"
+                        >
+                            <p class="task__index">{{ index + 1 }}</p>
+                            <p class="task__body">{{ task.content }}</p>
                         </div>
-                        <div v-else>
-                            <ValidationObserver
-                                v-slot="ObserverProps"
-                                ref="obs"
-                            >
-                                <form @submit.prevent="addTask">
-                                    <ValidationProvider
-                                        rules="required|max:100"
-                                        name="タスク内容"
-                                    >
-                                        <div slot-scope="ProviderProps">
-                                            <textarea
-                                                v-model="taskForm.content"
-                                                class="form-control add-textarea"
-                                            ></textarea>
-                                            <p class="text-danger small">
-                                                {{ ProviderProps.errors[0] }}
-                                            </p>
-                                        </div>
-                                    </ValidationProvider>
-                                    <button
-                                        class="btn btn-secondary btn-taskadd"
-                                        type="submit"
-                                        :disabled="
-                                            ObserverProps.invalid ||
-                                            !ObserverProps.validated
-                                        "
-                                    >
-                                        ADD TASK
-                                    </button>
-                                </form>
-                            </ValidationObserver>
+                        <div class="task-bottom">
+                            <div v-if="!showForm">
+                                <span
+                                    class="material-icons add-icon"
+                                    @click.prevent="showForm = !showForm"
+                                >
+                                    add_circle_outline
+                                </span>
+                            </div>
+                            <div v-else>
+                                <ValidationObserver
+                                    v-slot="ObserverProps"
+                                    ref="obs"
+                                >
+                                    <form @submit.prevent="addTask">
+                                        <ValidationProvider
+                                            rules="required|max:100"
+                                            name="タスク内容"
+                                        >
+                                            <div slot-scope="ProviderProps">
+                                                <textarea
+                                                    v-model="taskForm.content"
+                                                    class="form-control add-textarea"
+                                                ></textarea>
+                                                <p class="text-danger small">
+                                                    {{
+                                                        ProviderProps.errors[0]
+                                                    }}
+                                                </p>
+                                            </div>
+                                        </ValidationProvider>
+                                        <button
+                                            class="btn btn-secondary btn-taskadd"
+                                            type="submit"
+                                            :disabled="
+                                                ObserverProps.invalid ||
+                                                !ObserverProps.validated
+                                            "
+                                        >
+                                            ADD TASK
+                                        </button>
+                                    </form>
+                                </ValidationObserver>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div v-else>
-                    カテゴリーが登録されていないと、タスクは登録できません。
+                    <p>
+                    カテゴリーが登録されていません。<br>
+                    カテゴリーが登録されていないと、タスクは登録できません。<br>
+                    下記からカテゴリーを登録して下さい。<br>
+                    </p>
+                    <router-link :to="{name: 'category-manage', query: {'shopId':shopId}}" class="to-category-manage">カテゴリー管理</router-link>
                 </div>
             </div>
         </div>
@@ -99,6 +109,8 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
+import router from "../router";
+
 import ModalEdit from "../components/ModalEdit.vue";
 import SelectShopBox from "../components/form/ShopSelectBox";
 import SelectPositionBox from "../components/form/PositionSelectBox";
@@ -157,7 +169,7 @@ export default {
                 let list = this.categories.filter(
                     (item) => item.position_id == this.positionId
                 );
-                if(list.length) this.CurrentCategory = list[0].value;
+                if (list.length) this.CurrentCategory = list[0].value;
                 return list;
             }
             return [];
@@ -165,9 +177,9 @@ export default {
     },
     methods: {
         async getTask() {
-            await this.$store.dispatch("tasks/getTasks", this.shopId)
+            await this.$store.dispatch("tasks/getTasks", this.shopId);
 
-            if(this.tasksApiStatus) {
+            if (this.tasksApiStatus) {
             }
         },
         //新規タスク登録
@@ -176,7 +188,7 @@ export default {
             this.taskForm["position_id"] = this.positionId;
             this.taskForm["category_id"] = this.CurrentCategory;
 
-            await this.$store.dispatch("tasks/registerTask", this.taskForm)
+            await this.$store.dispatch("tasks/registerTask", this.taskForm);
 
             if (this.tasksApiStatus) {
                 this.showForm = false;
@@ -187,7 +199,8 @@ export default {
         //使用カテゴリー取得　（店舗ごと）
         async getCategories() {
             await this.$store.dispatch(
-                "options/getCategoriesFiltered", this.shopId
+                "options/getCategoriesFiltered",
+                this.shopId
             );
         },
         changeTask(key) {
@@ -222,6 +235,10 @@ export default {
             }
         },
     },
+    created() {
+        this.shopId = this.$route.query.shopId ? this.$route.query.shopId : 1
+        this.CurrentCategory = this.$route.query.currentCategory ? this.$route.query.currentCategory : 1
+    }
 };
 </script>
 
@@ -309,5 +326,17 @@ export default {
     .btn-taskadd {
         margin: 1em 0;
     }
+}
+.to-category-manage {
+    display: block;
+    font-size: 1.3em;
+    font-weight: bold;
+    text-align: center;
+    width: 200px;
+    padding: 1em 0.5em;
+    margin: 10px auto;
+    border: 1px solid;
+    border-radius: 10px;
+    box-sizing: border-box;
 }
 </style>

@@ -1,7 +1,11 @@
 <template>
     <div class="point-manage">
         <div>
-            <CurrentPositionVue v-model="currentPosition" :selected="currentPosition" :hiddenPositions="hiddenPositions"></CurrentPositionVue>
+            <CurrentPositionVue
+                v-model="currentPosition"
+                :selected="currentPosition"
+                :hiddenPositions="hiddenPositions"
+            ></CurrentPositionVue>
             <div v-if="viewData" class="task-data-area">
                 <!-- task category 選択 -->
                 <ul class="category-area">
@@ -20,6 +24,7 @@
                     <!-- ここからテーブル -->
                     <div class="task-group">
                         <!-- index添字用 -->
+
                         <div class="task-index">
                             <div class="task-index__empty"></div>
                             <div
@@ -40,8 +45,10 @@
                             <div
                                 v-for="task in filterTask(user.id)"
                                 :key="`${user.id}:${task.task_id}`"
-                                class="task-user__point"
-                                :class="{ updated: task.updated === true }"
+                                class="task-user__point-area"
+                                :class="{
+                                    updated: task.updated === true,
+                                }"
                                 @click="openPointEdit($event, task)"
                             >
                                 <span
@@ -56,6 +63,17 @@
                             </div>
                         </div>
                     </div>
+                    <div v-if="noTask" class="no-task">
+                        <p>タスクが登録されていません</p>
+                        <router-link
+                            :to="{
+                                name: 'task-manage',
+                                query: { shopId: shop, currentCategory: CurrentCategory },
+                            }"
+                            class="to-task-manage"
+                            >タスク管理へ</router-link
+                        >
+                    </div>
                 </div>
             </div>
         </div>
@@ -66,11 +84,14 @@
             @emitClose="closePointEdit"
             @emitPoint="putPoint"
         ></ModalPointEdit>
+        {{ noTask }}
     </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import router from "../router";
+
 import ModalPointEdit from "./ModalPointEdit.vue";
 import CurrentPositionVue from "./parts/CurrentPosition.vue";
 
@@ -83,12 +104,13 @@ export default {
             viewData: null,
             taskIndex: null,
             hiddenPositions: [3],
+            noTask: false,
         };
     },
     props: ["shop", "taskData", "users"],
     components: {
         ModalPointEdit,
-        CurrentPositionVue
+        CurrentPositionVue,
     },
     methods: {
         createView() {
@@ -162,19 +184,23 @@ export default {
         //カテゴリー取得 (店舗ごとにはstoreでフィルタ済みのはず…)
         async getCategories() {
             await this.$store.dispatch(
-                "options/getCategoriesFiltered", this.shop
+                "options/getCategoriesFiltered",
+                this.shop
             );
         },
         //viewDataをcategoryとユーザーでフィルタリング
         //index用に配列の要素数も
         filterTask(id) {
-                let tasks = this.viewData.filter(
-                    (task) => Number(task.category_id) === Number(this.CurrentCategory)
-                );
-                let list = tasks.filter((item) => item.user_id == id);
-                this.taskIndex = list.length;
+            let tasks = this.viewData.filter(
+                (task) =>
+                    Number(task.category_id) === Number(this.CurrentCategory)
+            );
+            let list = tasks.filter((item) => item.user_id == id);
+            this.taskIndex = list.length;
 
-                return list;
+            this.noTask = !this.taskIndex ? true : false;
+
+            return list;
         },
     },
     computed: {
@@ -186,7 +212,9 @@ export default {
         //店舗ユーザーをポジションでフィルタリング
         usersFilteredPosition() {
             return this.users.filter((user) => {
-                return Number(user.position_id) === Number(this.currentPosition);
+                return (
+                    Number(user.position_id) === Number(this.currentPosition)
+                );
             });
         },
         //categoryをユーザーのポジションでフィルタリング
@@ -201,7 +229,7 @@ export default {
                         item.position_id == 3
                     );
                 });
-                if(list.length) this.CurrentCategory = list[0].value;
+                if (list.length) this.CurrentCategory = list[0].value;
                 return list;
             }
             return [];
@@ -294,6 +322,8 @@ export default {
 .task-wrap {
     overflow-x: scroll;
     padding: 20px 0;
+    position: relative;
+    min-height: 500px;
     .task-group {
         display: table;
         border: 1px solid;
@@ -329,7 +359,7 @@ export default {
                 vertical-align: middle;
                 padding: 0.4em 0.3em;
             }
-            &__point {
+            &__point-area {
                 min-width: 3em;
                 text-align: center;
                 display: table-cell;
@@ -374,6 +404,28 @@ export default {
                     }
                 }
             }
+        }
+    }
+    .no-task {
+        text-align: center;
+        margin: 0 0 0 120px;
+        width: 400px;
+        padding: 10px;
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        background-color: #5d5d5f;
+        .to-task-manage {
+            display: block;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            width: 200px;
+            padding: 1em 0.5em;
+            margin: 10px auto;
+            border: 1px solid;
+            border-radius: 10px;
+            box-sizing: border-box;
         }
     }
 }

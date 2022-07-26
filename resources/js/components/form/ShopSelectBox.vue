@@ -1,7 +1,7 @@
 <template>
     <fieldset>
         <label class="label">店舗選択</label>
-        <select @change="updateValue" class="form-control" :disabled="disabledFlag">
+        <select v-model="shopValue" class="form-control" :disabled="disabledFlag">
             <option
                 v-for="(shop, index) in shops"
                 :value="shop.value"
@@ -17,9 +17,19 @@
 import { mapGetters } from "vuex";
 
 export default {
+    data() {
+        return {
+            shopValue: null
+        }
+    },
     props: {
         disabledFlag:{
-            type: Boolean,
+            type: null,
+            default: false,
+            required: false,
+        },
+        shopId: {
+            type: null,
             default: false,
             required: false,
         }
@@ -35,7 +45,18 @@ export default {
         },
     },
     mounted() {
-    this.$emit("input", this.shops[0].value);
+        if(this.shopId){
+            this.shopValue = this.shopId
+            this.$emit("input", this.shopValue);
+            return false
+        }
+        this.shopValue = this.shops[0].value
+        this.$emit("input", this.shops[0].value);
+    },
+    watch : {
+        shopValue: function() {
+            this.$emit("input", this.shopValue)
+        }
     }
 }
 </script>

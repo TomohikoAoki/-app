@@ -46,7 +46,6 @@
             <span>更新</span>
         </div>
         <ModalConfirmVue :okFlag="okFlag" v-model="okFlag"></ModalConfirmVue>
-        {{ okFlag }}
     </div>
 </template>
 

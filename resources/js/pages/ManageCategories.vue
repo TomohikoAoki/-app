@@ -6,6 +6,7 @@
             <div class="select-box-area shop">
                 <SelectShopBox
                     v-model="shopId"
+                    :shopId="shopId"
                     v-if="currentAuth == 1"
                 ></SelectShopBox>
             </div>
@@ -140,7 +141,7 @@ import ModalConfirmVue from "../components/ModalConfirm.vue";
 export default {
     data() {
         return {
-            shopId: 1,
+            shopId: null,
             usedList: null,
             categoryForm: {
                 label: "",
@@ -349,6 +350,9 @@ export default {
             },
         },
     },
+    created() {
+        this.shopId = this.$route.query.shopId ? this.$route.query.shopId : 1
+    }
 };
 </script>
 

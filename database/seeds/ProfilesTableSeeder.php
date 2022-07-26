@@ -22,6 +22,6 @@ class ProfilesTableSeeder extends Seeder
         ]);
         $profile->save();
 
-        factory(Profile::class, 50)->create();
+        factory(Profile::class, 100)->create();
     }
 }

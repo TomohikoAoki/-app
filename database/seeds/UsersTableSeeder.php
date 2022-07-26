@@ -20,6 +20,6 @@ class UsersTableSeeder extends Seeder
         ]);
         $user->save();
 
-        factory(User::class, 50)->create();
+        factory(User::class, 100)->create();
     }
 }

@@ -48,6 +48,17 @@
                         ></span>
                     </p>
                 </div>
+                <div v-if="noTask" class="no-task">
+                    <p>タスクが登録されていません</p>
+                    <router-link
+                        :to="{
+                            name: 'task-manage',
+                            query: { shopId: shop, currentCategory: CurrentCategory },
+                        }"
+                        class="to-task-manage"
+                        >タスク管理へ</router-link
+                    >
+                </div>
             </div>
         </div>
         <ModalPointEdit
@@ -62,6 +73,8 @@
 
 <script>
 import { mapGetters } from "vuex";
+import router from "../router";
+
 import ModalPointEdit from "./ModalPointEdit.vue";
 
 export default {
@@ -71,6 +84,7 @@ export default {
             CurrentCategory: null,
             viewData: null,
             showModal: false,
+            noTask: false,
         };
     },
     //shopId,店舗のタスクデータ全部,店舗のユーザー全員
@@ -141,7 +155,8 @@ export default {
         },
         async getCategories() {
             await this.$store.dispatch(
-                "options/getCategoriesFiltered", this.shop
+                "options/getCategoriesFiltered",
+                this.shop
             );
         },
     },
@@ -153,9 +168,13 @@ export default {
         }),
         //viewDataをカテゴリーでフィルタリング
         filterMainData() {
-            return this.viewData.filter((task) => {
+            let list = this.viewData.filter((task) => {
                 return task.category_id == this.CurrentCategory;
             });
+
+            this.noTask = !list.length ? true : false
+
+            return list
         },
         //タスクのcontent表示のため、viewDataと紐付ける
         filterTaskContent() {
@@ -175,10 +194,10 @@ export default {
                         item.position_id == 3
                     );
                 });
-                if(list.length) this.CurrentCategory = list[0].value;
+                if (list.length) this.CurrentCategory = list[0].value;
                 return list;
             }
-            return []
+            return [];
         },
     },
     watch: {
@@ -240,12 +259,35 @@ export default {
 .task-group {
     border: 1px solid;
     margin: 1em 0;
+    position: relative;
     &__title {
         padding: 0.7em 0 0.7em 1em;
         background-color: #7b7e88;
         color: #313644;
         margin: 0;
         line-height: 1em;
+    }
+    .no-task {
+        text-align: center;
+        margin: 0 0 0 120px;
+        width: 400px;
+        padding: 10px;
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        right: 30px;
+        .to-task-manage {
+            display: block;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            width: 200px;
+            padding: 1em 0.5em;
+            margin: 10px auto;
+            border: 1px solid;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
     }
 }
 .task {

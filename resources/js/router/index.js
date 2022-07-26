@@ -51,10 +51,12 @@ const routes = [{
     {
         path: "/category-manage",
         component: CategoryManage,
+        name: "category-manage"
     },
     {
         path: "/task-manage",
         component: TaskManage,
+        name: "task-manage",
         //props: route => {
         //  const page = route.query.page;
         //  return { page: /^[1-9][0-9]*$/.test(page) ? page * 1 : 1 };
