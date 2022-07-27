@@ -12,17 +12,13 @@
         </div>
         <div v-if="viewData" class="task-data-area">
             <h3 class="task-data-area__title">{{ user.name }}さんの評価</h3>
-            <ul class="category-area">
-                <li
-                    v-for="cate in filterCategory"
-                    :key="cate.value"
-                    @click="changeTask(cate.value)"
-                    class="select-category"
-                    :class="{ active: CurrentCategory == cate.value }"
-                >
-                    {{ cate.label }}
-                </li>
-            </ul>
+            <SelectCategoryVue
+                    :shopId="shop"
+                    :positionId="user.position_id"
+                    :currentCategory="CurrentCategory"
+                    v-model="CurrentCategory"
+                    :concatCommonFlag="true"
+                ></SelectCategoryVue>
             <div class="task-group">
                 <h4 class="task-group__title"></h4>
                 <div
@@ -76,6 +72,7 @@ import { mapGetters } from "vuex";
 import router from "../router";
 
 import ModalPointEdit from "./ModalPointEdit.vue";
+import SelectCategoryVue from "./parts/SelectCategory.vue";
 
 export default {
     data() {
@@ -91,6 +88,7 @@ export default {
     props: ["shop", "taskData", "users"],
     components: {
         ModalPointEdit,
+        SelectCategoryVue,
     },
     methods: {
         createView() {
@@ -103,11 +101,6 @@ export default {
             );
 
             this.viewData = data;
-        },
-
-        //カテゴリー切り替え
-        changeTask(key) {
-            this.CurrentCategory = key;
         },
         //ポイント編集モーダルオープン
         openPointEdit(event, data) {
@@ -153,16 +146,9 @@ export default {
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
         },
-        async getCategories() {
-            await this.$store.dispatch(
-                "options/getCategoriesFiltered",
-                this.shop
-            );
-        },
     },
     computed: {
         ...mapGetters({
-            categories: "options/storeCategoriesFiltered",
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
@@ -183,36 +169,17 @@ export default {
                 return task.content;
             };
         },
-        //categoriesをユーザーのポジションでフィルタリング
-        //共通は３
-        //カテゴリー初期値にカテゴリー配列の最初の配列のvalueを入れる
-        filterCategory() {
-            if (this.categories) {
-                let list = this.categories.filter((item) => {
-                    return (
-                        item.position_id == this.user.position_id ||
-                        item.position_id == 3
-                    );
-                });
-                if (list.length) this.CurrentCategory = list[0].value;
-                return list;
-            }
-            return [];
-        },
     },
     watch: {
         shop: function () {
-            this.getCategories();
             this.iniData();
         },
         user() {
             if (this.user) {
                 this.createView();
-                this.getCategories();
             }
         },
     },
-    mounted() {},
 };
 </script>
 
@@ -237,23 +204,6 @@ export default {
         text-align: center;
         font-size: 2em;
         padding: 0 0 2em 0;
-    }
-}
-.category-area {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    .select-category {
-        display: inline-block;
-        cursor: pointer;
-        border: 1px solid;
-        padding: 1em;
-        margin: 0.2em;
-        border-radius: 2px;
-    }
-    .active {
-        background-color: rgb(236, 236, 236);
-        color: #313644;
     }
 }
 .task-group {

@@ -8,17 +8,13 @@
             ></CurrentPositionVue>
             <div v-if="viewData" class="task-data-area">
                 <!-- task category 選択 -->
-                <ul class="category-area">
-                    <li
-                        v-for="cate in filterCategory"
-                        :key="cate.value"
-                        @click="changeTask(cate.value)"
-                        class="select-category"
-                        :class="{ active: CurrentCategory == cate.value }"
-                    >
-                        {{ cate.label }}
-                    </li>
-                </ul>
+                <SelectCategoryVue
+                    :shopId="shop"
+                    :positionId="currentPosition"
+                    :currentCategory="CurrentCategory"
+                    v-model="CurrentCategory"
+                    :concatCommonFlag="true"
+                ></SelectCategoryVue>
                 <!-- 横スクロール用wrap -->
                 <div class="task-wrap">
                     <!-- ここからテーブル -->
@@ -94,6 +90,7 @@ import router from "../router";
 
 import ModalPointEdit from "./ModalPointEdit.vue";
 import CurrentPositionVue from "./parts/CurrentPosition.vue";
+import SelectCategoryVue from "./parts/SelectCategory.vue";
 
 export default {
     data() {
@@ -111,6 +108,7 @@ export default {
     components: {
         ModalPointEdit,
         CurrentPositionVue,
+        SelectCategoryVue,
     },
     methods: {
         createView() {
@@ -128,10 +126,6 @@ export default {
                 this.viewData = this.viewData.concat(data);
             });
         },
-        //カテゴリー切り替え
-        changeTask(key) {
-            this.CurrentCategory = key;
-        },
         //ポイント編集モーダルオープン
         openPointEdit(event, data) {
             this.showModal = true;
@@ -141,11 +135,6 @@ export default {
         //ポイント編集モーダルクローズ
         closePointEdit() {
             this.showModal = false;
-        },
-        //ホールandキッチン切り替え
-        changePosition(key) {
-            this.currentPosition = key;
-            this.createView();
         },
         //初期化
         iniData() {
@@ -181,13 +170,6 @@ export default {
             this.$set(targetTask, "point", data.point);
             this.$set(targetTask, "updated", true);
         },
-        //カテゴリー取得 (店舗ごとにはstoreでフィルタ済みのはず…)
-        async getCategories() {
-            await this.$store.dispatch(
-                "options/getCategoriesFiltered",
-                this.shop
-            );
-        },
         //viewDataをcategoryとユーザーでフィルタリング
         //index用に配列の要素数も
         filterTask(id) {
@@ -205,7 +187,6 @@ export default {
     },
     computed: {
         ...mapGetters({
-            categories: "options/storeCategoriesFiltered",
             _sendData: "point/getSendData",
             _sendFlag: "point/getSendDataFlag",
         }),
@@ -217,23 +198,6 @@ export default {
                 );
             });
         },
-        //categoryをユーザーのポジションでフィルタリング
-        //共通は３
-        //カテゴリー初期値(CurrentCategory)にカテゴリー配列の最初の配列のvalueを入れる
-        //登録されてなかったら空の配列
-        filterCategory() {
-            if (this.categories) {
-                let list = this.categories.filter((item) => {
-                    return (
-                        item.position_id == this.currentPosition ||
-                        item.position_id == 3
-                    );
-                });
-                if (list.length) this.CurrentCategory = list[0].value;
-                return list;
-            }
-            return [];
-        },
     },
     watch: {
         //親コンポーネントからのデータに変更があればviewDataを更新で再描画
@@ -244,12 +208,10 @@ export default {
             if (this.users && this.taskData) this.createView();
         },
         shop: function () {
-            this.getCategories();
             this.iniData();
         },
     },
     mounted() {
-        this.getCategories();
         if (this.users && this.taskData) this.createView();
     },
 };
@@ -260,54 +222,6 @@ export default {
     border-top: 1px dotted;
     margin: 40px 0 0 0;
     padding: 40px 0 0 0;
-}
-.select-position {
-    display: flex;
-    width: 350px;
-    margin: 0 auto;
-    vertical-align: middle;
-    justify-content: center;
-    p {
-        font-weight: bold;
-        padding: 0.5em 1em 0.5em 0;
-        margin: 0;
-    }
-    ul {
-        display: flex;
-        margin: 0;
-        padding: 0;
-        border: 1px solid;
-        border-radius: 5px;
-        list-style: none;
-        width: 250px;
-        li {
-            flex: 1;
-            text-align: center;
-            padding: 0.5em 0;
-            &.active {
-                background-color: rgb(236, 236, 236);
-                color: #313644;
-            }
-        }
-    }
-}
-
-.category-area {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    .select-category {
-        display: inline-block;
-        cursor: pointer;
-        border: 1px solid;
-        padding: 1em;
-        margin: 0.2em;
-        border-radius: 2px;
-    }
-    .active {
-        background-color: rgb(236, 236, 236);
-        color: #313644;
-    }
 }
 .task-data-area {
     margin-top: 2em;
