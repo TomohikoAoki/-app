@@ -37,11 +37,9 @@
                         tag="li"
                         >ポイント管理</router-link
                     >
-                    <router-link
-                        to="/point-manage"
-                        @click.native="logout"
-                        tag="li"
-                        >ログアウト</router-link
+                    <li
+                        @click="logout"
+                        >ログアウト</li
                     >
                 </ul>
             </nav>

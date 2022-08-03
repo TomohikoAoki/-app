@@ -2028,12 +2028,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var body_scroll_lock__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! body-scroll-lock */ "./node_modules/body-scroll-lock/lib/bodyScrollLock.esm.js");
 /* harmony import */ var vee_validate__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vee-validate */ "./node_modules/vee-validate/dist/vee-validate.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
@@ -2070,6 +2077,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2087,6 +2095,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     ValidationObserver: vee_validate__WEBPACK_IMPORTED_MODULE_2__["ValidationObserver"],
     ValidationProvider: vee_validate__WEBPACK_IMPORTED_MODULE_2__["ValidationProvider"]
   },
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_3__["mapGetters"])({
+    tasksApiStatus: "tasks/tasksApiStatus"
+  })),
   methods: {
     closeModal: function closeModal() {
       this.$emit("emitClose");
@@ -2095,24 +2106,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
-        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.put("/api/task", _this.taskData);
+                return _this.$store.dispatch('tasks/editTask', _this.taskData);
 
               case 2:
-                response = _context.sent;
-
-                if (response.status === 200) {
+                if (_this.tasksApiStatus) {
                   _this.updateFlag = true;
-
-                  _this.$emit("update");
                 }
 
-              case 4:
+              case 3:
               case "end":
                 return _context.stop();
             }
@@ -2157,8 +2163,6 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-//
-//
 //
 //
 //
@@ -3191,9 +3195,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         this.noListFlag = !list.length ? true : false;
 
         if (!this.noListFlag) {
-          this.$emit('input', list[0].value);
+          if (!list.some(function (item) {
+            return Number(item.value) === Number(_this.currentCategory);
+          })) this.$emit("input", list[0].value);
         } else {
-          this.$emit('input', null);
+          this.$emit("input", null);
         }
 
         return list;
@@ -5535,6 +5541,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     //modal クローズ
     closeEdit: function closeEdit() {
       this.showModal = false;
+    },
+    changeShowForm: function changeShowForm() {
+      if (!!this.CurrentCategory) this.showForm = !this.showForm;
     }
   },
   watch: {
@@ -5565,7 +5574,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   created: function created() {
     this.shopId = this.$route.query.shopId ? this.$route.query.shopId : 1;
-    this.CurrentCategory = this.$route.query.currentCategory;
+    this.CurrentCategory = this.$route.query.currentCategory ? this.$route.query.currentCategory : null;
+    this.positionId = this.$route.query.position ? this.$route.query.position : null;
   }
 });
 
@@ -5713,7 +5723,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return state.auth.loginErrorMessages;
     }
   })), Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])({
-    authority: "auth/getAuthority"
+    authority: "auth/getAuthority",
+    user: "auth/user"
   })),
   created: function created() {
     this.clearError();
@@ -47579,18 +47590,7 @@ var render = function () {
                 [_vm._v("ポイント管理")]
               ),
               _vm._v(" "),
-              _c(
-                "router-link",
-                {
-                  attrs: { to: "/point-manage", tag: "li" },
-                  nativeOn: {
-                    click: function ($event) {
-                      return _vm.logout.apply(null, arguments)
-                    },
-                  },
-                },
-                [_vm._v("ログアウト")]
-              ),
+              _c("li", { on: { click: _vm.logout } }, [_vm._v("ログアウト")]),
             ],
             1
           ),
@@ -48009,6 +48009,7 @@ var render = function () {
                                     query: {
                                       shopId: _vm.shop,
                                       currentCategory: _vm.CurrentCategory,
+                                      position: _vm.currentPosition,
                                     },
                                   },
                                 },
@@ -48206,6 +48207,7 @@ var render = function () {
                                   query: {
                                     shopId: _vm.shop,
                                     currentCategory: _vm.CurrentCategory,
+                                    position: _vm.user.position_id,
                                   },
                                 },
                               },
@@ -51752,12 +51754,7 @@ var render = function () {
                               {
                                 staticClass: "material-icons add-icon",
                                 class: { disabled: !_vm.CurrentCategory },
-                                on: {
-                                  click: function ($event) {
-                                    $event.preventDefault()
-                                    _vm.showForm = !_vm.showForm
-                                  },
-                                },
+                                on: { click: _vm.changeShowForm },
                               },
                               [
                                 _vm._v(
@@ -72408,6 +72405,7 @@ var actions = {
       }, _callee);
     }))();
   },
+  //id, point, task_id, user_id のオブジェクトの配列を送信
   sendPoints: function sendPoints(_ref4) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
       var state, commit, response;
@@ -72545,14 +72543,15 @@ var actions = {
             case 0:
               commit = _ref.commit;
               commit('setTasks', null);
-              _context.next = 4;
+              commit('setTasksApiStatus', null);
+              _context.next = 5;
               return axios.get("/api/task/".concat(shopId));
 
-            case 4:
+            case 5:
               response = _context.sent;
 
               if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"])) {
-                _context.next = 9;
+                _context.next = 10;
                 break;
               }
 
@@ -72560,14 +72559,14 @@ var actions = {
               commit('setTasks', response.data.data);
               return _context.abrupt("return", false);
 
-            case 9:
+            case 10:
               //エラー時
               commit('setTasksApiStatus', false);
               commit('error/setCode', response.status, {
                 root: true
               });
 
-            case 11:
+            case 12:
             case "end":
               return _context.stop();
           }
@@ -72576,6 +72575,7 @@ var actions = {
     }))();
   },
   //タスク登録
+  //category_id: int, content: string, position_id: int(なぜかテキスト？), shop_id: intのオブジェクトを送信
   registerTask: function registerTask(_ref2, data) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
       var commit, response, tasks;
@@ -72584,14 +72584,15 @@ var actions = {
           switch (_context2.prev = _context2.next) {
             case 0:
               commit = _ref2.commit;
-              _context2.next = 3;
+              commit('setTasksApiStatus', null);
+              _context2.next = 4;
               return axios.post("/api/task", data);
 
-            case 3:
+            case 4:
               response = _context2.sent;
 
               if (!(response.status === _util__WEBPACK_IMPORTED_MODULE_1__["CREATED"])) {
-                _context2.next = 10;
+                _context2.next = 11;
                 break;
               }
 
@@ -72607,19 +72608,49 @@ var actions = {
               commit('setTasks', tasks);
               return _context2.abrupt("return", false);
 
-            case 10:
+            case 11:
               //エラー時
               commit('setTasksApiStatus', false);
               commit('error/setCode', response.status, {
                 root: true
               });
 
-            case 12:
+            case 13:
             case "end":
               return _context2.stop();
           }
         }
       }, _callee2);
+    }))();
+  },
+  //タスクの編集
+  //id: int, content: string のオブジェクトを送信
+  editTask: function editTask(_ref3, taskData) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+      var commit, response;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              commit = _ref3.commit;
+              commit('setTasksApiStatus', null);
+              _context3.next = 4;
+              return axios.put("/api/task", taskData);
+
+            case 4:
+              response = _context3.sent;
+
+              if (response.status === _util__WEBPACK_IMPORTED_MODULE_1__["OK"]) {
+                commit('setTasksApiStatus', true);
+                console.log(response.data);
+              }
+
+            case 6:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
     }))();
   }
 };

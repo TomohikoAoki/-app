@@ -57,6 +57,7 @@ const actions = {
         commit("error/setCode", response.status, { root: true });
 
     },
+    //id, point, task_id, user_id のオブジェクトの配列を送信
     async sendPoints({ state, commit }) {
         const response = await axios.post("/api/point", state.sendData);
 

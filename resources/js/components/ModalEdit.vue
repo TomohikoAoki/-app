@@ -42,6 +42,8 @@ import {
 } from "body-scroll-lock";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 
+import { mapGetters } from "vuex";
+
 export default {
     props: ["task"],
     data() {
@@ -57,16 +59,20 @@ export default {
         ValidationObserver,
         ValidationProvider,
     },
+    computed: {
+        ...mapGetters({
+            tasksApiStatus: "tasks/tasksApiStatus",
+        })
+    },
     methods: {
         closeModal() {
             this.$emit("emitClose");
         },
         async editTask() {
-            const response = await axios.put("/api/task", this.taskData);
+            await this.$store.dispatch('tasks/editTask', this.taskData)
 
-            if (response.status === 200) {
+            if (this.tasksApiStatus) {
                 this.updateFlag = true;
-                this.$emit("update");
             }
         },
     },

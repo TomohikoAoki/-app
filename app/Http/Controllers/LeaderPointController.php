@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\PutPoints;
 use App\Http\Resources\UserWithPointResource;
 use App\Models\LeaderPoint;
 use App\Models\User;
@@ -29,7 +30,7 @@ class LeaderPointController extends Controller
        return UserWithPointResource::collection($users);
     }
 
-    public function putPoint(Request $request)
+    public function putPoint(PutPoints $request)
     {
         $data = $request->all();
         foreach ($data as $item) {

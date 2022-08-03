@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Task;
+use Illuminate\Validation\Rule;
 
 class EditTask extends FormRequest
 {
@@ -23,8 +25,11 @@ class EditTask extends FormRequest
      */
     public function rules()
     {
+        $taskId = Task::get()->pluck('id')->toArray();
+
         return [
-            //
+            'id' => ['required', Rule::in($taskId)],
+            'content' => ['required', 'string', 'max:100']
         ];
     }
 }

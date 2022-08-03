@@ -64,7 +64,7 @@
                         <router-link
                             :to="{
                                 name: 'task-manage',
-                                query: { shopId: shop, currentCategory: CurrentCategory },
+                                query: { shopId: shop, currentCategory: CurrentCategory, position: currentPosition },
                             }"
                             class="to-task-manage"
                             >タスク管理へ</router-link

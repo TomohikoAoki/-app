@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Shop;
+use App\Http\Requests\CreateTask;
+use App\http\Requests\EditTask;
 use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
@@ -14,7 +16,7 @@ class TaskController extends Controller
         $this->middleware('auth');
     }
 
-    public function createTask(Request $request)
+    public function createTask(CreateTask $request)
     {
 
         $task = Task::create([
@@ -27,11 +29,15 @@ class TaskController extends Controller
         return response($task, 201);
     }
 
-    public function editTask(Request $request)
+    public function editTask(EditTask $request)
     {
         Task::where('id', $request['id'])->update([
             'content' => $request['content'],
         ]);
+
+        $task = Task::find($request['id']);
+
+        return response($task, 200);
     }
 
     public function deleteTask()

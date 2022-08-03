@@ -40,7 +40,7 @@
                             <span
                                 class="material-icons add-icon"
                                 :class="{ disabled: !CurrentCategory }"
-                                @click.prevent="showForm = !showForm"
+                                @click="changeShowForm"
                             >
                                 add_circle_outline
                             </span>
@@ -180,6 +180,9 @@ export default {
         closeEdit() {
             this.showModal = false;
         },
+        changeShowForm() {
+            if(!!this.CurrentCategory) this.showForm = !this.showForm
+        },
     },
     watch: {
         shopId() {
@@ -203,7 +206,8 @@ export default {
     },
     created() {
         this.shopId = this.$route.query.shopId ? this.$route.query.shopId : 1;
-        this.CurrentCategory = this.$route.query.currentCategory
+        this.CurrentCategory = this.$route.query.currentCategory ? this.$route.query.currentCategory : null
+        this.positionId = this.$route.query.position ? this.$route.query.position : null
     },
 };
 </script>

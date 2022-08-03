@@ -86,7 +86,7 @@ export default {
             apiStatus: (state) => state.auth.apiStatus,
             loginErrors: (state) => state.auth.loginErrorMessages,
         }),
-        ...mapGetters({ authority: "auth/getAuthority" }),
+        ...mapGetters({ authority: "auth/getAuthority", user: "auth/user" }),
     },
     created() {
         this.clearError();

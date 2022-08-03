@@ -37,7 +37,7 @@ export default {
     data() {
         return {
             noListFlag: false,
-        }
+        };
     },
     props: ["shopId", "positionId", "currentCategory", "concatCommonFlag"],
     computed: {
@@ -59,12 +59,19 @@ export default {
                     return Number(item.position_id) === Number(this.positionId);
                 });
 
-                this.noListFlag = !list.length ? true : false
+                this.noListFlag = !list.length ? true : false;
 
-                if(!this.noListFlag) {
-                    this.$emit('input', list[0].value)
+                if (!this.noListFlag) {
+                    if (
+                        !list.some(
+                            (item) =>
+                                Number(item.value) ===
+                                Number(this.currentCategory)
+                        )
+                    )
+                        this.$emit("input", list[0].value);
                 } else {
-                    this.$emit('input', null)
+                    this.$emit("input", null);
                 }
 
                 return list;
@@ -75,7 +82,7 @@ export default {
     },
     methods: {
         changeCategory: function (e) {
-            this.selected = e.target.value
+            this.selected = e.target.value;
             this.$emit("input", e.target.value);
         },
         //カテゴリー取得関数
@@ -90,9 +97,9 @@ export default {
         shopId: function () {
             this.getCategories();
         },
-        categories: function() {
-            this.noListFlag = false
-        }
+        categories: function () {
+            this.noListFlag = false;
+        },
     },
     mounted() {
         this.getCategories();
